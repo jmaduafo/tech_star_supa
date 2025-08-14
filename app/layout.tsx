@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Urbanist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import CheckAuth from "@/components/auth/CheckAuth";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -13,10 +14,10 @@ export const metadata: Metadata = {
   description: "The fastest way to build apps with Next.js and Supabase",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
+export const urbanist = Urbanist({
+  variable: "--font-urbanist",
   subsets: ["latin"],
+  fallback: [],
 });
 
 export default function RootLayout({
@@ -26,15 +27,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
-        <ThemeProvider
+      <body
+        className={`${urbanist.className} antialiased bg-lightText text-lightText`}
+      >
+        <CheckAuth>
+          {children}
+        </CheckAuth>
+        {/* <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
           {children}
-        </ThemeProvider>
+        </ThemeProvider> */}
       </body>
     </html>
   );

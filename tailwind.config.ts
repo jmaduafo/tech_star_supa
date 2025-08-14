@@ -9,55 +9,83 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-    },
+  	extend: {
+  		colors: {
+  			darkText: '#141414',
+  			lightText: '#ececec',
+  			accent1: '#E1B860',
+  			dark90: 'rgba(20, 20, 20, .9)',
+  			dark85: 'rgba(20, 20, 20, .85)',
+  			dark75: 'rgba(20, 20, 20, .75)',
+  			dark50: 'rgba(20, 20, 20, .5)',
+  			dark35: 'rgba(20, 20, 20, .35)',
+  			dark20: 'rgba(20, 20, 20, .20)',
+  			dark10: 'rgba(20, 20, 20, .10)',
+  			light90: 'rgba(236, 236, 236, 0.9)',
+  			light85: 'rgba(236, 236, 236, 0.85)',
+  			light70: 'rgba(236, 236, 236, 0.7)',
+  			light60: 'rgba(236, 236, 236, 0.6)',
+  			light50: 'rgba(236, 236, 236, 0.5)',
+  			light40: 'rgba(236, 236, 236, 0.4)',
+  			light35: 'rgba(236, 236, 236, 0.35)',
+  			light25: 'rgba(236, 236, 236, 0.25)',
+  			light20: 'rgba(236, 236, 236, 0.2)',
+  			light15: 'rgba(236, 236, 236, 0.15)',
+  			light10: 'rgba(236, 236, 236, 0.1)',
+  			unpaidBg: 'rgba(214, 112, 64, .4)',
+  			unpaidBorder: 'rgb(214, 112, 64)',
+  			pendingBg: 'rgba(224, 205, 129, .4)',
+  			pendingBorder: 'rgb(224, 205, 129)',
+  			paidBg: 'rgba(169, 227, 122, 0.4)',
+  			paidBorder: 'rgb(169, 227, 122)',
+  			ongoingBg: 'rgba(233, 157, 77, 0.4)',
+  			ongoingBorder: 'rgb(233, 157, 77)',
+  			completedBg: 'rgba(140, 185, 227, .4)',
+  			completedBorder: 'rgb(140, 185, 227)',
+  			destructiveBg: 'rgba(168, 15, 15, 0.4)',
+  			destructiveBorder: '#A80F0F'
+  		},
+  		// screens: {
+  		// 	xs: '480px',
+  		// 	sm: '768px',
+  		// 	md: '992px',
+  		// 	lg: '1200px',
+  		// 	xl: '1320px',
+  		// 	'2xl': '1920px'
+  		// },
+  		borderRadius: {
+  			customLg: '6%',
+  			customMd: '3%',
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		accentColor: {
+  			accent: 'var(--color-accent1)'
+  		},
+  		keyframes: {
+  			'accordion-down': {
+  				from: {
+  					height: '0'
+  				},
+  				to: {
+  					height: 'var(--radix-accordion-content-height)'
+  				}
+  			},
+  			'accordion-up': {
+  				from: {
+  					height: 'var(--radix-accordion-content-height)'
+  				},
+  				to: {
+  					height: '0'
+  				}
+  			}
+  		},
+  		animation: {
+  			'accordion-down': 'accordion-down 0.2s ease-out',
+  			'accordion-up': 'accordion-up 0.2s ease-out'
+  		}
+  	}
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

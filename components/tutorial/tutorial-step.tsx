@@ -9,7 +9,7 @@ export function TutorialStep({
 }) {
   return (
     <li className="relative">
-      <Checkbox
+      {/* <Checkbox
         id={title}
         name={title}
         className={`absolute top-[3px] mr-2 peer`}
@@ -24,7 +24,7 @@ export function TutorialStep({
         >
           {children}
         </div>
-      </label>
+      </label> */}
     </li>
   );
 }

@@ -1,53 +1,61 @@
-"use client"
-import React, {useEffect, useRef } from "react";
-import { Search } from "lucide-react";
+"use client";
+import React, { useRef } from "react";
+import { CornerDownLeft, Search } from "lucide-react";
+import Paragraph from "@/components/fontsize/Paragraph";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 function Searchbar({
   setValue,
   value,
   open,
   setOpen,
-  // children,
-  handleSearch,
-}: {
+}: 
+{
   readonly setValue: React.Dispatch<React.SetStateAction<string>>;
-  readonly handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readonly value: string;
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // readonly children: React.ReactNode;
 }) {
   const searchRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // THE OPTION LIST CLOSES WHEN USER CLICKS OUT OF SEARCH BAR
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+
+  function handleSearch(
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) {
+    const params = new URLSearchParams(searchParams);
+
+    if (e.key === "Enter") {
+      value.length ? params.set("query", value) : params.delete("query");
+  
+      !value.length ? setOpen(false) : setOpen(true);
+  
+      replace(`${pathname}?${params.toString()}`);
+    }
+  }
 
   return (
     <div
-      className={`z-50 relative bg-light50 backdrop-blur-lg px-2 py-1.5 rounded-xl
+      className={`z-50 relative flex justify-between items-center gap-3 bg-light35 backdrop-blur-lg px-1.5 py-1 rounded-xl
       }`}
     >
-      <div ref={searchRef} className="flex items-center gap-1 relative">
+      <div ref={searchRef} className="flex items-center gap-1 flex-1">
         <Search className="w-5 text-darkText" />
         <input
           value={value}
-          onChange={handleSearch}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleSearch}
           type="text"
           placeholder="Search by project name or location"
-          className="placeholder-dark50 text-[15px] py-0"
+          className="placeholder-dark50 text-sm py-0"
         />
+      </div>
+      <div className="h-full px-2 py-0.5 flex gap-1.5 justify-center items-center bg-darkText rounded-md">
+        <CornerDownLeft strokeWidth={1.2} className="w-3.5 h-3.5" />
+        <Paragraph text="Enter" className="font-light" />
       </div>
     </div>
   );

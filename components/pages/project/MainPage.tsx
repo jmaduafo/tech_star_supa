@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ProjectDisplay from "./ProjectDisplay";
-import ProjectSearch from "./ProjectSearch";
 import { Project } from "@/types/types";
 import Header6 from "@/components/fontsize/Header6";
 import { optionalS } from "@/utils/optionalS";
 import Header1 from "@/components/fontsize/Header1";
 import { useAuth } from "@/context/UserContext";
+import AdvancedSearch from "@/components/ui/search/AdvancedSearch";
 
 function MainPage() {
   const [sort, setSort] = useState("");
@@ -71,7 +71,7 @@ function MainPage() {
           />
         ) : null}
       </div>
-      <ProjectSearch
+      <AdvancedSearch
         user={userData}
         setSort={setSort}
         sort={sort}

@@ -2,8 +2,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Project, User } from "@/types/types";
 import Card from "@/components/ui/cards/MyCard";
-import { EllipsisVertical, Plus } from "lucide-react";
-import Header5 from "@/components/fontsize/Header5";
+import { EllipsisVertical } from "lucide-react";
 import Banner from "@/components/ui/Banner";
 import Header4 from "@/components/fontsize/Header4";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,18 +11,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogDescription,
 } from "@/components/ui/dialog";
-// import Input from "@/components/ui/input/CustomInput";
 import Input from "@/components/ui/input/Input";
+import CustomInput from "@/components/ui/input/CustomInput";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { country_list, months } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import Submit from "@/components/ui/buttons/Submit";
 import { toast } from "sonner";
 import Link from "next/link";
-// import { createProject, editProject } from "@/zod/actions";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -42,209 +38,34 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// import { deleteItem } from "@/firebase/actions";
 import Loading from "@/components/ui/Loading";
-import CustomInput from "@/components/ui/input/CustomInput";
+import NotAvailable from "@/components/ui/NotAvailable";
 
 function ProjectDisplay({
   user,
-  sort,
-  searchValue,
   allProjects,
-  filterSearch,
 }: {
   readonly user: User | undefined;
-  readonly sort: string;
-  readonly searchValue: string;
   readonly allProjects: Project[] | undefined;
-  readonly filterSearch: Project[];
 }) {
-  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    city: "",
-    country: "",
-    month: "",
-    year: 0,
-  });
-  // const [state, action, isLoading] = useActionState(
-  //   (prevState: any, formData: FormData) =>
-  //     createProject(prevState, formData, {
-  //       id: user?.id as string,
-  //       team_id: user?.team_id as string,
-  //     }),
-  //   {
-  //     data: {
-  //       month: "",
-  //       city: "",
-  //       country: "",
-  //       name: "",
-  //       year: "",
-  //     },
-  //     message: "",
-  //     success: false,
-  //   }
-  // );
-
-  // useEffect(() => {
-  //   if (!state?.success && state?.message?.length) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Uh oh! Something went wrong",
-  //       description: state?.message,
-  //     });
-  //   } else if (state?.success) {
-  //     toast({
-  //       title: "Project was created successfully!",
-  //     });
-
-  //     setOpen(false);
-  //   }
-  // }, [state]);
-
-  const checkAdmin =
-    user?.is_owner || user?.role === "admin" ? (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          {/* BUTTON TO ADD NEW PROJECT; ONLY ADMIN CAN ADD A NEW PROJECT */}
-          <button>
-            <Card className="h-[200px] text-lightText cursor-pointer flex justify-center items-center hover:opacity-80 duration-300 hover:shadow-md">
-              <div className="">
-                <div className="flex justify-center">
-                  <Plus strokeWidth={1} className="w-16 h-16" />
-                </div>
-                <Header5 text="Add new project" className="text-center" />
-              </div>
-            </Card>
-          </button>
-        </DialogTrigger>
-        {/* CREATE PROJECT DIALOG POPUP */}
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create a project</DialogTitle>
-            <DialogDescription>
-              Start a project and manage finances
-            </DialogDescription>
-          </DialogHeader>
-          <form>
-            {/* PROJECT NAME */}
-            <Input
-              label="Project name *"
-              htmlFor="name"
-              type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              name={"name"}
-              id="name"
-            />
-            <Input
-              label="City name *"
-              htmlFor="city"
-              type="text"
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              name={"city"}
-              id="city"
-            />
-            <div className="flex items-center gap-4 mt-5">
-              {/* COUNTRY LOCATION */}
-              <SelectBar
-                placeholder="Select country *"
-                value={form.country}
-                valueChange={(name) => setForm({ ...form, country: name })}
-                label="Countries"
-                className="flex-1"
-              >
-                {country_list.map((item) => {
-                  return (
-                    <SelectItem key={item.name} value={item.name}>
-                      {item.name}
-                    </SelectItem>
-                  );
-                })}
-              </SelectBar>
-              <SelectBar
-                placeholder="Starting month *"
-                value={form.month}
-                valueChange={(name) => setForm({ ...form, month: name })}
-                label="Months"
-                className="flex-1"
-              >
-                {months.map((item) => {
-                  return (
-                    <SelectItem key={item} value={item}>
-                      {item}
-                    </SelectItem>
-                  );
-                })}
-              </SelectBar>
-            </div>
-            <Input
-              label="Year *"
-              htmlFor="year"
-              type="number"
-              value={form.year}
-              onChange={(e) => setForm({ ...form, year: e.target.valueAsNumber })}
-              name="year"
-              id="year"
-            />
-            {/* SUBMIT BUTTON */}
-            <div className="flex justify-end mt-6">
-              <Submit
-                loading={isLoading}
-                width_height="w-[85px] h-[40px]"
-                width="w-[40px]"
-                arrow_width_height="w-6 h-6"
-                disabledLogic={isLoading}
-              />
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    ) : null;
-
-  const filtered =
-    filterSearch?.length && searchValue.length
-      ? filterSearch.map((item) => {
-          return (
-            <Link href={`/projects/${item?.id}`} key={item.id}>
-              <Card className="h-[200px] text-lightText z-0 cursor-pointer hover:opacity-90 duration-300 hover:shadow-md">
-                <div className="flex flex-col h-full">
-                  <Header4 text={item.name} className="capitalize" />
-                  <p className="text-[14px] text-light50">
-                    Since {item?.start_month?.substring(0, 3)}.{" "}
-                    {item.start_year} -{" "}
-                    {item?.city ? (
-                      <span className="italic">`${item.city}, `</span>
-                    ) : null}
-                    <span className="italic">{item.country}</span>
-                  </p>
-                  <div className="mt-auto">
-                    <Banner
-                      text={item.is_completed ? "completed" : "ongoing"}
-                    />
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          );
-        })
-      : null;
 
   return (
-    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 w-full">
-      {isLoading
-        ? [0, 1, 2, 3, 4, 5].map((each, i) => {
-            return (
-              <Fragment key={`${each}_${i}`}>
-                <Skeleton className="h-[200px] rounded-[40px]" />
-              </Fragment>
-            );
-          })
-        : checkAdmin}
-      {allProjects?.length && !filterSearch.length && !searchValue.length
-        ? allProjects?.map((item) => {
+    <section className="">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
+        {isLoading
+          ? [0, 1, 2, 3, 4, 5].map((each, i) => {
+              return (
+                <Fragment key={`${each}_${i}`}>
+                  <Skeleton className="h-[200px] rounded-[40px]" />
+                </Fragment>
+              );
+            })
+          : null}
+      </div>
+      {allProjects?.length ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
+          {allProjects?.map((item) => {
             return (
               <Fragment key={item.id}>
                 <Card className="h-[200px] text-lightText z-0 hover:opacity-90 duration-300 hover:shadow-md">
@@ -274,8 +95,11 @@ function ProjectDisplay({
                 </Card>
               </Fragment>
             );
-          })
-        : filtered}
+          })}
+        </div>
+      ) : (
+        <NotAvailable text="No projects created yet" />
+      )}
     </section>
   );
 }

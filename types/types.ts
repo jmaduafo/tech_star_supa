@@ -91,7 +91,8 @@ export type Contractor = {
   location?: string | null;
   importance_level: number;
   text?: string | null;
-  is_unavailable: boolean;
+  comment?: string | null;
+  is_available: boolean;
   created_at: string;
   updated_at: string | null;
 };

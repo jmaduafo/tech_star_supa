@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/UserContext";
 
 function AddButton({
   children,

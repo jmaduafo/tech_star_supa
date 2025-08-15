@@ -24,7 +24,7 @@ function Greeting({ user }: { readonly user: User | undefined }) {
     <div className="h-full flex flex-col">
       <div className="">
         <div className="mb-3">
-          {user?.image_url ? (
+          {typeof user?.image_url === "string" ? (
             <Avatar className="w-14 h-14">
               <AvatarImage
                 src={user?.image_url ?? ""}

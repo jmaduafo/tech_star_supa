@@ -59,7 +59,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     return null; // or a static placeholder that doesn't depend on auth
   }
 
-  if (!isMounted || (loading && !session && pathname === "/")) {
+  if (!isMounted && (loading && !session && pathname === "/")) {
     return (
       <main className="h-screen w-full flex items-center justify-center bg-background bg-lightText text-darkText">
         {/* Loading spinner or skeleton */}

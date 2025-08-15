@@ -7,7 +7,7 @@ function AuthContainer({ children }: { readonly children: React.ReactNode }) {
       <div className="w-full h-full fixed bg-light10 -z-0"></div>
       <div className="p-5 md:p-10 relative">
         <Navbar />
-        <div className="mt-8 min-h-screen w-full xs:w-[95%] sm:w-[85%] 2xl:w-[60%] mx-auto">{children}</div>
+        <div className="mt-8 h-full w-full xs:w-[95%] sm:w-[85%] 2xl:w-[60%] mx-auto">{children}</div>
       </div>
     </div>
   );

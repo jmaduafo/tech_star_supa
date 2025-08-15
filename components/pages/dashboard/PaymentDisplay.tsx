@@ -1,5 +1,4 @@
-"use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Header3 from "@/components/fontsize/Header3";
 // import {
 //   collection,
@@ -17,10 +16,10 @@ import { Payment } from "@/types/types";
 import Loading from "@/components/ui/Loading";
 // import DataTable from "@/components/ui/tables/DataTable";
 import Header6 from "@/components/fontsize/Header6";
-// import { paymentColumns } from "@/components/ui/tables/columns";
+import { paymentColumns } from "@/components/ui/tables/columns";
+import MainTable from "@/components/ui/tables/MainTable";
 
 function PaymentDisplay() {
-  const [latestPayments, setLatestPayments] = useState<Payment[] | undefined>();
   // const { userData } = useAuth();
 
   // async function getLatest() {
@@ -59,7 +58,7 @@ function PaymentDisplay() {
         <div className="flex items-start gap-5">
           {/* LATEST HEADING WITH PAYMENTS COUNT */}
           <Header3 text="Latest Payments" />
-          {latestPayments ? (
+          {/* {latestPayments ? (
             <Header6
               text={
                 latestPayments.length === 5
@@ -69,21 +68,24 @@ function PaymentDisplay() {
                     )}`
               }
             />
-          ) : null}
+          ) : null} */}
         </div>
         {/* PAYMENTS  */}
         <div>
-          {latestPayments?.length ? (
+          {/* {latestPayments?.length ? (
             <TextButton
               href="/payments"
               text="View all"
               iconDirection="right"
             />
-          ) : null}
+          ) : null} */}
         </div>
       </div>
       <div className="mt-6">
-        {/* {!latestPayments ? (
+        <MainTable columns={[]} data={[]} is_payment={false} team_name={""} />
+      </div>
+      {/* <div className="mt-6">
+        {!latestPayments ? (
           <div className="flex justify-center py-8">
             <Loading />
           </div>
@@ -92,10 +94,10 @@ function PaymentDisplay() {
             columns={paymentColumns}
             data={latestPayments}
             is_payment
-            team_name={userData ? userData?.first_name : "My"}
+            team_name={"My"}
           />
-        )} */}
-      </div>
+        )}
+      </div> */}
     </section>
   );
 }

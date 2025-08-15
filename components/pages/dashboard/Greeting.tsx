@@ -27,7 +27,7 @@ function Greeting({ user }: { readonly user: User | undefined }) {
           {typeof user?.image_url === "string" ? (
             <Avatar className="w-14 h-14">
               <AvatarImage
-                src={user?.image_url ?? ""}
+                src={user?.image_url}
                 alt={`${user.full_name}'s avatar`}
               />
               <AvatarFallback>{getInitials(user?.full_name)}</AvatarFallback>

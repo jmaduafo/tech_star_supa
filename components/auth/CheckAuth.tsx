@@ -59,6 +59,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     return null; // or a static placeholder that doesn't depend on auth
   }
 
+  // LOADING STATE
   if (!isMounted && (loading && !session && pathname === "/")) {
     return (
       <main className="h-screen w-full flex items-center justify-center bg-background bg-lightText text-darkText">
@@ -78,7 +79,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
             ? `url(${images[5].image})`
             : `url(${images[0].image})`,
       }}
-      className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300`}
+      className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
     >
       {session && pathname !== "/" ? (
         <AuthContainer>{children}</AuthContainer>

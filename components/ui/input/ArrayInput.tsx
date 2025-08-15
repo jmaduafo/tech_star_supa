@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Input from "./Input";
+import Input from "./CustomInput";
 import { X } from "lucide-react";
 
 type Input = {

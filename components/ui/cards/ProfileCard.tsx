@@ -23,15 +23,13 @@ import { Skeleton } from "../skeleton";
 import { getInitials } from "@/utils/initials";
 import Detail from "./Detail";
 import { formatDate } from "@/utils/dateAndTime";
-import { auth } from "@/firebase/config";
-import Input from "../input/Input";
+import Input from "../input/CustomInput";
 import SelectBar from "../input/SelectBar";
 import { country_list, job_titles } from "@/utils/dataTools";
 import { SelectItem } from "../select";
 import Submit from "../buttons/Submit";
-import { editUser } from "@/zod/actions";
-import { toast } from "@/hooks/use-toast";
-import { uploadImage } from "@/firebase/actions";
+// import { editUser } from "@/zod/actions";
+import { toast } from "sonner";
 import FilePicker from "../buttons/FilePicker";
 
 type Card = {
@@ -62,107 +60,107 @@ function ProfileCard({
     job_title: "",
   });
 
-  const [state, action, isLoading] = useActionState(
-    (prevState: any, values: object) =>
-      editUser(prevState, values, {
-        id: user?.id as string,
-        team_id: user?.team_id as string,
-      }),
-    {
-      message: "",
-      success: false,
-    }
-  );
+  // const [state, action, isLoading] = useActionState(
+  //   (prevState: any, values: object) =>
+  //     editUser(prevState, values, {
+  //       id: user?.id as string,
+  //       team_id: user?.team_id as string,
+  //     }),
+  //   {
+  //     message: "",
+  //     success: false,
+  //   }
+  // );
 
-  const currentUser = auth.currentUser;
+  // const currentUser = auth.currentUser;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const prevEditOpenRef = useRef<boolean | null>(null);
 
-  useEffect(() => {
-    // If previous was true and now it's false, then open profile
-    if (prevEditOpenRef.current && !editProfileOpen) {
-      setProfileOpen(true);
-    }
+  // useEffect(() => {
+  //   // If previous was true and now it's false, then open profile
+  //   if (prevEditOpenRef.current && !editProfileOpen) {
+  //     setProfileOpen(true);
+  //   }
 
-    prevEditOpenRef.current = editProfileOpen ?? null;
-  }, [editProfileOpen]);
+  //   prevEditOpenRef.current = editProfileOpen ?? null;
+  // }, [editProfileOpen]);
 
-  useEffect(() => {
-    // REVOKE URL WHEN IT'S NO LONGER NEEDED TO SAVE MEMORY
-    return () => {
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
-    };
-  }, [imagePreview]);
+  // useEffect(() => {
+  //   // REVOKE URL WHEN IT'S NO LONGER NEEDED TO SAVE MEMORY
+  //   return () => {
+  //     if (imagePreview) {
+  //       URL.revokeObjectURL(imagePreview);
+  //     }
+  //   };
+  // }, [imagePreview]);
 
-  useEffect(() => {
-    // SET FORM VALUES TO USER INFO
-    if (user) {
-      setFormValues({
-        first_name: user?.first_name ?? "",
-        last_name: user?.last_name ?? "",
-        location: user?.location ?? "",
-        job_title: user?.job_title ?? "",
-      });
-      setCurrentImage(user?.image_url ?? null);
-    }
-  }, [user?.id ?? "guest"]);
+  // useEffect(() => {
+  //   // SET FORM VALUES TO USER INFO
+  //   if (user) {
+  //     setFormValues({
+  //       first_name: user?.first_name ?? "",
+  //       last_name: user?.last_name ?? "",
+  //       location: user?.location ?? "",
+  //       job_title: user?.job_title ?? "",
+  //     });
+  //     setCurrentImage(user?.image_url ?? null);
+  //   }
+  // }, [user?.id ?? "guest"]);
 
-  useEffect(() => {
-    if (!state?.success && state?.message) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong",
-        description: state?.message,
-      });
-    } else if (state?.success) {
-      toast({
-        title: "Your profile was updated successfully!",
-      });
+  // useEffect(() => {
+  //   if (!state?.success && state?.message) {
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Uh oh! Something went wrong",
+  //       description: state?.message,
+  //     });
+  //   } else if (state?.success) {
+  //     toast({
+  //       title: "Your profile was updated successfully!",
+  //     });
 
-      setEditProfileOpen && setEditProfileOpen(false)
-    }
-  }, [state]);
+  //     setEditProfileOpen && setEditProfileOpen(false)
+  //   }
+  // }, [state]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
 
-    // INITIALIZE WITH THE CURRENT IMAGE IN CASE THE USER MADE NO CHANGES TO THEIR PROFILE PIC
-    let imageUrl = currentImage;
+  //   // INITIALIZE WITH THE CURRENT IMAGE IN CASE THE USER MADE NO CHANGES TO THEIR PROFILE PIC
+  //   let imageUrl = currentImage;
 
-    // IF USER HAS CHOSEN A NEW IMAGE, THEN REPLACE PREVIOUS IMAGE WITH THE NEW IMAGE
-    if (newImage) {
-      // Upload the new image to Firebase Storage
-      const result = await uploadImage(newImage, `users/${user?.id}`);
+  //   // IF USER HAS CHOSEN A NEW IMAGE, THEN REPLACE PREVIOUS IMAGE WITH THE NEW IMAGE
+  //   if (newImage) {
+  //     // Upload the new image to Firebase Storage
+  //     const result = await uploadImage(newImage, `users/${user?.id}`);
 
-      // IF AN ERROR OCCURS, DISPLAY A TOAST MESSAGE WITH THE ERROR MESSAGE
-      if (!result.success) {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong",
-          description: result.response,
-        });
+  //     // IF AN ERROR OCCURS, DISPLAY A TOAST MESSAGE WITH THE ERROR MESSAGE
+  //     if (!result.success) {
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Uh oh! Something went wrong",
+  //         description: result.response,
+  //       });
 
-        return;
-      }
+  //       return;
+  //     }
 
-      // IF NO ERRORS, REPLACE CURRENT IMAGE WITH NEW IMAGE
-      imageUrl = result.response;
-    }
+  //     // IF NO ERRORS, REPLACE CURRENT IMAGE WITH NEW IMAGE
+  //     imageUrl = result.response;
+  //   }
 
-    const values = {
-      first_name: formValues.first_name,
-      last_name: formValues.last_name,
-      location: formValues.location.length ? formValues.location : null,
-      job_title: formValues.job_title.length ? formValues.job_title : null,
-      image_url: imageUrl ?? null,
-    };
+  //   const values = {
+  //     first_name: formValues.first_name,
+  //     last_name: formValues.last_name,
+  //     location: formValues.location.length ? formValues.location : null,
+  //     job_title: formValues.job_title.length ? formValues.job_title : null,
+  //     image_url: imageUrl ?? null,
+  //   };
 
-    // USE START TRANSITION TO RUN "ACTION" FUNCTION
-    startTransition(() => action(values)); // call useActionState's action function
-  };
+  //   // USE START TRANSITION TO RUN "ACTION" FUNCTION
+  //   startTransition(() => action(values)); // call useActionState's action function
+  // };
 
   return (
     <>
@@ -173,7 +171,7 @@ function ProfileCard({
         >
           <DialogHeader>
             <DialogTitle className="capitalize">
-              {currentUser?.uid === user?.id ? "My" : user?.first_name + "'s"}{" "}
+              {/* {currentUser?.uid === user?.id ? "My" : user?.first_name + "'s"}{" "} */}
               Profile
             </DialogTitle>
           </DialogHeader>
@@ -301,7 +299,7 @@ function ProfileCard({
                     <Skeleton className="w-[65%] h-6" />
                   )}
                 </div>
-                <div className="flex-1">
+                {/* <div className="flex-1">
                   {user?.created_at ? (
                     <Detail
                       title="Joined at"
@@ -310,7 +308,7 @@ function ProfileCard({
                   ) : (
                     <Skeleton className="w-[65%] h-6" />
                   )}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -324,7 +322,7 @@ function ProfileCard({
               Make changes to your profile here. Click save when you're done.
             </SheetDescription>
           </SheetHeader>
-          <form onSubmit={handleSubmit} className="mt-5">
+          <form className="mt-5">
             <div className="flex justify-center">
               <Avatar className="w-[110px] h-[110px]">
                 {imagePreview && (
@@ -421,7 +419,7 @@ function ProfileCard({
                 })}
               </SelectBar>
             </Input>
-            <div className="flex justify-end mt-6">
+            {/* <div className="flex justify-end mt-6">
               <Submit
                 loading={isLoading}
                 width_height="w-[85px] h-[40px]"
@@ -429,7 +427,7 @@ function ProfileCard({
                 arrow_width_height="w-6 h-6"
                 disabledLogic={isLoading}
               />
-            </div>
+            </div> */}
           </form>
         </SheetContent>
       </Sheet>

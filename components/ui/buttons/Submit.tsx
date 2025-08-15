@@ -23,18 +23,22 @@ function Submit({
       type="submit"
       onClick={buttonClick}
       aria-label="submit button"
-      className={`rounded-full bg-dark35 group ${width_height ?? "w-[160px] h-[60px]"} ${disabledLogic ? "opacity-60" : "opacity-100"}`}
+      // LOGIN/SIGNUP WIDTH
+      // width_height: w-[160px] h-[60px]  
+      // width: w-[60px]
+      // arrow_width_height: w-10 h-10 
+      className={`rounded-full bg-dark35 group ${width_height ?? "w-[85px] h-[40px]"} ${disabledLogic ? "opacity-60" : "opacity-100"}`}
       disabled={!!(loading || disabledLogic)}
     >
       <span
         className={`${
-          loading ? "w-full" : width ?? "w-[60px]"
+          loading ? "w-full" : width ?? "w-[40px]"
         } duration-300 rounded-full flex justify-end items-center h-full bg-darkText px-1 group-hover:bg-dark75`}
       >
         {loading ? (
           <Loading className="mr-2 w-6 h-6" />
         ) : (
-          <HiChevronRight className={`${arrow_width_height ?? "w-10 h-10"}`} />
+          <HiChevronRight className={`${arrow_width_height ?? "w-6 h-6"}`} />
         )}
       </span>
     </button>

@@ -1,3 +1,5 @@
+import { ColumnDef } from "@tanstack/react-table";
+
 export type User = {
   id: string;
   first_name: string;
@@ -17,6 +19,16 @@ export type User = {
   created_at: string;
   updated_at: string | null;
 };
+
+export interface DataTableProps<TData, TValue> {
+  readonly columns: ColumnDef<TData, TValue>[];
+  readonly data: TData[];
+  readonly is_payment: boolean;
+  readonly is_export?: boolean;
+  readonly team_name: string;
+  readonly advanced?: boolean;
+  readonly filterCategory?: string;
+}
 
 export type ChartData = { name: string; value: number };
 

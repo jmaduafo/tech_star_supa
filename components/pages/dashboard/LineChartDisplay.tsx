@@ -94,7 +94,7 @@ function LineChartDisplay({ user }: { readonly user: User | undefined }) {
 
   //   if (!payments?.length) {
   //     setFilteredData([]);
-  //   }    
+  //   }
 
   //   // IF THERE ARE PROJECTS FOUND, ADD THE ARRAY WITHIN THE SELECTED DATE RANGE
   //   // TO THE NEW FILTER ARRAY
@@ -121,78 +121,71 @@ function LineChartDisplay({ user }: { readonly user: User | undefined }) {
           <TextButton href="/charts" text="See more" iconDirection="right" />
         </div>
       ) : null}
-      <div className="flex gap-10 justify-between items-start">
-        <div className="flex-1">
-          <Header3 text="At a Glance" />
-          <Paragraph
-            className="opacity-80"
-            text={`All payments made within the ${
-              range.length ? range : "..."
-            }`}
-          />
-        </div>
-        <div className="flex-[2]">
-          <div className="w-full">
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <SelectBar
-                valueChange={setProjectId}
-                className=""
-                value={projectId}
-                placeholder="Select a project"
-                label="Project"
-              >
-                {projectData?.length
-                  ? projectData?.map((item) => {
-                      return (
-                        <SelectItem value={item.id} key={item.id}>
-                          {item.name}
-                        </SelectItem>
-                      );
-                    })
-                  : null}
-              </SelectBar>
-              <SelectBar
-                valueChange={setRange}
-                className=""
-                value={range}
-                placeholder="Select a range"
-                label="Project"
-              >
-                {["Last 7 days", "Last 1 month", "Last 3 months"].map(
-                  (item) => {
-                    return (
-                      <SelectItem value={item.toLowerCase()} key={item}>
-                        {item}
-                      </SelectItem>
-                    );
-                  }
-                )}
-              </SelectBar>
-              <SelectBar
-                valueChange={setCurrencyCode}
-                className=""
-                value={currencyCode}
-                placeholder="Select a currency"
-                label="Currency"
-              >
-                {currency_list.map((item) => {
+      {/* "flex gap-10 justify-between items-start" */}
+      <div className="">
+        <Header3 text="At a Glance" />
+        <Paragraph
+          className="opacity-80"
+          text={`All payments made within the ${range.length ? range : "..."}`}
+        />
+      </div>
+      <div className="">
+        <div className="grid grid-cols-2 md:flex md:justify-between gap-2 mt-2">
+          <SelectBar
+            valueChange={setProjectId}
+            className=""
+            value={projectId}
+            placeholder="Select a project"
+            label="Project"
+          >
+            {projectData?.length
+              ? projectData?.map((item) => {
                   return (
-                    <SelectItem value={item.code} key={item.name}>
+                    <SelectItem value={item.id} key={item.id}>
                       {item.name}
                     </SelectItem>
                   );
-                })}
-              </SelectBar>
-              <div className="flex gap-1.5">
-                {/* <CheckedButton
+                })
+              : null}
+          </SelectBar>
+          <SelectBar
+            valueChange={setRange}
+            className=""
+            value={range}
+            placeholder="Select a range"
+            label="Project"
+          >
+            {["Last 7 days", "Last 1 month", "Last 3 months"].map((item) => {
+              return (
+                <SelectItem value={item.toLowerCase()} key={item}>
+                  {item}
+                </SelectItem>
+              );
+            })}
+          </SelectBar>
+          <SelectBar
+            valueChange={setCurrencyCode}
+            className=""
+            value={currencyCode}
+            placeholder="Select a currency"
+            label="Currency"
+          >
+            {currency_list.map((item) => {
+              return (
+                <SelectItem value={item.code} key={item.name}>
+                  {item.name}
+                </SelectItem>
+              );
+            })}
+          </SelectBar>
+          <div className="flex gap-1.5">
+            {/* <CheckedButton
                   clickedFn={filterPayments}
                   disabledLogic={
                     !projectId.length || !range.length || !currencyCode.length
                   }
                 /> */}
-                <Reset clickedFn={reset} />
-              </div>
-            </div>
+            <Reset clickedFn={reset} />
           </div>
         </div>
       </div>

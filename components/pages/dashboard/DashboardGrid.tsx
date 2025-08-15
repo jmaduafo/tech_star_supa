@@ -44,35 +44,30 @@ function DashboardGrid() {
   }, []);
 
   return (
-    <div className="dashGrid h-[70vh] gap-4">
+    <div className="dashGrid h-[72vh] gap-4">
       {/* Greeting */}
       <Card className="greeting">
         <Greeting user={userData} />
       </Card>
       {/* Amount Display */}
       <div className="calc">
-        <div></div>
-        {/* <AmountDisplay user={userData}/> */}
+        <AmountDisplay user={userData}/>
       </div>
       {/* Line chart */}
       <Card className="line">
-        <div></div>
-        {/* <LineChartDisplay user={userData} /> */}
+        <LineChartDisplay user={userData} />
       </Card>
       {/* Pie chart */}
       <Card className="pie">
-        <div></div>
-        {/* <PieChartDisplay user={userData} /> */}
+        <PieChartDisplay user={userData} />
       </Card>
       {/* Contractors */}
       <Card className="contractors">
-        <div></div>
-        {/* <ContractorCount user={userData}/> */}
+        <ContractorCount user={userData}/>
       </Card>
       {/* Project */}
       <Card className="project">
-        <div></div>
-        {/* <ProjectCount user={userData} /> */}
+        <ProjectCount user={userData} />
       </Card>
     </div>
   );

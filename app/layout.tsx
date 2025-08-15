@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import CheckAuth from "@/components/auth/CheckAuth";
+import Wrapper from "@/components/auth/Wrapper";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -30,17 +29,9 @@ export default function RootLayout({
       <body
         className={`${urbanist.className} antialiased bg-lightText text-lightText`}
       >
-        <CheckAuth>
+        <Wrapper>
           {children}
-        </CheckAuth>
-        {/* <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider> */}
+        </Wrapper>
       </body>
     </html>
   );

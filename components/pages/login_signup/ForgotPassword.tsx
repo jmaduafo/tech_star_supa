@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Input from "@/components/ui/input/Input";
+import Input from "@/components/ui/input/CustomInput";
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client";
 

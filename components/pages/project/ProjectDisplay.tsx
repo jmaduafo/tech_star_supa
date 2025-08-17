@@ -43,7 +43,7 @@ import Loading from "@/components/ui/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { createClient } from "@/lib/supabase/client";
 import { EditProjectSchema } from "@/zod/validation";
-import Paragraph from "@/components/fontsize/Paragraph";
+import { Slider } from "@/components/ui/slider";
 
 function ProjectDisplay({
   user,
@@ -56,6 +56,12 @@ function ProjectDisplay({
     React.SetStateAction<Project[] | undefined>
   >;
 }) {
+
+  const notAvailable =
+    allProjects && allProjects.length === 0 ? (
+      <NotAvailable text="No projects created yet" />
+    ) : null;
+
   return (
     <section className="">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
@@ -100,7 +106,14 @@ function ProjectDisplay({
                       <Banner
                         text={item.is_completed ? "completed" : "ongoing"}
                       />
-                      {item.updated_at ? <p className="text-sm">Last modified: <span className="italic">{formatAgo(item.updated_at)}</span></p>: null } 
+                      {item.updated_at ? (
+                        <p className="text-sm font-light">
+                          Last modified:{" "}
+                          <span className="italic">
+                            {formatAgo(item.updated_at)}
+                          </span>
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                 </Card>
@@ -108,9 +121,7 @@ function ProjectDisplay({
             );
           })}
         </div>
-      ) : allProjects && allProjects.length === 0 ? (
-        <NotAvailable text="No projects created yet" />
-      ) : null}
+      ) : notAvailable}
     </section>
   );
 }
@@ -134,6 +145,7 @@ function EditProject({
     country: "",
     month: "",
     year: 1900,
+    relevance: [2.5],
     is_completed: false,
   });
 
@@ -155,6 +167,7 @@ function EditProject({
         country: project?.country,
         month: project?.start_month,
         year: project?.start_year,
+        relevance: [project?.relevance],
         is_completed: project?.is_completed,
       });
     }
@@ -167,10 +180,11 @@ function EditProject({
 
     const values = {
       name: projectInfo.name,
-      city: projectInfo.city,
+      city: projectInfo.city.length ? projectInfo.city.trim() : null,
       country: projectInfo.country,
       month: projectInfo.month,
       year: projectInfo.year,
+      relevance: projectInfo.relevance[0], 
       is_completed: projectInfo.is_completed,
     };
 
@@ -181,12 +195,12 @@ function EditProject({
         description: result.error.issues[0].message,
       });
 
-      setEditLoading(false)
+      setEditLoading(false);
 
       return;
     }
 
-    const { name, city, country, month, year, is_completed } = result.data;
+    const { name, city, country, month, year, is_completed, relevance } = result.data;
 
     try {
       if (!project) {
@@ -201,6 +215,7 @@ function EditProject({
           country,
           start_month: month,
           start_year: year,
+          relevance,
           is_completed,
           updated_at: new Date().toISOString(),
         })
@@ -223,7 +238,7 @@ function EditProject({
       console.log("Before update:", allProjects);
 
       if (data) {
-        handleEdit(project.id, data)
+        handleEdit(project.id, data);
       }
 
       toast("Success", {
@@ -267,7 +282,7 @@ function EditProject({
         description: "Project deleted successfully",
       });
 
-      handleDelete(project.id)
+      handleDelete(project.id);
 
       setDeleteOpen(false);
     } catch (err: any) {
@@ -284,9 +299,7 @@ function EditProject({
   function handleEdit(id: string, newData: Project) {
     setAllProjects((prev) => {
       if (!prev) return prev; // nothing to update
-      return prev.map(item =>
-        item.id === id ? newData : item
-      );
+      return prev.map((item) => (item.id === id ? newData : item));
     });
   }
 
@@ -380,6 +393,23 @@ function EditProject({
                 })}
               </SelectBar>
             </CustomInput>
+            <div className="mt-3">
+                          <label htmlFor="importance_level" className="">
+                            Level of relevance (not as crucial to extremely crucial) *
+                          </label>
+                          <p className="text-right text-dark75 text-[13px]">
+                            {projectInfo.relevance}
+                          </p>
+                          <Slider
+                            name="relevance"
+                            id="relevance"
+                            value={projectInfo.relevance}
+                            onValueChange={(val) => setProjectInfo({ ...projectInfo, relevance: val })}
+                            max={5}
+                            step={0.5}
+                            className="mt-2"
+                          />
+                        </div>
             <div className="flex items-end gap-4 mt-5">
               {/* STARTING MONTH */}
               <CustomInput

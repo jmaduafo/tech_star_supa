@@ -35,6 +35,13 @@ function AdvancedSearch({
       type: null,
     },
     {
+      // IF THE PROJECT IS ACTIVE OR NOT
+      title: "Relevance",
+      search: "relevance",
+      sortStyle: null,
+      type: null,
+    },
+    {
       title: "Name",
       search: "name:asc",
       sortStyle: "A to Z",

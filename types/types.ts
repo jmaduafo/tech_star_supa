@@ -78,6 +78,7 @@ export type Project = {
   country: string;
   start_month: string;
   start_year: number;
+  relevance: number;
   is_completed: boolean;
   created_at: string;
   updated_at: string | null;
@@ -111,9 +112,10 @@ export type Contractor = {
   name: string;
   project_id: string;
   team_id: string;
-  location?: string | null;
-  importance_level: number;
-  description?: string | null;
+  city?: string | null;
+  country: string;
+  relevance: number;
+  description: string;
   comment?: string | null;
   is_available: boolean;
   created_at: string;
@@ -125,7 +127,10 @@ export type Amount = {
   symbol: string;
   code: string;
   name: string;
-  amount: number | "Unlimited";
+  // number or "Unlimited"
+  amount: string;
+  contract_id: string | null;
+  payment_id: string | null;
   created_at: string;
   updated_at: string | null;
 };
@@ -169,7 +174,7 @@ export type Payment = {
   currency_symbol: string;
   currency_code: string;
   currency_name: string;
-  currency_amount: string | "Unlimited";
+  currency_amount: string;
   is_contract: boolean;
   contract_code: string | null;
   is_completed: boolean;

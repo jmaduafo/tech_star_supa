@@ -18,6 +18,7 @@ import { CreateProjectSchema } from "@/zod/validation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
+import { Slider } from "@/components/ui/slider";
 
 function MainPage() {
   const [sort, setSort] = useState("");
@@ -29,6 +30,7 @@ function MainPage() {
   const [form, setForm] = useState({
     name: "",
     city: "",
+    relevance: [2.5],
     country: "",
     month: "",
     year: 2025,
@@ -84,8 +86,9 @@ function MainPage() {
 
     const values = {
       name: form.name,
-      city: form.city,
+      city: form.city.length ? form.city.trim() : null,
       country: form.country,
+      relevance: form.relevance[0],
       month: form.month,
       year: +form.year,
     };
@@ -114,7 +117,7 @@ function MainPage() {
         .insert({
           name,
           team_id: userData?.team_id,
-          city: city?.trim() || null,
+          city,
           country,
           start_month: month,
           start_year: year,
@@ -133,10 +136,10 @@ function MainPage() {
       }
 
       if (!allProjects) {
-        return
+        return;
       }
 
-      setAllProjects([...allProjects, data])
+      setAllProjects([...allProjects, data]);
 
       toast("Success!", {
         description: "Project was successfully created",
@@ -147,6 +150,7 @@ function MainPage() {
         city: "",
         country: "",
         month: "",
+        relevance: [2.5],
         year: 2025,
       });
 
@@ -163,7 +167,7 @@ function MainPage() {
 
   function filterProjects() {
     try {
-      setFilteredProjects(undefined)
+      setFilteredProjects(undefined);
 
       const sort = searchParams.get("sort");
       const type = searchParams.get("type");
@@ -189,7 +193,7 @@ function MainPage() {
               item.city?.toLowerCase().includes(query.toLowerCase())
           )
         );
-      
+
       // SORT
     } catch (err: any) {
       console.log(err.message);
@@ -261,6 +265,23 @@ function MainPage() {
                   );
                 })}
               </SelectBar>
+              <div className="mt-3">
+                <label htmlFor="importance_level" className="">
+                  Level of relevance (not as crucial to extremely crucial) *
+                </label>
+                <p className="text-right text-dark75 text-[13px]">
+                  {form.relevance}
+                </p>
+                <Slider
+                  name="relevance"
+                  id="relevance"
+                  value={form.relevance}
+                  onValueChange={(val) => setForm({ ...form, relevance: val })}
+                  max={5}
+                  step={0.5}
+                  className="mt-2"
+                />
+              </div>
               <SelectBar
                 placeholder="Starting month *"
                 value={form.month}

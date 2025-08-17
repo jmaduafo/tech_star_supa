@@ -1,40 +1,173 @@
-"use client"
-import Header1 from '@/components/fontsize/Header1';
-import Header6 from '@/components/fontsize/Header6';
-import AddButton from '@/components/ui/buttons/AddButton';
-import Submit from '@/components/ui/buttons/Submit';
-import CustomInput from '@/components/ui/input/CustomInput';
-import SelectBar from '@/components/ui/input/SelectBar';
-import AdvancedSearch from '@/components/ui/search/AdvancedSearch';
-import { country_list, months } from '@/utils/dataTools';
-import { optionalS } from '@/utils/optionalS';
-import { SelectItem } from '@/components/ui/select';
-import Input from '@/components/ui/input/Input';
-import React, { useState } from 'react'
-import ProjectDisplay from '../../ProjectDisplay';
-import { Contractor } from '@/types/types';
-import ContractorDisplay from './ContractorDisplay';
-import { useAuth } from '@/context/UserContext';
+"use client";
+import Header1 from "@/components/fontsize/Header1";
+import Header6 from "@/components/fontsize/Header6";
+import AddButton from "@/components/ui/buttons/AddButton";
+import Submit from "@/components/ui/buttons/Submit";
+import CustomInput from "@/components/ui/input/CustomInput";
+import SelectBar from "@/components/ui/input/SelectBar";
+import AdvancedSearch from "@/components/ui/search/AdvancedSearch";
+import { country_list } from "@/utils/dataTools";
+import { optionalS } from "@/utils/optionalS";
+import { SelectItem } from "@/components/ui/select";
+import Input from "@/components/ui/input/Input";
+import React, { useEffect, useState } from "react";
+import { Contractor } from "@/types/types";
+import ContractorDisplay from "./ContractorDisplay";
+import { useAuth } from "@/context/UserContext";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { ContractorSchema } from "@/zod/validation";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 
 function MainPage() {
-    const [ filteredContractors, setFiltereredContractors ] = useState<Contractor[] | undefined>()
-    const [ allContractors, setAllContractors ] = useState<Contractor[] | undefined>()
+  const [filteredContractors, setFilteredContractors] = useState<
+    Contractor[] | undefined
+  >();
+  const [allContractors, setAllContractors] = useState<
+    Contractor[] | undefined
+  >();
 
-    const [sort, setSort] = useState("");
-      const [searchValue, setSearchValue] = useState("");
-    
-      const [isLoading, setIsLoading] = useState(false);
-      const [open, setOpen] = useState(false);
-    
-      const [form, setForm] = useState({
+  const [sort, setSort] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const [form, setForm] = useState({
+    name: "",
+    city: "",
+    country: "",
+    description: "",
+    relevance: [2.5],
+    is_available: true,
+    comment: "",
+  });
+
+  const { userData } = useAuth();
+  const supabase = createClient();
+
+  const getContractors = async () => {
+    try {
+      if (!userData) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("contractors")
+        .select("*")
+        .eq("team_id", userData.team_id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        console.error(error.message);
+
+        return;
+      }
+
+      setAllContractors(data as Contractor[]);
+      setFilteredContractors(data as Contractor[]);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getContractors();
+  }, []);
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    const values = {
+      name: form.name,
+      city: form.city.length ? form.city.trim() : null,
+      country: form.country,
+      description: form.description.trim(),
+      relevance: form.relevance[0],
+      is_available: form.is_available,
+      comment: form.comment.length ? form.comment.trim() : null,
+    };
+
+    const result = ContractorSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    const { name, city, comment, country, desc, relevance, is_available } =
+      result.data;
+
+    try {
+      if (!userData) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("contractors")
+        .insert({
+          name,
+          city,
+          country,
+          description: desc,
+          relevance,
+          is_available,
+          comment: comment?.trim() || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        console.log(error.message);
+
+        return;
+      }
+
+      if (!allContractors) {
+        return;
+      }
+
+      setAllContractors([...allContractors, data]);
+
+      toast("Success!", {
+        description: "Contractor was successfully created",
+      });
+
+      setForm({
         name: "",
         city: "",
         country: "",
-        month: "",
-        year: 2025,
+        description: "",
+        relevance: [2.5],
+        is_available: true,
+        comment: "",
       });
 
-      const { userData } = useAuth()
+      setOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+      console.log(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -58,36 +191,47 @@ function MainPage() {
             value={searchValue}
           />
         </div>
-        <AddButton setOpen={setOpen} open={open} title={"project"} desc={""}>
-          <form>
+        <AddButton
+          setOpen={setOpen}
+          open={open}
+          title={"contractor"}
+          desc={"Create a new contractor"}
+        >
+          <form onSubmit={handleAdd}>
             {/* PROJECT NAME */}
             <Input
-              label="Project name *"
+              label="Contractor name *"
               htmlFor="name"
+              name="name"
               type="text"
+              id="name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              name={"name"}
-              id="name"
             />
+            {/* CITY LOCATION */}
             <Input
               label="City"
               htmlFor="city"
+              name="city"
               type="text"
+              id="city"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
-              name={"city"}
-              id="city"
               className="mt-3"
             />
-            <div className="flex items-center gap-4 mt-5">
-              {/* COUNTRY LOCATION */}
+            {/* COUNTRY LOCATION */}
+            <CustomInput
+              htmlFor={"country"}
+              label={"Country *"}
+              className="mt-3"
+            >
               <SelectBar
-                placeholder="Select country *"
+                placeholder="Select country location"
                 value={form.country}
-                valueChange={(name) => setForm({ ...form, country: name })}
+                valueChange={(val) => setForm({ ...form, country: val })}
                 label="Countries"
-                className="flex-1"
+                className="w-full mt-1"
+                name="country"
               >
                 {country_list.map((item) => {
                   return (
@@ -97,37 +241,62 @@ function MainPage() {
                   );
                 })}
               </SelectBar>
-              <SelectBar
-                placeholder="Starting month *"
-                value={form.month}
-                valueChange={(name) => setForm({ ...form, month: name })}
-                label="Months"
-                className="flex-1"
-              >
-                {months.map((item) => {
-                  return (
-                    <SelectItem key={item} value={item}>
-                      {item}
-                    </SelectItem>
-                  );
-                })}
-              </SelectBar>
-            </div>
-            <CustomInput htmlFor={"year"} label={"Year *"} className="mt-3">
+            </CustomInput>
+            <CustomInput label="Description *" htmlFor="desc" className="mt-3">
               <input
-                type="number"
-                value={form.year}
-                onChange={(e) =>
-                  setForm({ ...form, year: e.target.valueAsNumber })
-                }
-                name="year"
-                id="year"
                 className="form"
-                min={1900}
-                max={new Date().getFullYear()}
+                type="text"
+                id="desc"
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                maxLength={60}
               />
             </CustomInput>
-
+            <div className="flex justify-end mt-1">
+              <p className="text-sm text-darkText/70">
+                {form.description.length} / 60
+              </p>
+            </div>
+            <div className="mt-3">
+              <label htmlFor="importance_level" className="">
+                Level of relevance (not as crucial to extremely crucial) *
+              </label>
+              <p className="text-right text-dark75 text-[13px]">
+                {form.relevance}
+              </p>
+              <Slider
+                name="relevance"
+                id="relevance"
+                value={form.relevance}
+                onValueChange={(val) => setForm({ ...form, relevance: val })}
+                max={5}
+                step={0.5}
+                className="mt-2"
+              />
+            </div>
+            <CustomInput
+              label="Any additional information?"
+              htmlFor="additional_info"
+              className="mt-4 flex flex-col gap-3"
+            >
+              <textarea
+                name="additional"
+                id="additional_info"
+                className="form"
+                value={form.comment}
+                onChange={(e) => setForm({ ...form, comment: e.target.value })}
+              ></textarea>
+            </CustomInput>
+            <div className="flex items-center gap-2 mt-3">
+              <Switch
+                id="is_available"
+                name="is_available"
+                checked={form.is_available}
+              />
+              <label htmlFor="status">Is contractor available?</label>
+            </div>
             {/* SUBMIT BUTTON */}
             <div className="flex justify-end mt-6">
               <Submit loading={isLoading} disabledLogic={isLoading} />
@@ -135,15 +304,15 @@ function MainPage() {
           </form>
         </AddButton>
       </div>
-      {/* <div className="mt-10">
+      <div className="mt-10">
         <ContractorDisplay
           user={userData}
-          allProjects={filteredContractors}
-          setAllProjects={setAllContractors}
+          allContractors={filteredContractors}
+          setAllContractors={setAllContractors}
         />
-      </div> */}
+      </div>
     </div>
-  )
+  );
 }
 
-export default MainPage
+export default MainPage;

@@ -39,7 +39,7 @@ export const CreateMemberSchema = z.object({
     })
     .max(100, {
       message: "Password is too long. Must be 100 characters at most.",
-  }),
+    }),
   confirm: z
     .string()
     .min(6, {
@@ -47,7 +47,7 @@ export const CreateMemberSchema = z.object({
     })
     .max(100, {
       message: "Password is too long. Must be 100 characters at most.",
-  }),
+    }),
   location: z.string().min(1, {
     message: "You must select a location",
   }),
@@ -55,7 +55,7 @@ export const CreateMemberSchema = z.object({
     message: "You must select a job title",
   }),
   role: z.enum(["viewer", "admin", "editor"], {
-    message: "Role must either be 'viewer', 'editor', or 'admin'"
+    message: "Role must either be 'viewer', 'editor', or 'admin'",
   }),
   hire_type: z.string().min(1, {
     message: "You must select a hire type",
@@ -76,7 +76,7 @@ export const EditUserSchema = z.object({
 
 export const EditMemberSchema = z.object({
   role: z.enum(["viewer", "admin", "editor"]),
-  hire_type: z.enum(["employee", "contractor", "independent"])
+  hire_type: z.enum(["employee", "contractor", "independent"]),
 });
 
 export const LoginUserSchema = z.object({
@@ -124,7 +124,7 @@ export const EmailValidation = z.object({
 export const CreateProjectSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name." }),
   country: z.string().min(1, { message: "You must select a country." }),
-  city:  z.nullable(z.string()),
+  city: z.nullable(z.string()),
   month: z.string().min(1, { message: "You must select a month." }),
   year: z
     .number()
@@ -134,14 +134,30 @@ export const CreateProjectSchema = z.object({
     .max(new Date().getFullYear(), {
       message: "The year must be equal to or less than the current year.",
     }),
+  relevance: z
+    .float32()
+    .min(0, {
+      message: "Level of relevance should be greater than or equal to 0",
+    })
+    .max(5, {
+      message: "Level of relevance should be less than or equal to 5",
+    }),
 });
 
 export const EditProjectSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name." }),
   country: z.string().min(1, { message: "You must select a country." }),
-  city:  z.nullable(z.string()),
+  city: z.nullable(z.string()),
   month: z.string().min(1, { message: "You must select a month." }),
   is_completed: z.boolean(),
+  relevance: z
+    .float32()
+    .min(0, {
+      message: "Level of relevance should be greater than or equal to 0",
+    })
+    .max(5, {
+      message: "Level of relevance should be less than or equal to 5",
+    }),
   year: z
     .number()
     .min(1900, {
@@ -167,19 +183,23 @@ export const EditStageSchema = z.object({
   is_completed: z.boolean(),
 });
 
-export const CreateContractorSchema = z.object({
-  name: z.string().min(1, { message: "You must enter a name." }),
-  importance_level: z
+export const ContractorSchema = z.object({
+  name: z.string().min(1, { message: "You must enter a name" }),
+  relevance: z
     .number()
     .min(0, {
-      message: "Level of importance should be greater than or equal to 0.",
+      message: "Level of relevance should be greater than or equal to 0",
     })
     .max(5, {
-      message: "Level of importance should be less than or equal to 5.",
+      message: "Level of relevance should be less than or equal to 5",
     }),
-  location: z.string().min(1, { message: "You must select a location." }),
-  is_unavailable: z.boolean(),
-  additional_info: z.nullable(z.string()),
+  city: z.nullable(z.string()),
+  desc: z
+    .string()
+    .min(1, { message: "You must input a contractor description" }),
+  country: z.string().min(1, { message: "You must select a country location" }),
+  is_available: z.boolean(),
+  comment: z.nullable(z.string()),
 });
 
 export const CreateContractSchema = z.object({
@@ -223,7 +243,7 @@ export const CreateContractSchema = z.object({
     .nonempty({
       message: "You must enter a currency and amount.",
     }),
-  comment: z.nullable(z.string())
+  comment: z.nullable(z.string()),
 });
 
 export const CreatePaymentSchema = z.object({
@@ -264,5 +284,5 @@ export const CreatePaymentSchema = z.object({
     .nonempty({
       message: "You must enter a currency and amount.",
     }),
-  comment: z.nullable(z.string())
+  comment: z.nullable(z.string()),
 });

@@ -78,7 +78,7 @@ function ProjectDisplay({
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-start">
                       <div>
-                        <Link href={`/projects/${item?.id}`}>
+                        <Link href={`/projects/${item?.id}/contractors`}>
                           <Header4 text={item.name} className="capitalize" />
                         </Link>
                         <p className="text-[14px] text-light50">

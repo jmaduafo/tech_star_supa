@@ -49,7 +49,7 @@ function Searchbar({
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleSearch}
           type="text"
-          placeholder="Search by project name or location"
+          placeholder="Search by name or location"
           className="placeholder-dark50 text-sm py-0"
         />
       </div>

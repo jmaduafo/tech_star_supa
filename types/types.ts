@@ -83,6 +83,29 @@ export type Project = {
   updated_at: string | null;
 };
 
+export type Stage = {
+  id: string;
+  name: string;
+  team_id: string;
+  project_id: string;
+  description: string;
+  stage_number: number;
+  is_completed: boolean;
+  created_at: number;
+  updated_at: number | null;
+};
+
+// MANY TO MANY RELATIONSHIP BETWEEN STAGES AND CONTRACTORS
+export type StageContractor = {
+  id: string;
+  stage_id: string;
+  contractor_id: string;
+  // What contractor does in this stage
+  role?: string | null;
+  created_at: number;
+  updated_at: number | null;
+};
+
 export type Contractor = {
   id: string;
   name: string;
@@ -90,7 +113,7 @@ export type Contractor = {
   team_id: string;
   location?: string | null;
   importance_level: number;
-  text?: string | null;
+  description?: string | null;
   comment?: string | null;
   is_available: boolean;
   created_at: string;
@@ -98,10 +121,13 @@ export type Contractor = {
 };
 
 export type Amount = {
+  id: string;
   symbol: string;
   code: string;
   name: string;
   amount: number | "Unlimited";
+  created_at: string;
+  updated_at: string | null;
 };
 
 export type Contract = {
@@ -115,11 +141,8 @@ export type Contract = {
   contractor_name: string;
   stage_name: string;
   contract_code: string;
-  bank_name: string;
-  currency_symbol: string;
-  currency_code: string;
-  currency_name: string;
-  currency_amount: number | "Unlimited";
+  bank_name: string[];
+  contract_amount: Amount[]
   is_completed: boolean;
   description: string;
   comment?: string | null;
@@ -146,24 +169,15 @@ export type Payment = {
   currency_symbol: string;
   currency_code: string;
   currency_name: string;
-  currency_amount: number | "Unlimited";
+  currency_amount: string | "Unlimited";
   is_contract: boolean;
   contract_code: string | null;
   is_completed: boolean;
+  is_paid: boolean;
   created_at: string;
   updated_at: string | null;
 };
 
-export type Stage = {
-  id: string;
-  name: string;
-  team_id: string;
-  project_id: string;
-  description: string;
-  is_completed: boolean;
-  created_at: number;
-  updated_at: number | null;
-};
 
 export type Chart = {
   id: string;

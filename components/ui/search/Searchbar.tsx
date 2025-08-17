@@ -53,7 +53,7 @@ function Searchbar({
           className="placeholder-dark50 text-sm py-0"
         />
       </div>
-      <div className="h-full px-2 py-0.5 flex gap-1.5 justify-center items-center bg-darkText rounded-md">
+      <div className="h-full px-2 py-0.5 flex gap-1.5 justify-center items-center bg-lightText/70 text-darkText rounded-md">
         <CornerDownLeft strokeWidth={1.2} className="w-3.5 h-3.5" />
         <Paragraph text="Enter" className="font-light" />
       </div>

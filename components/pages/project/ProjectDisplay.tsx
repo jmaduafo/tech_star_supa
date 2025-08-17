@@ -38,26 +38,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { format as formatAgo } from "timeago.js";
 import Loading from "@/components/ui/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
+import { createClient } from "@/lib/supabase/client";
+import { EditProjectSchema } from "@/zod/validation";
+import Paragraph from "@/components/fontsize/Paragraph";
 
 function ProjectDisplay({
   user,
   allProjects,
+  setAllProjects,
 }: {
   readonly user: User | undefined;
   readonly allProjects: Project[] | undefined;
+  readonly setAllProjects: React.Dispatch<
+    React.SetStateAction<Project[] | undefined>
+  >;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
-
   return (
     <section className="">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
-        {isLoading
+        {!allProjects
           ? [0, 1, 2, 3, 4, 5].map((each, i) => {
               return (
                 <Fragment key={`${each}_${i}`}>
-                  <Skeleton className="h-[200px] rounded-[40px]" />
+                  <Skeleton className="h-[25vh] rounded-[3vw] bg-lightText/25 backdrop-blur-2xl" />
                 </Fragment>
               );
             })
@@ -68,7 +74,7 @@ function ProjectDisplay({
           {allProjects?.map((item) => {
             return (
               <Fragment key={item.id}>
-                <Card className="h-[200px] text-lightText z-0 hover:opacity-90 duration-300 hover:shadow-md">
+                <Card className="h-[25vh] text-lightText z-0 hover:opacity-90 duration-300 hover:shadow-md">
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-start">
                       <div>
@@ -84,12 +90,17 @@ function ProjectDisplay({
                           <span className="italic">{item.country}</span>
                         </p>
                       </div>
-                      <EditProject project={item} />
+                      <EditProject
+                        project={item}
+                        setAllProjects={setAllProjects}
+                        allProjects={allProjects}
+                      />
                     </div>
-                    <div className="mt-auto">
+                    <div className="mt-auto flex items-end justify-between gap-2">
                       <Banner
                         text={item.is_completed ? "completed" : "ongoing"}
                       />
+                      {item.updated_at ? <p className="text-sm">Last modified: <span className="italic">{formatAgo(item.updated_at)}</span></p>: null } 
                     </div>
                   </div>
                 </Card>
@@ -97,94 +108,194 @@ function ProjectDisplay({
             );
           })}
         </div>
-      ) : (
+      ) : allProjects && allProjects.length === 0 ? (
         <NotAvailable text="No projects created yet" />
-      )}
+      ) : null}
     </section>
   );
 }
 
 export default ProjectDisplay;
 
-function EditProject({ project }: { readonly project: Project | undefined }) {
+function EditProject({
+  project,
+  allProjects,
+  setAllProjects,
+}: {
+  readonly project: Project | undefined;
+  readonly setAllProjects: React.Dispatch<
+    React.SetStateAction<Project[] | undefined>
+  >;
+  readonly allProjects: Project[] | undefined;
+}) {
   const [projectInfo, setProjectInfo] = useState({
     name: "",
     city: "",
     country: "",
     month: "",
-    year: 0,
+    year: 1900,
     is_completed: false,
   });
-
-  // const [state, action, isLoading] = useActionState(
-  //   (prevState: any, formData: FormData) =>
-  //     editProject(prevState, formData, {
-  //       id: project?.id as string,
-  //       team_id: project?.team_id as string,
-  //     }),
-  //   {
-  //     message: "",
-  //     success: false,
-  //   }
-  // );
 
   const [dropDownOpen, setDropDownOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   // FOR DELETE PROJECT FUNCTIONALITY
-  const [loading, setLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (project) {
-  //     setProjectInfo({
-  //       name: project?.name,
-  //       city: project?.city ?? "",
-  //       country: project?.country,
-  //       month: project?.start_month,
-  //       year: project?.start_year,
-  //       is_completed: project?.is_completed,
-  //     });
-  //   }
-  // }, [project]);
+  const supabase = createClient();
 
-  // useEffect(() => {
-  //   if (!state?.success && state?.message) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Uh oh! Something went wrong",
-  //       description: state?.message,
-  //     });
-  //   } else if (state?.success) {
-  //     toast({
-  //       title: "Your profile was updated successfully!",
-  //     });
-  //   }
-  // }, [state]);
+  useEffect(() => {
+    if (project) {
+      setProjectInfo({
+        name: project?.name,
+        city: project?.city ?? "",
+        country: project?.country,
+        month: project?.start_month,
+        year: project?.start_year,
+        is_completed: project?.is_completed,
+      });
+    }
+  }, [project]);
 
-  // const deleteProject = async () => {
-  //   setLoading(true);
+  const editProject = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  //   try {
-  //     if (!project) {
-  //       return;
-  //     }
+    setEditLoading(true);
 
-  //     await deleteItem("projects", project.id);
+    const values = {
+      name: projectInfo.name,
+      city: projectInfo.city,
+      country: projectInfo.country,
+      month: projectInfo.month,
+      year: projectInfo.year,
+      is_completed: projectInfo.is_completed,
+    };
 
-  //     toast({
-  //       title: "Project was deleted successfully!",
-  //     });
-  //   } catch (err: any) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Uh oh! Something went wrong",
-  //       description: err.message,
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+    const result = EditProjectSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      setEditLoading(false)
+
+      return;
+    }
+
+    const { name, city, country, month, year, is_completed } = result.data;
+
+    try {
+      if (!project) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("projects")
+        .update({
+          name,
+          city: city?.trim() || null,
+          country,
+          start_month: month,
+          start_year: year,
+          is_completed,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", project.id)
+        .select()
+        .single();
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      if (!allProjects) {
+        return;
+      }
+
+      console.log("Before update:", allProjects);
+
+      if (data) {
+        handleEdit(project.id, data)
+      }
+
+      toast("Success", {
+        description: "Project updated successfully",
+      });
+
+      setEditOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+
+      return;
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const deleteProject = async () => {
+    setDeleteLoading(true);
+
+    try {
+      if (!project) {
+        return;
+      }
+
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", project.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      toast("Success", {
+        description: "Project deleted successfully",
+      });
+
+      handleDelete(project.id)
+
+      setDeleteOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+
+      return;
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  function handleEdit(id: string, newData: Project) {
+    setAllProjects((prev) => {
+      if (!prev) return prev; // nothing to update
+      return prev.map(item =>
+        item.id === id ? newData : item
+      );
+    });
+  }
+
+  function handleDelete(id: string) {
+    setAllProjects((prev) => {
+      if (!prev) return prev;
+      return prev.filter((item) => item.id !== id);
+    });
+  }
 
   return (
     <>
@@ -224,7 +335,7 @@ function EditProject({ project }: { readonly project: Project | undefined }) {
           <DialogHeader>
             <DialogTitle>Edit project</DialogTitle>
           </DialogHeader>
-          <form>
+          <form onSubmit={editProject}>
             {/* PROJECT NAME */}
             <Input
               label="Project name *"
@@ -252,7 +363,7 @@ function EditProject({ project }: { readonly project: Project | undefined }) {
             {/* COUNTRY LOCATION */}
             <CustomInput label="Country *" htmlFor="year" className="mt-5">
               <SelectBar
-                placeholder="Select country *"
+                placeholder="Select country"
                 value={projectInfo.country}
                 label="Countries"
                 className="mt-1"
@@ -277,9 +388,9 @@ function EditProject({ project }: { readonly project: Project | undefined }) {
                 className="flex-1"
               >
                 <SelectBar
-                  placeholder="Starting month *"
+                  label="Starting month *"
                   value={projectInfo.month}
-                  label="Months"
+                  placeholder="Select month"
                   className="mt-1"
                   valueChange={(text) => {
                     setProjectInfo({ ...projectInfo, month: text });
@@ -323,12 +434,9 @@ function EditProject({ project }: { readonly project: Project | undefined }) {
               <label htmlFor="is_completed">Completed?</label>
             </div>
             {/* SUBMIT BUTTON */}
-            {/* <div className="flex justify-end mt-6">
-              <Submit
-                loading={isLoading}
-                disabledLogic={isLoading}
-              />
-            </div> */}
+            <div className="flex justify-end mt-6">
+              <Submit loading={editLoading} disabledLogic={editLoading} />
+            </div>
           </form>
         </DialogContent>
       </Dialog>
@@ -343,8 +451,8 @@ function EditProject({ project }: { readonly project: Project | undefined }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {}}>
-              {loading ? <Loading className="w-5 h-5" /> : "Continue"}
+            <AlertDialogAction onClick={deleteProject}>
+              {deleteLoading ? <Loading className="w-5 h-5" /> : "Continue"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

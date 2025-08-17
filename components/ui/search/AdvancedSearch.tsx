@@ -51,7 +51,7 @@ function AdvancedSearch({
   function handleSort(name: string) {
     const params = new URLSearchParams(searchParams);
 
-    if (name) {
+    if (name && name !== "reset") {
       const sortBy = name.split(":");
 
       if (sortBy.length < 2) {
@@ -97,6 +97,7 @@ function AdvancedSearch({
                 </SelectItem>
               );
             })}
+            <SelectItem value={"reset"}>Reset</SelectItem>
           </SelectBar>
         </div>
       </div>

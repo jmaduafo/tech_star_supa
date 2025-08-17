@@ -2,6 +2,8 @@ import CheckAuth from "@/components/auth/CheckAuth";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserProvider } from "@/context/UserContext";
+import Loader from "@/components/ui/loading/Loader";
+import { Suspense } from "react";
 
 export default async function ClientWrapper({
   children,
@@ -28,7 +30,9 @@ export default async function ClientWrapper({
 
   return (
     <UserProvider value={{ user, userData: profile }}>
-      <CheckAuth>{children}</CheckAuth>
+      <Suspense fallback={<Loader />}>
+        <CheckAuth>{children}</CheckAuth>
+      </Suspense>
     </UserProvider>
   );
 }

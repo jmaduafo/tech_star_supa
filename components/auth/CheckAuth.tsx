@@ -1,6 +1,6 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import MainPage from "../pages/login_signup/MainPage";
 import AuthContainer from "./AuthContainer";
 import { images } from "@/utils/dataTools";
@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
 import { LoaderCircle } from "lucide-react";
+import Loader from "../ui/loading/Loader";
 
 function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -60,15 +61,8 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   }
 
   // LOADING STATE
-  if (!isMounted && (loading && !session && pathname === "/")) {
-    return (
-      <main className="h-screen w-full flex items-center justify-center bg-background bg-lightText text-darkText">
-        {/* Loading spinner or skeleton */}
-        <div className="animate-spin">
-            <LoaderCircle className="w-10 h-10"/>
-        </div>
-      </main>
-    );
+  if (!isMounted && loading && !session && pathname === "/") {
+    return <Loader />;
   }
 
   return (

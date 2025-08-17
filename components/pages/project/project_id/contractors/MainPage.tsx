@@ -19,6 +19,15 @@ import { Switch } from "@/components/ui/switch";
 import { ContractorSchema } from "@/zod/validation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { useParams } from "next/navigation";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 function MainPage() {
   const [filteredContractors, setFilteredContractors] = useState<
@@ -30,6 +39,8 @@ function MainPage() {
 
   const [sort, setSort] = useState("");
   const [searchValue, setSearchValue] = useState("");
+
+  const [projectName, setProjectName] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -46,6 +57,7 @@ function MainPage() {
 
   const { userData } = useAuth();
   const supabase = createClient();
+  const { project_id } = useParams();
 
   const getContractors = async () => {
     try {
@@ -75,9 +87,36 @@ function MainPage() {
     }
   };
 
+  const getSingleProject = async () => {
+    try {
+      if (!project_id) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("projects")
+        .select("name")
+        .eq("id", project_id)
+        .single();
+
+      if (error) {
+        console.error(error.message);
+        return;
+      }
+
+      setProjectName(data.name);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
   useEffect(() => {
     getContractors();
   }, []);
+
+  useEffect(() => {
+    getSingleProject();
+  }, [project_id]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,6 +219,30 @@ function MainPage() {
             )}`}
           />
         ) : null}
+      </div>
+      {/* BREADCRUMB DISPLAY */}
+      <div className="mb-8">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            {projectName.length ? (
+              <>
+                <BreadcrumbItem>
+                  <BreadcrumbLink>
+                    {projectName}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+              </>
+            ) : null}
+            <BreadcrumbItem>
+              <BreadcrumbPage>Contractors</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
       <div className="flex items-center gap-3">
         <div className="flex-1">

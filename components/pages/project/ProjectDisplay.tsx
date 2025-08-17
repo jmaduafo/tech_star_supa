@@ -91,7 +91,7 @@ function ProjectDisplay({
                           Since {item?.start_month?.substring(0, 3)}.{" "}
                           {item.start_year} -{" "}
                           {item?.city ? (
-                            <span className="italic">`${item.city}, `</span>
+                            <span className="italic capitalize">{item.city}, </span>
                           ) : null}
                           <span className="italic">{item.country}</span>
                         </p>

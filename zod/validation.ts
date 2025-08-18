@@ -79,21 +79,6 @@ export const EditMemberSchema = z.object({
   hire_type: z.enum(["employee", "contractor", "independent"]),
 });
 
-export const LoginUserSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: "Email field cannot be left empty." })
-    .email("This is not a valid email."),
-  password: z
-    .string()
-    .min(6, {
-      message: "Password must be at least 6 characters",
-    })
-    .max(100, {
-      message: "Password is too long. Must be 100 characters at most.",
-    }),
-});
-
 export const NamesValidation = z.object({
   first_name: z.string().min(1, {
     message: "First name must be filled in",
@@ -112,13 +97,6 @@ export const PasswordValidation = z.object({
     .max(100, {
       message: "Password is too long. Must be 100 characters at most.",
     }),
-});
-
-export const EmailValidation = z.object({
-  email: z
-    .string()
-    .min(1, { message: "This field has to be filled." })
-    .email("This is not a valid email."),
 });
 
 export const CreateProjectSchema = z.object({
@@ -168,25 +146,18 @@ export const EditProjectSchema = z.object({
     }),
 });
 
-export const CreateStagesSchema = z.object({
+export const StagesSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name for this stage." }),
-  description: z.string().min(1, {
-    message: "You must enter a description for this stage.",
-  }),
-});
-
-export const EditStageSchema = z.object({
-  name: z.string().min(1, { message: "You must enter a name for this stage." }),
-  description: z.string().min(1, {
-    message: "You must enter a description for this stage.",
-  }),
+  description: z.nullable(
+    z.string()
+  ),
   is_completed: z.boolean(),
 });
 
 export const ContractorSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name" }),
   relevance: z
-    .number()
+    .float32()
     .min(0, {
       message: "Level of relevance should be greater than or equal to 0",
     })

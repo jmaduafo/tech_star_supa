@@ -85,7 +85,7 @@ function MainPage() {
     setIsLoading(true);
 
     const values = {
-      name: form.name,
+      name: form.name.trim(),
       city: form.city.length ? form.city.trim() : null,
       country: form.country,
       relevance: form.relevance[0],

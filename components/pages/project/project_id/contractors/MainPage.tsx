@@ -39,7 +39,6 @@ function MainPage() {
 
   const [sort, setSort] = useState("");
   const [searchValue, setSearchValue] = useState("");
-
   const [projectName, setProjectName] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -59,63 +58,50 @@ function MainPage() {
   const supabase = createClient();
   const { project_id } = useParams();
 
-  const getContractors = async () => {
+  const getData = async () => {
     try {
-      if (!userData) {
+      if (!userData || !project_id) {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("contractors")
-        .select("*")
-        .eq("team_id", userData.team_id);
+      const [contractors, project] = await Promise.all([
+        // GETS ALL CONTRACTORS UNDER USER'S TEAM AND THAT MATCHES THE SELECT PROJECT
+        supabase
+          .from("contractors")
+          .select("*")
+          .eq("team_id", userData.team_id)
+          .eq("project_id", project_id),
+        // GETS THE PROJECT NAME
+        supabase.from("projects").select("name").eq("id", project_id).single(),
+      ]);
 
-      if (error) {
+      if (contractors?.error) {
         toast("Something went wrong", {
-          description: error.message,
+          description: contractors.error.message,
         });
 
-        console.error(error.message);
+        return;
+      }
+
+      if (project?.error) {
+        toast("Something went wrong", {
+          description: project.error.message,
+        });
 
         return;
       }
 
-      setAllContractors(data as Contractor[]);
-      setFilteredContractors(data as Contractor[]);
-    } catch (err: any) {
-      console.log(err.message);
-    }
-  };
+      setAllContractors(contractors.data as Contractor[]);
+      setFilteredContractors(contractors.data as Contractor[]);
 
-  const getSingleProject = async () => {
-    try {
-      if (!project_id) {
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("projects")
-        .select("name")
-        .eq("id", project_id)
-        .single();
-
-      if (error) {
-        console.error(error.message);
-        return;
-      }
-
-      setProjectName(data.name);
+      setProjectName(project.data.name);
     } catch (err: any) {
       console.log(err.message);
     }
   };
 
   useEffect(() => {
-    getContractors();
-  }, []);
-
-  useEffect(() => {
-    getSingleProject();
+    getData();
   }, [project_id]);
 
   const handleAdd = async (e: React.FormEvent) => {
@@ -124,7 +110,7 @@ function MainPage() {
     setIsLoading(true);
 
     const values = {
-      name: form.name,
+      name: form.name.trim(),
       city: form.city.length ? form.city.trim() : null,
       country: form.country,
       description: form.description.trim(),
@@ -162,7 +148,7 @@ function MainPage() {
           description: desc,
           relevance,
           is_available,
-          comment: comment?.trim() || null,
+          comment,
         })
         .select()
         .single();
@@ -210,7 +196,7 @@ function MainPage() {
 
   return (
     <div>
-      <div className="flex items-start gap-5 mb-8 text-lightText">
+      <div className="flex items-start gap-5 mt-8 text-lightText">
         <Header1 text="All Contractors" />
         {filteredContractors ? (
           <Header6
@@ -221,7 +207,7 @@ function MainPage() {
         ) : null}
       </div>
       {/* BREADCRUMB DISPLAY */}
-      <div className="mb-8">
+      <div className="mb-8 mt-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -231,9 +217,7 @@ function MainPage() {
             {projectName.length ? (
               <>
                 <BreadcrumbItem>
-                  <BreadcrumbLink>
-                    {projectName}
-                  </BreadcrumbLink>
+                  <BreadcrumbLink>{projectName}</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
               </>

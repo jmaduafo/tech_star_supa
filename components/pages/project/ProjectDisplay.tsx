@@ -26,6 +26,8 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -44,6 +46,8 @@ import NotAvailable from "@/components/ui/NotAvailable";
 import { createClient } from "@/lib/supabase/client";
 import { EditProjectSchema } from "@/zod/validation";
 import { Slider } from "@/components/ui/slider";
+import { useAuth } from "@/context/UserContext";
+import AddStage from "./AddStage";
 
 function ProjectDisplay({
   user,
@@ -56,7 +60,6 @@ function ProjectDisplay({
     React.SetStateAction<Project[] | undefined>
   >;
 }) {
-
   const notAvailable =
     allProjects && allProjects.length === 0 ? (
       <NotAvailable text="No projects created yet" />
@@ -91,12 +94,14 @@ function ProjectDisplay({
                           Since {item?.start_month?.substring(0, 3)}.{" "}
                           {item.start_year} -{" "}
                           {item?.city ? (
-                            <span className="italic capitalize">{item.city}, </span>
+                            <span className="italic capitalize">
+                              {item.city},{" "}
+                            </span>
                           ) : null}
                           <span className="italic">{item.country}</span>
                         </p>
                       </div>
-                      <EditProject
+                      <DropDown
                         project={item}
                         setAllProjects={setAllProjects}
                         allProjects={allProjects}
@@ -121,14 +126,16 @@ function ProjectDisplay({
             );
           })}
         </div>
-      ) : notAvailable}
+      ) : (
+        notAvailable
+      )}
     </section>
   );
 }
 
 export default ProjectDisplay;
 
-function EditProject({
+function DropDown({
   project,
   allProjects,
   setAllProjects,
@@ -139,6 +146,191 @@ function EditProject({
   >;
   readonly allProjects: Project[] | undefined;
 }) {
+  const [dropDownOpen, setDropDownOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addStageOpen, setAddStageOpen] = useState(false);
+  const [viewStageOpen, setViewStageOpen] = useState(false);
+
+  const { userData } = useAuth();
+
+  return (
+    <>
+      <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
+        <DropdownMenuTrigger asChild>
+          {userData?.role === "admin" ? (
+            <button>
+              <EllipsisVertical className="w-5 h-5" />
+            </button>
+          ) : null}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>Project stages</DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={() => {
+                setAddStageOpen(true);
+                setDropDownOpen(false);
+                setEditOpen(false);
+              }}
+            >
+              Add stage
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setViewStageOpen(true);
+                // setDropDownOpen(false);
+              }}
+            >
+              View stages
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={() => {
+                setEditOpen(true);
+                // setDropDownOpen(false);
+              }}
+            >
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setDeleteOpen(true);
+                setEditOpen(false);
+                setDropDownOpen(false);
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AddStage project={project} open={addStageOpen} setOpen={setAddStageOpen} />
+      <EditProject
+        project={project}
+        allProjects={allProjects}
+        setAllProjects={setAllProjects}
+        open={editOpen}
+        setOpen={setEditOpen}
+      />
+      <DeleteProject
+        project={project}
+        allProjects={allProjects}
+        setAllProjects={setAllProjects}
+        open={deleteOpen}
+        setOpen={setDeleteOpen}
+      />
+    </>
+  );
+}
+
+// DELETE PROJECT ALERT FUNCTIONALITY
+const DeleteProject = ({
+  project,
+  allProjects,
+  setAllProjects,
+  open,
+  setOpen,
+}: {
+  readonly project: Project | undefined;
+  readonly allProjects: Project[] | undefined;
+  readonly setAllProjects: React.Dispatch<
+    React.SetStateAction<Project[] | undefined>
+  >;
+  readonly open: boolean;
+  readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const supabase = createClient();
+
+  const deleteProject = async () => {
+    setDeleteLoading(true);
+
+    try {
+      if (!project) {
+        return;
+      }
+
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", project.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: "Project deleted successfully",
+      });
+
+      handleDelete(project.id);
+
+      setOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+
+      return;
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  function handleDelete(id: string) {
+    setAllProjects((prev) => {
+      if (!prev) return prev;
+      return prev.filter((item) => item.id !== id);
+    });
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the
+            selected project from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteProject}>
+            {deleteLoading ? <Loading className="w-5 h-5" /> : "Continue"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+// EDIT DIALOG POP UP
+const EditProject = ({
+  project,
+  allProjects,
+  setAllProjects,
+  open,
+  setOpen,
+}: {
+  readonly project: Project | undefined;
+  readonly allProjects: Project[] | undefined;
+  readonly setAllProjects: React.Dispatch<
+    React.SetStateAction<Project[] | undefined>
+  >;
+  readonly open: boolean;
+  readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const supabase = createClient();
+
   const [projectInfo, setProjectInfo] = useState({
     name: "",
     city: "",
@@ -149,15 +341,7 @@ function EditProject({
     is_completed: false,
   });
 
-  const [dropDownOpen, setDropDownOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  // FOR DELETE PROJECT FUNCTIONALITY
   const [editLoading, setEditLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-
-  const supabase = createClient();
 
   useEffect(() => {
     if (project) {
@@ -184,7 +368,7 @@ function EditProject({
       country: projectInfo.country,
       month: projectInfo.month,
       year: projectInfo.year,
-      relevance: projectInfo.relevance[0], 
+      relevance: projectInfo.relevance[0],
       is_completed: projectInfo.is_completed,
     };
 
@@ -200,7 +384,8 @@ function EditProject({
       return;
     }
 
-    const { name, city, country, month, year, is_completed, relevance } = result.data;
+    const { name, city, country, month, year, is_completed, relevance } =
+      result.data;
 
     try {
       if (!project) {
@@ -235,17 +420,15 @@ function EditProject({
         return;
       }
 
-      console.log("Before update:", allProjects);
-
       if (data) {
         handleEdit(project.id, data);
       }
 
-      toast("Success", {
+      toast("Success!", {
         description: "Project updated successfully",
       });
 
-      setEditOpen(false);
+      setOpen(false);
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,
@@ -257,45 +440,6 @@ function EditProject({
     }
   };
 
-  const deleteProject = async () => {
-    setDeleteLoading(true);
-
-    try {
-      if (!project) {
-        return;
-      }
-
-      const { error } = await supabase
-        .from("projects")
-        .delete()
-        .eq("id", project.id);
-
-      if (error) {
-        toast("Something went wrong", {
-          description: error.message,
-        });
-
-        return;
-      }
-
-      toast("Success", {
-        description: "Project deleted successfully",
-      });
-
-      handleDelete(project.id);
-
-      setDeleteOpen(false);
-    } catch (err: any) {
-      toast("Something went wrong", {
-        description: err.message,
-      });
-
-      return;
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
   function handleEdit(id: string, newData: Project) {
     setAllProjects((prev) => {
       if (!prev) return prev; // nothing to update
@@ -303,190 +447,138 @@ function EditProject({
     });
   }
 
-  function handleDelete(id: string) {
-    setAllProjects((prev) => {
-      if (!prev) return prev;
-      return prev.filter((item) => item.id !== id);
-    });
-  }
-
   return (
-    <>
-      <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
-        <DropdownMenuTrigger asChild>
-          <button>
-            <EllipsisVertical className="w-5 h-5" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={() => {
-                setEditOpen(true);
-                setDropDownOpen(false);
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent
+        aria-describedby="edit project popup"
+        className="sm:max-w-sm"
+      >
+        <DialogHeader>
+          <DialogTitle>Edit project</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={editProject}>
+          {/* PROJECT NAME */}
+          <Input
+            label="Project name *"
+            htmlFor="name"
+            type="text"
+            value={projectInfo.name}
+            onChange={(e) =>
+              setProjectInfo({ ...projectInfo, name: e.target.value })
+            }
+            name={"name"}
+            id="name"
+          />
+          <Input
+            label="City"
+            htmlFor="city"
+            type="text"
+            value={projectInfo.city}
+            onChange={(e) =>
+              setProjectInfo({ ...projectInfo, city: e.target.value })
+            }
+            name={"city"}
+            id="city"
+            className="mt-3"
+          />
+          {/* COUNTRY LOCATION */}
+          <CustomInput label="Country *" htmlFor="year" className="mt-5">
+            <SelectBar
+              placeholder="Select country"
+              value={projectInfo.country}
+              label="Countries"
+              className="mt-1"
+              valueChange={(text) => {
+                setProjectInfo({ ...projectInfo, country: text });
               }}
             >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setDeleteOpen(true);
-                setEditOpen(false);
-                setDropDownOpen(false);
-              }}
+              {country_list.map((item) => {
+                return (
+                  <SelectItem key={item.name} value={item.name}>
+                    {item.name}
+                  </SelectItem>
+                );
+              })}
+            </SelectBar>
+          </CustomInput>
+          <div className="mt-3">
+            <label htmlFor="importance_level" className="">
+              Level of relevance (not as crucial to extremely crucial) *
+            </label>
+            <p className="text-right text-dark75 text-[13px]">
+              {projectInfo.relevance}
+            </p>
+            <Slider
+              name="relevance"
+              id="relevance"
+              value={projectInfo.relevance}
+              onValueChange={(val) =>
+                setProjectInfo({ ...projectInfo, relevance: val })
+              }
+              max={5}
+              step={0.5}
+              className="mt-2"
+            />
+          </div>
+          <div className="flex items-end gap-4 mt-5">
+            {/* STARTING MONTH */}
+            <CustomInput
+              label="Starting month *"
+              htmlFor="month"
+              className="flex-1"
             >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent
-          aria-describedby="edit project popup"
-          className="sm:max-w-sm"
-        >
-          <DialogHeader>
-            <DialogTitle>Edit project</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={editProject}>
-            {/* PROJECT NAME */}
-            <Input
-              label="Project name *"
-              htmlFor="name"
-              type="text"
-              value={projectInfo.name}
-              onChange={(e) =>
-                setProjectInfo({ ...projectInfo, name: e.target.value })
-              }
-              name={"name"}
-              id="name"
-            />
-            <Input
-              label="City"
-              htmlFor="city"
-              type="text"
-              value={projectInfo.city}
-              onChange={(e) =>
-                setProjectInfo({ ...projectInfo, city: e.target.value })
-              }
-              name={"city"}
-              id="city"
-              className="mt-3"
-            />
-            {/* COUNTRY LOCATION */}
-            <CustomInput label="Country *" htmlFor="year" className="mt-5">
               <SelectBar
-                placeholder="Select country"
-                value={projectInfo.country}
-                label="Countries"
+                label="Starting month *"
+                value={projectInfo.month}
+                placeholder="Select month"
                 className="mt-1"
                 valueChange={(text) => {
-                  setProjectInfo({ ...projectInfo, country: text });
+                  setProjectInfo({ ...projectInfo, month: text });
                 }}
               >
-                {country_list.map((item) => {
+                {months.map((item) => {
                   return (
-                    <SelectItem key={item.name} value={item.name}>
-                      {item.name}
+                    <SelectItem key={item} value={item}>
+                      {item}
                     </SelectItem>
                   );
                 })}
               </SelectBar>
             </CustomInput>
-            <div className="mt-3">
-                          <label htmlFor="importance_level" className="">
-                            Level of relevance (not as crucial to extremely crucial) *
-                          </label>
-                          <p className="text-right text-dark75 text-[13px]">
-                            {projectInfo.relevance}
-                          </p>
-                          <Slider
-                            name="relevance"
-                            id="relevance"
-                            value={projectInfo.relevance}
-                            onValueChange={(val) => setProjectInfo({ ...projectInfo, relevance: val })}
-                            max={5}
-                            step={0.5}
-                            className="mt-2"
-                          />
-                        </div>
-            <div className="flex items-end gap-4 mt-5">
-              {/* STARTING MONTH */}
-              <CustomInput
-                label="Starting month *"
-                htmlFor="month"
-                className="flex-1"
-              >
-                <SelectBar
-                  label="Starting month *"
-                  value={projectInfo.month}
-                  placeholder="Select month"
-                  className="mt-1"
-                  valueChange={(text) => {
-                    setProjectInfo({ ...projectInfo, month: text });
-                  }}
-                >
-                  {months.map((item) => {
-                    return (
-                      <SelectItem key={item} value={item}>
-                        {item}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectBar>
-              </CustomInput>
-              {/* STARTING YEAR */}
-              <Input
-                label="Starting year *"
-                htmlFor="year"
-                type="number"
-                value={projectInfo.year}
-                onChange={(e) =>
-                  setProjectInfo({
-                    ...projectInfo,
-                    year: e.target.valueAsNumber,
-                  })
-                }
-                name={"year"}
-                id="year"
-                className="flex-1"
-              />
-            </div>
-            <div className="flex items-center gap-2 mt-3">
-              <Switch
-                id="is_completed"
-                name="is_completed"
-                checked={projectInfo.is_completed}
-                onCheckedChange={(val) =>
-                  setProjectInfo({ ...projectInfo, is_completed: val })
-                }
-              />
-              <label htmlFor="is_completed">Completed?</label>
-            </div>
-            {/* SUBMIT BUTTON */}
-            <div className="flex justify-end mt-6">
-              <Submit loading={editLoading} disabledLogic={editLoading} />
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              selected project from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={deleteProject}>
-              {deleteLoading ? <Loading className="w-5 h-5" /> : "Continue"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+            {/* STARTING YEAR */}
+            <Input
+              label="Starting year *"
+              htmlFor="year"
+              type="number"
+              value={projectInfo.year}
+              onChange={(e) =>
+                setProjectInfo({
+                  ...projectInfo,
+                  year: e.target.valueAsNumber,
+                })
+              }
+              name={"year"}
+              id="year"
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-2 mt-3">
+            <Switch
+              id="is_completed"
+              name="is_completed"
+              checked={projectInfo.is_completed}
+              onCheckedChange={(val) =>
+                setProjectInfo({ ...projectInfo, is_completed: val })
+              }
+            />
+            <label htmlFor="is_completed">Completed?</label>
+          </div>
+          {/* SUBMIT BUTTON */}
+          <div className="flex justify-end mt-6">
+            <Submit loading={editLoading} disabledLogic={editLoading} />
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
-}
+};

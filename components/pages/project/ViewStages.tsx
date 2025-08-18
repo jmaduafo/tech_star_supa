@@ -358,6 +358,8 @@ const EditRow = ({
       toast("Success!", {
         description: "Stage updated successfully",
       });
+
+      setStage(undefined)
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,

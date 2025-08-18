@@ -48,6 +48,7 @@ import { EditProjectSchema } from "@/zod/validation";
 import { Slider } from "@/components/ui/slider";
 import { useAuth } from "@/context/UserContext";
 import AddStage from "./AddStage";
+import ViewStages from "./ViewStages";
 
 function ProjectDisplay({
   user,
@@ -158,56 +159,63 @@ function DropDown({
     <>
       <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
         <DropdownMenuTrigger asChild>
-          {userData?.role === "admin" ? (
-            <button>
-              <EllipsisVertical className="w-5 h-5" />
-            </button>
-          ) : null}
+          <button>
+            <EllipsisVertical className="w-5 h-5" />
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Project stages</DropdownMenuLabel>
+        <DropdownMenuContent align="start">
+          <DropdownMenuLabel>Stages</DropdownMenuLabel>
           <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={() => {
-                setAddStageOpen(true);
-                setDropDownOpen(false);
-                setEditOpen(false);
-              }}
-            >
-              Add stage
-            </DropdownMenuItem>
+            {userData?.role === "admin" ? (
+              <DropdownMenuItem
+                onClick={() => {
+                  setAddStageOpen(true);
+                }}
+              >
+                Add stage
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem
               onClick={() => {
                 setViewStageOpen(true);
-                // setDropDownOpen(false);
               }}
             >
               View stages
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={() => {
-                setEditOpen(true);
-                // setDropDownOpen(false);
-              }}
-            >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setDeleteOpen(true);
-                setEditOpen(false);
-                setDropDownOpen(false);
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
+          {userData?.role === "admin" ? (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setEditOpen(true);
+                  }}
+                >
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDeleteOpen(true);
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
-      <AddStage project={project} open={addStageOpen} setOpen={setAddStageOpen} />
+      <AddStage
+        project={project}
+        open={addStageOpen}
+        setOpen={setAddStageOpen}
+      />
+      <ViewStages
+        project={project}
+        open={viewStageOpen}
+        setOpen={setViewStageOpen}
+      />
       <EditProject
         project={project}
         allProjects={allProjects}

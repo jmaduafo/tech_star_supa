@@ -354,6 +354,7 @@ const EditRow = ({
           name,
           description,
           is_completed,
+          updated_at: new Date().toISOString()
         })
         .eq("id", stage.id);
 

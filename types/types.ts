@@ -57,6 +57,11 @@ export type TimeStamp = {
   seconds: number;
 };
 
+export type MultiSelect = {
+  label: string;
+  value: string;
+};
+
 export type Currencies = {
   id: string;
   symbol: string;

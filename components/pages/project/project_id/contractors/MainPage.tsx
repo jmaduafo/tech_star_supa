@@ -247,14 +247,11 @@ function MainPage() {
             {projectName.length ? (
               <>
                 <BreadcrumbItem>
-                  <BreadcrumbLink>{projectName}</BreadcrumbLink>
+                  <BreadcrumbPage>{projectName}</BreadcrumbPage>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
               </>
             ) : null}
-            <BreadcrumbItem>
-              <BreadcrumbPage>Contractors</BreadcrumbPage>
-            </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
@@ -337,7 +334,7 @@ function MainPage() {
               </p>
             </div>
             <div className="mt-3">
-              <label htmlFor="importance_level" className="">
+              <label htmlFor="relevance" className="">
                 Level of relevance (not as crucial to extremely crucial) *
               </label>
               <p className="text-right text-dark75 text-[13px]">
@@ -368,8 +365,8 @@ function MainPage() {
             </CustomInput>
             <div className="flex items-center gap-2 mt-3">
               <Switch
-                id="is_available"
-                name="is_available"
+                id="status"
+                name="status"
                 checked={form.is_available}
               />
               <label htmlFor="status">Is contractor available?</label>
@@ -383,7 +380,6 @@ function MainPage() {
       </div>
       <div className="mt-10">
         <ContractorDisplay
-          user={userData}
           allContractors={filteredContractors}
         />
       </div>

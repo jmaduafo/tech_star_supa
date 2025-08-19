@@ -1,3 +1,5 @@
+"use client";
+
 import Header4 from "@/components/fontsize/Header4";
 import Banner from "@/components/ui/Banner";
 import Submit from "@/components/ui/buttons/Submit";
@@ -14,6 +16,8 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import CustomInput from "@/components/ui/input/CustomInput";
@@ -21,7 +25,7 @@ import SelectBar from "@/components/ui/input/SelectBar";
 import Loading from "@/components/ui/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Contractor, User } from "@/types/types";
+import { Contractor, MultiSelect, Stage, User } from "@/types/types";
 import { country_list } from "@/utils/dataTools";
 import { ContractorSchema } from "@/zod/validation";
 import {
@@ -40,17 +44,17 @@ import { createClient } from "@/lib/supabase/client";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 import Input from "@/components/ui/input/Input";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { format as formatAgo } from "timeago.js";
 import { Slider } from "@/components/ui/slider";
 import { useAuth } from "@/context/UserContext";
+import { useParams } from "next/navigation";
+import MultiSelectBar from "@/components/ui/input/MultiSelectBar";
 
 function ContractorDisplay({
-  user,
   allContractors,
 }: {
-  readonly user: User | undefined;
   readonly allContractors: Contractor[] | undefined;
 }) {
   const notAvailable =
@@ -136,35 +140,109 @@ function DropDown({
 }) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [viewContractorOpen, setViewContractorOpen] = useState(false);
+  const [viewStagesOpen, setViewStagesOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
+
+  const [stages, setStages] = useState<MultiSelect[] | undefined>();
 
   const { userData } = useAuth();
+  const { project_id } = useParams();
+  const supabase = createClient();
+
+  const getStages = async () => {
+    try {
+      if (!project_id || !contractor || !userData) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("stages")
+        .select("id, name")
+        .eq("team_id", userData?.team_id)
+        .eq("project_id", project_id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      const keyValue: MultiSelect[] = []
+
+      data.forEach(item => {
+        keyValue.push({label: item.name, value: item.id})
+      })
+
+      console.log(keyValue)
+
+      setStages(keyValue);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getStages();
+  }, [project_id]);
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          {userData?.role === "admin" ? (
-            <button>
-              <EllipsisVertical className="w-5 h-5" />
-            </button>
-          ) : null}
+          <button>
+            <EllipsisVertical className="w-5 h-5" />
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuGroup>
+            {userData?.role === "admin" ? (
+              <DropdownMenuItem
+                onClick={() => {
+                  setAssignOpen(true);
+                }}
+              >
+                Assign stages
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem
               onClick={() => {
-                setEditOpen(true);
+                setViewStagesOpen(true);
               }}
             >
-              Edit
+              View stages
             </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Contractor</DropdownMenuLabel>
+          <DropdownMenuGroup>
             <DropdownMenuItem
               onClick={() => {
-                setDeleteOpen(true);
+                setViewContractorOpen(true);
               }}
             >
-              Delete
+              View
             </DropdownMenuItem>
+            {userData?.role === "admin" ? (
+              <>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setEditOpen(true);
+                  }}
+                >
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDeleteOpen(true);
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </>
+            ) : null}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -176,7 +254,61 @@ function DropDown({
         setDeleteOpen={setDeleteOpen}
         setEditOpen={setEditOpen}
       />
+      <AssignStage
+        stages={stages}
+        contractor={contractor}
+        user={userData}
+        open={assignOpen}
+        setOpen={setAssignOpen}
+      />
     </>
+  );
+}
+
+function AssignStage({
+  stages,
+  contractor,
+  user,
+  open,
+  setOpen,
+}: {
+  readonly stages: MultiSelect[] | undefined;
+  readonly contractor: Contractor | undefined;
+  readonly user: User | undefined;
+  readonly open: boolean;
+  readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [stageIds, setStageIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Assign stage</DialogTitle>
+          <DialogDescription>
+            Appoint{" "}
+            {contractor
+              ? contractor.name.charAt(0).toUpperCase() +
+                contractor.name.slice(1)
+              : "contractor"}{" "}
+            one or multiple stages that they would be participating in
+          </DialogDescription>
+        </DialogHeader>
+        <form>
+          {/* ADD AND DELETE BANK NAMES */}
+          <MultiSelectBar
+            array={stages}
+            selectedArray={stageIds}
+            setSelectedArray={setStageIds}
+            name="stages"
+          />
+          <div className="flex justify-end mt-6">
+            <Submit loading={isLoading} disabledLogic={isLoading} />
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Fragment, useState } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -24,8 +24,6 @@ function MultiSelectBar({
   array,
   selectedArray,
   setSelectedArray,
-  setOpen,
-  open,
 }: {
   readonly name: string;
   readonly array: MultiSelect[] | undefined;
@@ -33,9 +31,9 @@ function MultiSelectBar({
   readonly setSelectedArray: React.Dispatch<
     React.SetStateAction<MultiSelect[]>
   >;
-  readonly open: boolean;
-  readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -43,15 +41,44 @@ function MultiSelectBar({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-full justify-between py-6"
         >
-          <span>Select {name}</span>
+          {selectedArray.length ? (
+            <span className="flex flex-wrap gap-1 items-center">
+              {selectedArray.map((item) => {
+                return (
+                  <span
+                    key={item.value}
+                    className="py-0.5 px-4 bg-darkText text-lightText h-full rounded-full whitespace-nowrap"
+                  >
+                    <p className="text-[12.5px] flex items-center gap-2 font-light">
+                      {item.label}
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        className="hover:bg-red-400 "
+                        onClick={() =>
+                          setSelectedArray((prev) =>
+                            prev.filter((sel) => sel.value !== item.value)
+                          )
+                        }
+                      >
+                        <X size={12} strokeWidth={1} />
+                      </span>
+                    </p>
+                  </span>
+                );
+              })}
+            </span>
+          ) : (
+            <span>Select {name}...</span>
+          )}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder="Search items..." className="h-9" />
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
@@ -62,6 +89,7 @@ function MultiSelectBar({
                         item={item}
                         selectedArray={selectedArray}
                         setSelectedArray={setSelectedArray}
+                        array={array}
                       />
                     </Fragment>
                   ))
@@ -80,7 +108,9 @@ const ToggleItem = ({
   item,
   selectedArray,
   setSelectedArray,
+  array,
 }: {
+  readonly array: MultiSelect[];
   readonly item: MultiSelect;
   readonly selectedArray: MultiSelect[];
   readonly setSelectedArray: React.Dispatch<
@@ -89,16 +119,19 @@ const ToggleItem = ({
 }) => {
   const [value, setValue] = useState("");
 
-  const handleToggle = (currentValue: string) => {
-    setValue(currentValue);
+  const handleToggle = (currentValue: string, value: string) => {
+    if (array) {
+      const obj = array.find(
+        (sel) => sel.label.toLowerCase() === currentValue
+      )?.value;
+
+      obj && setValue(obj);
+    }
 
     let checkArray = selectedArray.find((sel) => sel.value === value);
 
-  
     if (checkArray) {
-      setSelectedArray((prev) =>
-        prev.filter((val) => val.value !== currentValue)
-      );
+      setSelectedArray((prev) => prev.filter((val) => val.value !== value));
     } else {
       setSelectedArray((prev) => [...prev, item]);
     }
@@ -113,9 +146,9 @@ const ToggleItem = ({
 
   return (
     <CommandItem
-      value={item.value}
+      value={item.label}
       onSelect={(val) => {
-        handleToggle(val);
+        handleToggle(val, item.value);
       }}
     >
       {item.label}

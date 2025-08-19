@@ -280,7 +280,6 @@ function AssignStage({
 }) {
   const [stageList, setStageList] = useState<MultiSelect[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [multiOpen, setMultiOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -296,25 +295,13 @@ function AssignStage({
             one or multiple stages that they would be participating in
           </DialogDescription>
         </DialogHeader>
-        <div className="flex gap-1 flex-wrap">
-          {stageList.map((item) => {
-            return (
-              <div key={item.value}>
-                <p>{item.label}</p>
-              </div>
-            );
-          })}
-        </div>
         <form>
           {/* ADD AND DELETE BANK NAMES */}
           <MultiSelectBar
             array={stages}
             selectedArray={stageList}
             setSelectedArray={setStageList}
-            name="stages"
-            open={multiOpen}
-            setOpen={setMultiOpen}
-          />
+            name="stages"           />
           <div className="flex justify-end mt-6">
             <Submit loading={isLoading} disabledLogic={isLoading} />
           </div>

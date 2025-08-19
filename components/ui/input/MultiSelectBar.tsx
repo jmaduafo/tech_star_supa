@@ -24,14 +24,18 @@ function MultiSelectBar({
   array,
   selectedArray,
   setSelectedArray,
+  setOpen,
+  open,
 }: {
   readonly name: string;
   readonly array: MultiSelect[] | undefined;
   readonly selectedArray: MultiSelect[];
-  readonly setSelectedArray: React.Dispatch<React.SetStateAction<MultiSelect[]>>;
+  readonly setSelectedArray: React.Dispatch<
+    React.SetStateAction<MultiSelect[]>
+  >;
+  readonly open: boolean;
+  readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [open, setOpen] = useState(false);
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -79,22 +83,32 @@ const ToggleItem = ({
 }: {
   readonly item: MultiSelect;
   readonly selectedArray: MultiSelect[];
-  readonly setSelectedArray: React.Dispatch<React.SetStateAction<MultiSelect[]>>;
+  readonly setSelectedArray: React.Dispatch<
+    React.SetStateAction<MultiSelect[]>
+  >;
 }) => {
   const [value, setValue] = useState("");
 
   const handleToggle = (currentValue: string) => {
-    setValue(currentValue)
+    setValue(currentValue);
 
-    let checkArray = selectedArray.find(sel => sel.value === value) 
+    let checkArray = selectedArray.find((sel) => sel.value === value);
 
+  
     if (checkArray) {
-      setSelectedArray(selectedArray.filter((val) => val.value !== currentValue));
+      setSelectedArray((prev) =>
+        prev.filter((val) => val.value !== currentValue)
+      );
     } else {
-      setSelectedArray([...selectedArray, item]);
+      setSelectedArray((prev) => [...prev, item]);
     }
 
-    console.log(selectedArray)
+    // ENSURES THAT THE ARRAY IS UNIQUE EVERY TIME SO THERE ARE NO ISSUES WITH
+    // KEYS
+    setSelectedArray((prev) => {
+      const uniqueSet = new Set(prev.map((obj) => JSON.stringify(obj)));
+      return Array.from(uniqueSet).map((str) => JSON.parse(str));
+    });
   };
 
   return (
@@ -108,7 +122,9 @@ const ToggleItem = ({
       <Check
         className={cn(
           "ml-auto",
-          selectedArray.find(sel => sel.value === value) ? "opacity-100" : "opacity-0"
+          selectedArray.find((sel) => sel.value === item.value)
+            ? "opacity-100"
+            : "opacity-0"
         )}
       />
     </CommandItem>

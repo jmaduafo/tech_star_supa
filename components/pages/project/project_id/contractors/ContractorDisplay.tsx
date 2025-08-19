@@ -170,13 +170,13 @@ function DropDown({
         return;
       }
 
-      const keyValue: MultiSelect[] = []
+      const keyValue: MultiSelect[] = [];
 
-      data.forEach(item => {
-        keyValue.push({label: item.name, value: item.id})
-      })
+      data.forEach((item) => {
+        keyValue.push({ label: item.name, value: item.id });
+      });
 
-      console.log(keyValue)
+      console.log(keyValue);
 
       setStages(keyValue);
     } catch (err: any) {
@@ -278,8 +278,9 @@ function AssignStage({
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [stageIds, setStageIds] = useState<MultiSelect[]>([]);
+  const [stageList, setStageList] = useState<MultiSelect[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [multiOpen, setMultiOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -295,13 +296,24 @@ function AssignStage({
             one or multiple stages that they would be participating in
           </DialogDescription>
         </DialogHeader>
+        <div className="flex gap-1 flex-wrap">
+          {stageList.map((item) => {
+            return (
+              <div key={item.value}>
+                <p>{item.label}</p>
+              </div>
+            );
+          })}
+        </div>
         <form>
           {/* ADD AND DELETE BANK NAMES */}
           <MultiSelectBar
             array={stages}
-            selectedArray={stageIds}
-            setSelectedArray={setStageIds}
+            selectedArray={stageList}
+            setSelectedArray={setStageList}
             name="stages"
+            open={multiOpen}
+            setOpen={setMultiOpen}
           />
           <div className="flex justify-end mt-6">
             <Submit loading={isLoading} disabledLogic={isLoading} />

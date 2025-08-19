@@ -278,7 +278,7 @@ function AssignStage({
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [stageIds, setStageIds] = useState<string[]>([]);
+  const [stageIds, setStageIds] = useState<MultiSelect[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   return (

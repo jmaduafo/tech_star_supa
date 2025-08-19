@@ -27,8 +27,8 @@ function MultiSelectBar({
 }: {
   readonly name: string;
   readonly array: MultiSelect[] | undefined;
-  readonly selectedArray: string[];
-  readonly setSelectedArray: React.Dispatch<React.SetStateAction<string[]>>;
+  readonly selectedArray: MultiSelect[];
+  readonly setSelectedArray: React.Dispatch<React.SetStateAction<MultiSelect[]>>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -52,7 +52,7 @@ function MultiSelectBar({
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
               {array
-                ? array.map((item) => (
+                ? array.map((item, i) => (
                     <Fragment key={item.value}>
                       <ToggleItem
                         item={item}
@@ -78,21 +78,23 @@ const ToggleItem = ({
   setSelectedArray,
 }: {
   readonly item: MultiSelect;
-  readonly selectedArray: string[];
-  readonly setSelectedArray: React.Dispatch<React.SetStateAction<string[]>>;
+  readonly selectedArray: MultiSelect[];
+  readonly setSelectedArray: React.Dispatch<React.SetStateAction<MultiSelect[]>>;
 }) => {
-  const [isSelected, setIsSelected] = useState(false);
   const [value, setValue] = useState("");
 
   const handleToggle = (currentValue: string) => {
-    setValue(currentValue);
-    setIsSelected((prev) => !prev);
+    setValue(currentValue)
 
-    if (!isSelected) {
-      setSelectedArray(selectedArray.filter((val) => val !== currentValue));
+    let checkArray = selectedArray.find(sel => sel.value === value) 
+
+    if (checkArray) {
+      setSelectedArray(selectedArray.filter((val) => val.value !== currentValue));
     } else {
-      setSelectedArray([...selectedArray, currentValue]);
+      setSelectedArray([...selectedArray, item]);
     }
+
+    console.log(selectedArray)
   };
 
   return (
@@ -106,7 +108,7 @@ const ToggleItem = ({
       <Check
         className={cn(
           "ml-auto",
-          selectedArray.includes(value) ? "opacity-100" : "opacity-0"
+          selectedArray.find(sel => sel.value === value) ? "opacity-100" : "opacity-0"
         )}
       />
     </CommandItem>

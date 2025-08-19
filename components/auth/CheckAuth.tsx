@@ -1,13 +1,12 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainPage from "../pages/login_signup/MainPage";
 import AuthContainer from "./AuthContainer";
 import { images } from "@/utils/dataTools";
 import { Toaster } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
-import { LoaderCircle } from "lucide-react";
 import Loader from "../ui/loading/Loader";
 
 function CheckAuth({ children }: { readonly children: React.ReactNode }) {
@@ -29,8 +28,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     const { data: subscription } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (
-          (event === "SIGNED_IN" && pathname === "/") ||
-          pathname === "/auth/login"
+          (event === "SIGNED_IN" && pathname === "/")
         ) {
           // handle initial session
           route.push("/dashboard");

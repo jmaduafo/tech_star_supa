@@ -204,6 +204,25 @@ function MainPage() {
     filterProjects();
   }, [searchParams]);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "projects",
+        },
+        (payload) => getProjects()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, allProjects, setAllProjects]);
+
   return (
     <div>
       <div className="flex items-start gap-5 mb-8 text-lightText">

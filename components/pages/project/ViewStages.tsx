@@ -44,6 +44,8 @@ import Input from "@/components/ui/input/Input";
 import CustomInput from "@/components/ui/input/CustomInput";
 import Submit from "@/components/ui/buttons/Submit";
 import { StagesSchema } from "@/zod/validation";
+import Paragraph from "@/components/fontsize/Paragraph";
+import { optionalS } from "@/utils/optionalS";
 
 function ViewStages({
   open,
@@ -92,11 +94,21 @@ function ViewStages({
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
-          className={`sm:max-w-[600px] bg-lightText/10`}
+          className={`sm:max-w-[600px] bg-lightText/5`}
           aria-describedby="view stage popup"
         >
           <DialogHeader>
-            <DialogTitle className="text-lightText">All stages</DialogTitle>
+            <div className="flex items-start gap-3">
+              <DialogTitle className="text-lightText text-3xl font-normal">
+                All stages
+              </DialogTitle>
+              {data ? (
+                <Paragraph
+                  text={`${data.length} result${optionalS(data.length)}`}
+                  className="rounded-full px-3 bg-darkText"
+                />
+              ) : null}
+            </div>
           </DialogHeader>
           {!data ? (
             <div className="flex flex-col gap-3 w-full">
@@ -359,7 +371,7 @@ const EditRow = ({
         description: "Stage updated successfully",
       });
 
-      setStage(undefined)
+      setStage(undefined);
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,

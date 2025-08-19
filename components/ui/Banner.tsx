@@ -8,7 +8,7 @@ function Banner({
     | "pending"
     | "paid"
     | "ongoing"
-    | "discontinued"
+    | "unavailable"
     | "unpaid"
     | "completed";
   readonly text_align?: string;
@@ -20,8 +20,8 @@ function Banner({
       return "bg-paidBg border-paidBorder";
     } else if (text.toLowerCase() === "Ongoing".toLowerCase()) {
       return "bg-ongoingBg border-ongoingBorder";
-    } else if (text.toLowerCase() === "Discontinued".toLowerCase()) {
-      return "bg-ongoingBg border-ongoingBorder";
+    } else if (text.toLowerCase() === "Unavailable".toLowerCase()) {
+      return "bg-unavailableBg border-unavailableBorder";
     } else if (text.toLowerCase() === "Unpaid".toLowerCase()) {
       return "bg-unpaidBg border-unpaidBorder";
     } else if (text.toLowerCase() === "Completed".toLowerCase()) {

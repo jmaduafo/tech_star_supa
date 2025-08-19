@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -47,7 +48,7 @@ import { useAuth } from "@/context/UserContext";
 
 function ContractorDisplay({
   user,
-  allContractors
+  allContractors,
 }: {
   readonly user: User | undefined;
   readonly allContractors: Contractor[] | undefined;
@@ -79,11 +80,13 @@ function ContractorDisplay({
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-start gap-5">
                       <div>
+                        {/* CONTRACTOR TITLE */}
                         <Link
-                          href={`/projects/${item?.project_id}/contractors/${item?.id}`}
+                          href={`/projects/${item?.project_id}/contractors/${item?.id}/contracts`}
                         >
                           <Header4 text={item.name} className="capitalize" />
                         </Link>
+                        {/* CONTRACTOR LOCATION */}
                         <p className="text-[14px] text-light50">
                           {item?.city ? (
                             <span className="italic capitalize">
@@ -93,12 +96,15 @@ function ContractorDisplay({
                           <span className="italic">{item.country}</span>
                         </p>
                       </div>
+                      {/* ELLIPSIS ICON DROPDOWN MENU */}
                       <DropDown contractor={item} />
                     </div>
                     <div className="mt-auto flex items-end justify-between gap-2">
+                      {/* CONTRACTOR ACTIVITY STATUS */}
                       <Banner
-                        text={item.is_available ? "ongoing" : "discontinued"}
+                        text={item.is_available ? "ongoing" : "unavailable"}
                       />
+                      {/* CONTRACTOR INFO LAST UPDATED */}
                       {item.updated_at ? (
                         <p className="text-sm font-light">
                           Last modified:{" "}
@@ -137,31 +143,32 @@ function DropDown({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button>
-            <EllipsisVertical className="w-5 h-5" />
-          </button>
+          {userData?.role === "admin" ? (
+            <button>
+              <EllipsisVertical className="w-5 h-5" />
+            </button>
+          ) : null}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          {userData?.role === "admin" ? (
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                onClick={() => {
-                  setEditOpen(true);
-                }}
-              >
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setDeleteOpen(true);
-                }}
-              >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          ) : null}
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={() => {
+                setEditOpen(true);
+              }}
+            >
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setDeleteOpen(true);
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      {/* EDIT AND DELETE OPTIONS */}
       <Actions
         contractor={contractor}
         editOpen={editOpen}
@@ -196,14 +203,15 @@ function Actions({
     is_available: contractor?.is_available ?? false,
   });
 
-  // FOR DELETE PROJECT FUNCTIONALITY
   const [editLoading, setEditLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const supabase = createClient();
 
+  // EDIT CONTRACTOR FUNCTIONALITY
   const editProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEditLoading(true);
 
     const values = {
       name: form.name,
@@ -257,7 +265,7 @@ function Actions({
         return;
       }
 
-      toast("Success", {
+      toast("Success!", {
         description: "Contractor updated successfully",
       });
 
@@ -273,7 +281,8 @@ function Actions({
     }
   };
 
-  const deleteProject = async () => {
+  // DELETE CONTRACTOR FUNCTIONALITY
+  const deleteContractor = async () => {
     setDeleteLoading(true);
 
     try {
@@ -294,8 +303,8 @@ function Actions({
         return;
       }
 
-      toast("Success", {
-        description: "Project deleted successfully",
+      toast("Success!", {
+        description: "Contractor deleted successfully",
       });
 
       setDeleteOpen(false);
@@ -318,7 +327,10 @@ function Actions({
           className="sm:max-w-sm"
         >
           <DialogHeader>
-            <DialogTitle>Edit project</DialogTitle>
+            <DialogTitle>Edit contractor</DialogTitle>
+            <DialogDescription>
+              Update the selected contractor here
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={editProject}>
             {/* PROJECT NAME */}
@@ -360,6 +372,18 @@ function Actions({
                   );
                 })}
               </SelectBar>
+            </CustomInput>
+            <CustomInput label="Description *" htmlFor="desc" className="mt-3">
+              <input
+                className="form"
+                type="text"
+                id="desc"
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                maxLength={60}
+              />
             </CustomInput>
             <div className="flex justify-end mt-1">
               <p className="text-sm text-darkText/70">
@@ -406,6 +430,9 @@ function Actions({
                 id="is_available"
                 name="is_available"
                 checked={form.is_available}
+                onCheckedChange={(val) =>
+                  setForm({ ...form, is_available: val })
+                }
               />
               <label htmlFor="status">Is contractor available?</label>
             </div>
@@ -427,7 +454,7 @@ function Actions({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={deleteProject}>
+            <AlertDialogAction onClick={deleteContractor}>
               {deleteLoading ? <Loading className="w-5 h-5" /> : "Continue"}
             </AlertDialogAction>
           </AlertDialogFooter>

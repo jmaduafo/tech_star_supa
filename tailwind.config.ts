@@ -40,6 +40,8 @@ export default {
   			paidBorder: 'rgb(169, 227, 122)',
   			ongoingBg: 'rgba(233, 157, 77, 0.4)',
   			ongoingBorder: 'rgb(233, 157, 77)',
+  			unavailableBg: 'rgba(182, 134, 213, 0.4)',
+  			unavailableBorder: 'rgb(182, 134, 213)',
   			completedBg: 'rgba(140, 185, 227, .4)',
   			completedBorder: 'rgb(140, 185, 227)',
   			destructiveBg: 'rgba(168, 15, 15, 0.4)',

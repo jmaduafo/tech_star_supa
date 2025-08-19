@@ -288,11 +288,11 @@ function AssignStage({
           <DialogTitle>Assign stage</DialogTitle>
           <DialogDescription>
             Appoint{" "}
-            {contractor
+            <strong>{contractor
               ? contractor.name.charAt(0).toUpperCase() +
                 contractor.name.slice(1)
-              : "contractor"}{" "}
-            one or multiple stages that they would be participating in
+              : "contractor"}</strong>{" "}
+            one or multiple stages
           </DialogDescription>
         </DialogHeader>
         <form>

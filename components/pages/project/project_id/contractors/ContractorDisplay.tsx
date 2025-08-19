@@ -1,7 +1,7 @@
 import Header4 from "@/components/fontsize/Header4";
 import Banner from "@/components/ui/Banner";
 import Submit from "@/components/ui/buttons/Submit";
-import { Card } from "@/components/ui/card";
+import Card from "@/components/ui/cards/MyCard";
 import {
   DialogHeader,
   Dialog,
@@ -36,27 +36,27 @@ import {
 import { SelectItem } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { createClient } from "@/lib/supabase/client";
-import { EllipsisVertical, Link } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
+import Link from "next/link";
 import Input from "@/components/ui/input/Input";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { toast } from "sonner";
 import { format as formatAgo } from "timeago.js";
 import { Slider } from "@/components/ui/slider";
+import { useAuth } from "@/context/UserContext";
 
 function ContractorDisplay({
   user,
-  allContractors,
-  setAllContractors,
+  allContractors
 }: {
   readonly user: User | undefined;
   readonly allContractors: Contractor[] | undefined;
-  readonly setAllContractors: React.Dispatch<
-    React.SetStateAction<Contractor[] | undefined>
-  >;
 }) {
-const notAvailable = allContractors && allContractors.length === 0 ? (
-        <NotAvailable text="No contractors created yet" />
-      ) : null
+  const notAvailable =
+    allContractors && allContractors.length === 0 ? (
+      <NotAvailable text="No contractors created yet" />
+    ) : null;
+
   return (
     <section className="">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
@@ -75,25 +75,25 @@ const notAvailable = allContractors && allContractors.length === 0 ? (
           {allContractors?.map((item) => {
             return (
               <Fragment key={item.id}>
-                <Card className="h-[25vh] text-lightText z-0 hover:opacity-90 duration-300 hover:shadow-md">
+                <Card className="h-[25vh] text-lightText hover:opacity-80 duration-300 hover:shadow-md">
                   <div className="flex flex-col h-full">
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start gap-5">
                       <div>
-                        <Link href={`/projects/${item?.id}/contractors`}>
+                        <Link
+                          href={`/projects/${item?.project_id}/contractors/${item?.id}`}
+                        >
                           <Header4 text={item.name} className="capitalize" />
                         </Link>
                         <p className="text-[14px] text-light50">
                           {item?.city ? (
-                            <span className="italic">`${item.city}, `</span>
+                            <span className="italic capitalize">
+                              {item.city},{" "}
+                            </span>
                           ) : null}
                           <span className="italic">{item.country}</span>
                         </p>
                       </div>
-                      <EditProject
-                        contractor={item}
-                        setAllContractors={setAllContractors}
-                        allContractors={allContractors}
-                      />
+                      <DropDown contractor={item} />
                     </div>
                     <div className="mt-auto flex items-end justify-between gap-2">
                       <Banner
@@ -114,37 +114,87 @@ const notAvailable = allContractors && allContractors.length === 0 ? (
             );
           })}
         </div>
-      ) : notAvailable}
+      ) : (
+        notAvailable
+      )}
     </section>
   );
 }
 
 export default ContractorDisplay;
 
-function EditProject({
+function DropDown({
   contractor,
-  allContractors,
-  setAllContractors,
 }: {
-  readonly contractor: Contractor;
-  readonly setAllContractors: React.Dispatch<
-    React.SetStateAction<Contractor[] | undefined>
-  >;
-  readonly allContractors: Contractor[] | undefined;
+  readonly contractor: Contractor | undefined;
 }) {
-  const [contractorInfo, setContractorInfo] = useState({
-    name: "",
-    city: "",
-    country: "",
-    description: "",
-    relevance: [2.5],
-    comment: "",
-    is_available: false,
-  });
-
-  const [dropDownOpen, setDropDownOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const { userData } = useAuth();
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button>
+            <EllipsisVertical className="w-5 h-5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          {userData?.role === "admin" ? (
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditOpen(true);
+                }}
+              >
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteOpen(true);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Actions
+        contractor={contractor}
+        editOpen={editOpen}
+        deleteOpen={deleteOpen}
+        setDeleteOpen={setDeleteOpen}
+        setEditOpen={setEditOpen}
+      />
+    </>
+  );
+}
+
+function Actions({
+  contractor,
+  setEditOpen,
+  setDeleteOpen,
+  editOpen,
+  deleteOpen,
+}: {
+  readonly contractor: Contractor | undefined;
+  readonly editOpen: boolean;
+  readonly deleteOpen: boolean;
+  readonly setDeleteOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  readonly setEditOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [form, setForm] = useState({
+    name: contractor?.name,
+    city: contractor?.city ?? "",
+    country: contractor?.country,
+    relevance: contractor?.relevance ? [contractor?.relevance] : [2.5],
+    description: contractor?.description ?? "",
+    comment: contractor?.comment ?? "",
+    is_available: contractor?.is_available ?? false,
+  });
 
   // FOR DELETE PROJECT FUNCTIONALITY
   const [editLoading, setEditLoading] = useState(false);
@@ -152,33 +202,17 @@ function EditProject({
 
   const supabase = createClient();
 
-  useEffect(() => {
-    if (contractor) {
-      setContractorInfo({
-        name: contractor?.name,
-        city: contractor?.city ?? "",
-        country: contractor?.country,
-        relevance: [contractor.relevance],
-        description: contractor.description,
-        comment: contractor.comment ?? "",
-        is_available: contractor?.is_available,
-      });
-    }
-  }, [contractor]);
-
   const editProject = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setEditLoading(true);
-
     const values = {
-      name: contractorInfo.name,
-      city: contractorInfo.city.length ? contractorInfo.city : null,
-      country: contractorInfo.country,
-      desc: contractorInfo.description,
-      relevance: contractorInfo.relevance[0],
-      comment: contractorInfo.comment.length ? contractorInfo.comment : null,
-      is_available: contractorInfo.is_available,
+      name: form.name,
+      city: form.city.length ? form.city : null,
+      country: form.country,
+      desc: form.description,
+      relevance: form.relevance[0],
+      comment: form.comment.length ? form.comment : null,
+      is_available: form.is_available,
     };
 
     const result = ContractorSchema.safeParse(values);
@@ -193,14 +227,15 @@ function EditProject({
       return;
     }
 
-    const { name, city, country, relevance, desc, comment, is_available } = result.data;
+    const { name, city, country, relevance, desc, comment, is_available } =
+      result.data;
 
     try {
       if (!contractor) {
         return;
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("contractors")
         .update({
           name,
@@ -212,9 +247,7 @@ function EditProject({
           is_available,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", contractor.id)
-        .select()
-        .single();
+        .eq("id", contractor.id);
 
       if (error) {
         toast("Something went wrong", {
@@ -222,16 +255,6 @@ function EditProject({
         });
 
         return;
-      }
-
-      if (!allContractors) {
-        return;
-      }
-
-      console.log("Before update:", allContractors);
-
-      if (data) {
-        handleEdit(contractor.id, data);
       }
 
       toast("Success", {
@@ -275,8 +298,6 @@ function EditProject({
         description: "Project deleted successfully",
       });
 
-      handleDelete(contractor.id);
-
       setDeleteOpen(false);
     } catch (err: any) {
       toast("Something went wrong", {
@@ -289,50 +310,8 @@ function EditProject({
     }
   };
 
-  function handleEdit(id: string, newData: Contractor) {
-    setAllContractors((prev) => {
-      if (!prev) return prev; // nothing to update
-      return prev.map((item) => (item.id === id ? newData : item));
-    });
-  }
-
-  function handleDelete(id: string) {
-    setAllContractors((prev) => {
-      if (!prev) return prev;
-      return prev.filter((item) => item.id !== id);
-    });
-  }
-
   return (
     <>
-      <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
-        <DropdownMenuTrigger asChild>
-          <button>
-            <EllipsisVertical className="w-5 h-5" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={() => {
-                setEditOpen(true);
-                setDropDownOpen(false);
-              }}
-            >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setDeleteOpen(true);
-                setEditOpen(false);
-                setDropDownOpen(false);
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent
           aria-describedby="edit project popup"
@@ -347,10 +326,8 @@ function EditProject({
               label="Project name *"
               htmlFor="name"
               type="text"
-              value={contractorInfo.name}
-              onChange={(e) =>
-                setContractorInfo({ ...contractorInfo, name: e.target.value })
-              }
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               name={"name"}
               id="name"
             />
@@ -358,10 +335,8 @@ function EditProject({
               label="City"
               htmlFor="city"
               type="text"
-              value={contractorInfo.city}
-              onChange={(e) =>
-                setContractorInfo({ ...contractorInfo, city: e.target.value })
-              }
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
               name={"city"}
               id="city"
               className="mt-3"
@@ -370,11 +345,11 @@ function EditProject({
             <CustomInput label="Country *" htmlFor="year" className="mt-5">
               <SelectBar
                 placeholder="Select country"
-                value={contractorInfo.country}
+                value={form.country}
                 label="Countries"
                 className="mt-1"
                 valueChange={(text) => {
-                  setContractorInfo({ ...contractorInfo, country: text });
+                  setForm({ ...form, country: text });
                 }}
               >
                 {country_list.map((item) => {
@@ -388,7 +363,7 @@ function EditProject({
             </CustomInput>
             <div className="flex justify-end mt-1">
               <p className="text-sm text-darkText/70">
-                {contractorInfo.description.length} / 60
+                {form.description.length} / 60
               </p>
             </div>
             <div className="mt-3">
@@ -396,13 +371,13 @@ function EditProject({
                 Level of relevance (not as crucial to extremely crucial) *
               </label>
               <p className="text-right text-dark75 text-[13px]">
-                {contractorInfo.relevance}
+                {form.relevance}
               </p>
               <Slider
                 name="relevance"
                 id="relevance"
-                value={contractorInfo.relevance}
-                onValueChange={(val) => setContractorInfo({ ...contractorInfo, relevance: val })}
+                value={form.relevance}
+                onValueChange={(val) => setForm({ ...form, relevance: val })}
                 max={5}
                 step={0.5}
                 className="mt-2"
@@ -417,15 +392,20 @@ function EditProject({
                 name="additional"
                 id="additional_info"
                 className="form"
-                value={contractorInfo.comment}
-                onChange={(e) => setContractorInfo({ ...contractorInfo, comment: e.target.value })}
+                value={form.comment}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    comment: e.target.value,
+                  })
+                }
               ></textarea>
             </CustomInput>
             <div className="flex items-center gap-2 mt-3">
               <Switch
                 id="is_available"
                 name="is_available"
-                checked={contractorInfo.is_available}
+                checked={form.is_available}
               />
               <label htmlFor="status">Is contractor available?</label>
             </div>
@@ -442,7 +422,7 @@ function EditProject({
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              selected project from our servers.
+              selected contractor from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

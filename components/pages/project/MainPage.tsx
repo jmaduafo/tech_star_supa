@@ -112,7 +112,7 @@ function MainPage() {
         return;
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("projects")
         .insert({
           name,
@@ -122,8 +122,6 @@ function MainPage() {
           start_month: month,
           start_year: year,
         })
-        .select()
-        .single();
 
       if (error) {
         toast("Something went wrong", {
@@ -134,16 +132,6 @@ function MainPage() {
 
         return;
       }
-
-      if (!allProjects) {
-        return;
-      }
-
-      setAllProjects([...allProjects, data]);
-
-      toast("Success!", {
-        description: "Project was successfully created",
-      });
 
       setForm({
         name: "",
@@ -245,7 +233,12 @@ function MainPage() {
             value={searchValue}
           />
         </div>
-        <AddButton setOpen={setOpen} open={open} title={"project"} desc={""}>
+        <AddButton
+          setOpen={setOpen}
+          open={open}
+          title={"project"}
+          desc={"It adds projects"}
+        >
           <form onSubmit={handleAdd}>
             {/* PROJECT NAME */}
             <Input
@@ -269,53 +262,65 @@ function MainPage() {
             />
             <div className="flex items-center gap-4 mt-5">
               {/* COUNTRY LOCATION */}
-              <SelectBar
-                placeholder="Select country *"
-                value={form.country}
-                valueChange={(name) => setForm({ ...form, country: name })}
-                label="Countries"
+              <CustomInput
+                htmlFor={"country"}
+                label={"Country *"}
                 className="flex-1"
               >
-                {country_list.map((item) => {
-                  return (
-                    <SelectItem key={item.name} value={item.name}>
-                      {item.name}
-                    </SelectItem>
-                  );
-                })}
-              </SelectBar>
-              <div className="mt-3">
-                <label htmlFor="importance_level" className="">
-                  Level of relevance (not as crucial to extremely crucial) *
-                </label>
-                <p className="text-right text-dark75 text-[13px]">
-                  {form.relevance}
-                </p>
-                <Slider
-                  name="relevance"
-                  id="relevance"
-                  value={form.relevance}
-                  onValueChange={(val) => setForm({ ...form, relevance: val })}
-                  max={5}
-                  step={0.5}
-                  className="mt-2"
-                />
-              </div>
-              <SelectBar
-                placeholder="Starting month *"
-                value={form.month}
-                valueChange={(name) => setForm({ ...form, month: name })}
-                label="Months"
+                <SelectBar
+                  placeholder="Select country *"
+                  value={form.country}
+                  valueChange={(name) => setForm({ ...form, country: name })}
+                  label="Countries"
+                  className="mt-1"
+                >
+                  {country_list.map((item) => {
+                    return (
+                      <SelectItem key={item.name} value={item.name}>
+                        {item.name}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectBar>
+              </CustomInput>
+              <CustomInput
+                htmlFor={"month"}
+                label={"Starting month *"}
                 className="flex-1"
               >
-                {months.map((item) => {
-                  return (
-                    <SelectItem key={item} value={item}>
-                      {item}
-                    </SelectItem>
-                  );
-                })}
-              </SelectBar>
+                <SelectBar
+                  placeholder="Month *"
+                  value={form.month}
+                  valueChange={(name) => setForm({ ...form, month: name })}
+                  label="Months"
+                  className="mt-1"
+                >
+                  {months.map((item) => {
+                    return (
+                      <SelectItem key={item} value={item}>
+                        {item}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectBar>
+              </CustomInput>
+            </div>
+            <div className="mt-3">
+              <label htmlFor="importance_level" className="">
+                Level of relevance (not as crucial to extremely crucial) *
+              </label>
+              <p className="text-right text-dark75 text-[13px]">
+                {form.relevance}
+              </p>
+              <Slider
+                name="relevance"
+                id="relevance"
+                value={form.relevance}
+                onValueChange={(val) => setForm({ ...form, relevance: val })}
+                max={5}
+                step={0.5}
+                className="mt-2"
+              />
             </div>
             <CustomInput htmlFor={"year"} label={"Year *"} className="mt-3">
               <input

@@ -5,7 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/UserContext";
@@ -44,7 +44,6 @@ import Input from "@/components/ui/input/Input";
 import CustomInput from "@/components/ui/input/CustomInput";
 import Submit from "@/components/ui/buttons/Submit";
 import { StagesSchema } from "@/zod/validation";
-import Paragraph from "@/components/fontsize/Paragraph";
 import { optionalS } from "@/utils/optionalS";
 
 function ViewStages({
@@ -103,10 +102,9 @@ function ViewStages({
                 All stages
               </DialogTitle>
               {data ? (
-                <Paragraph
-                  text={`${data.length} result${optionalS(data.length)}`}
-                  className="rounded-full px-3 bg-darkText"
-                />
+                <p className="text-[12.5px] rounded-full px-3 bg-darkText">
+                  {data.length} result{optionalS(data.length)}
+                </p>
               ) : null}
             </div>
           </DialogHeader>

@@ -44,6 +44,92 @@ function MainPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const { userData } = useAuth();
+  const supabase = createClient();
+  const { project_id } = useParams();
+
+  // RETRIEVE CONTRACTOR DATA
+  const getData = async () => {
+    try {
+      if (!userData || !project_id) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("contractors")
+        .select("*")
+        .eq("team_id", userData.team_id)
+        .eq("project_id", project_id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      setAllContractors(data as Contractor[]);
+      setFilteredContractors(data as Contractor[]);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
+  // RETRIEVE PROJECT NAME FOR BREADCRUMBS LINKS
+  const getProjectName = async () => {
+    try {
+      if (!userData || !project_id) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("projects")
+        .select("name")
+        .eq("id", project_id)
+        .single();
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      setProjectName(data.name);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getProjectName();
+    getData();
+  }, [project_id]);
+
+  // REATIME UPDATES WHEN THERE ARE CHANGES TO CONTRACTORS TABLE
+  useEffect(() => {
+    const channel = supabase
+      .channel("db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "contractors",
+        },
+        (payload) => getData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, allContractors, setAllContractors]);
+
+
+  // INITIALIZING FORM VALUES FOR CREATE FUNCTIONALITY
   const [form, setForm] = useState({
     name: "",
     city: "",
@@ -54,56 +140,6 @@ function MainPage() {
     comment: "",
   });
 
-  const { userData } = useAuth();
-  const supabase = createClient();
-  const { project_id } = useParams();
-
-  const getData = async () => {
-    try {
-      if (!userData || !project_id) {
-        return;
-      }
-
-      const [contractors, project] = await Promise.all([
-        // GETS ALL CONTRACTORS UNDER USER'S TEAM AND THAT MATCHES THE SELECT PROJECT
-        supabase
-          .from("contractors")
-          .select("*")
-          .eq("team_id", userData.team_id)
-          .eq("project_id", project_id),
-        // GETS THE PROJECT NAME
-        supabase.from("projects").select("name").eq("id", project_id).single(),
-      ]);
-
-      if (contractors?.error) {
-        toast("Something went wrong", {
-          description: contractors.error.message,
-        });
-
-        return;
-      }
-
-      if (project?.error) {
-        toast("Something went wrong", {
-          description: project.error.message,
-        });
-
-        return;
-      }
-
-      setAllContractors(contractors.data as Contractor[]);
-      setFilteredContractors(contractors.data as Contractor[]);
-
-      setProjectName(project.data.name);
-    } catch (err: any) {
-      console.log(err.message);
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, [project_id]);
-
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -113,7 +149,7 @@ function MainPage() {
       name: form.name.trim(),
       city: form.city.length ? form.city.trim() : null,
       country: form.country,
-      description: form.description.trim(),
+      desc: form.description.trim(),
       relevance: form.relevance[0],
       is_available: form.is_available,
       comment: form.comment.length ? form.comment.trim() : null,
@@ -135,11 +171,11 @@ function MainPage() {
       result.data;
 
     try {
-      if (!userData) {
+      if (!userData || !project_id) {
         return;
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("contractors")
         .insert({
           name,
@@ -149,9 +185,9 @@ function MainPage() {
           relevance,
           is_available,
           comment,
+          project_id,
+          team_id: userData.team_id
         })
-        .select()
-        .single();
 
       if (error) {
         toast("Something went wrong", {
@@ -162,12 +198,6 @@ function MainPage() {
 
         return;
       }
-
-      if (!allContractors) {
-        return;
-      }
-
-      setAllContractors([...allContractors, data]);
 
       toast("Success!", {
         description: "Contractor was successfully created",
@@ -355,7 +385,6 @@ function MainPage() {
         <ContractorDisplay
           user={userData}
           allContractors={filteredContractors}
-          setAllContractors={setAllContractors}
         />
       </div>
     </div>

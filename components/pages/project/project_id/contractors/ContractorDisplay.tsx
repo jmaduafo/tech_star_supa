@@ -10,6 +10,8 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -57,6 +59,8 @@ import { Slider } from "@/components/ui/slider";
 import { useAuth } from "@/context/UserContext";
 import { useParams } from "next/navigation";
 import MultiSelectBar from "@/components/ui/input/MultiSelectBar";
+import { Button } from "@/components/ui/button";
+import ViewLabel from "@/components/ui/labels/ViewLabel";
 
 function ContractorDisplay({
   allContractors,
@@ -147,7 +151,6 @@ function DropDown({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [viewContractorOpen, setViewContractorOpen] = useState(false);
-  const [viewStagesOpen, setViewStagesOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
 
   const [stagesList, setStagesList] = useState<MultiSelect[] | undefined>();
@@ -203,26 +206,21 @@ function DropDown({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuGroup>
-            {userData?.role === "admin" ? (
-              <DropdownMenuItem
-                onClick={() => {
-                  setAssignOpen(true);
-                }}
-              >
-                Assign stages
-              </DropdownMenuItem>
-            ) : null}
-            <DropdownMenuItem
-              onClick={() => {
-                setViewStagesOpen(true);
-              }}
-            >
-              View stages
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Contractor</DropdownMenuLabel>
+          {userData?.role === "admin" ? (
+            <>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setAssignOpen(true);
+                  }}
+                >
+                  Assign stages
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Contractor</DropdownMenuLabel>
+            </>
+          ) : null}
           <DropdownMenuGroup>
             <DropdownMenuItem
               onClick={() => {
@@ -261,33 +259,31 @@ function DropDown({
         setEditOpen={setEditOpen}
       />
       <AssignStage
-        stages={stages}
         contractor={contractor}
-        user={userData}
         open={assignOpen}
         setOpen={setAssignOpen}
         list={stagesList}
+      />
+      <ViewContractor
+        contractor={contractor}
+        open={viewContractorOpen}
+        setOpen={setViewContractorOpen}
       />
     </>
   );
 }
 
 function AssignStage({
-  stages,
   contractor,
-  user,
   open,
   setOpen,
   list,
 }: {
-  readonly stages: Stage[] | undefined;
   readonly list: MultiSelect[] | undefined;
   readonly contractor: Contractor | undefined;
-  readonly user: User | undefined;
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [data, setData] = useState<Stage[] | undefined>();
   const [stageList, setStageList] = useState<MultiSelect[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -295,7 +291,7 @@ function AssignStage({
 
   const getData = async () => {
     try {
-      if (!contractor || !stages) {
+      if (!contractor) {
         return;
       }
 
@@ -317,9 +313,6 @@ function AssignStage({
         return;
       }
 
-      console.log(data);
-      setData(data as Stage[]);
-
       // TURN DATA INTO AN ARRAY OF {label: string; value: string}[]
       // FOR MULTI SELECT BAR
       const list: MultiSelect[] = [];
@@ -330,9 +323,6 @@ function AssignStage({
       });
 
       setStageList(list);
-      console.log(list);
-
-      setOpen(false);
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,
@@ -342,7 +332,7 @@ function AssignStage({
 
   useEffect(() => {
     getData();
-  }, [contractor, stages]);
+  }, [contractor]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -361,7 +351,7 @@ function AssignStage({
     }
 
     try {
-      if (!contractor || !data) {
+      if (!contractor) {
         return;
       }
 
@@ -434,7 +424,7 @@ function AssignStage({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          {/* ADD AND DELETE BANK NAMES */}
+          {/* ADD AND DELETE MULTIPLE ITEMS */}
           <MultiSelectBar
             array={list}
             selectedArray={stageList}
@@ -449,6 +439,146 @@ function AssignStage({
     </Dialog>
   );
 }
+
+const ViewContractor = ({
+  contractor,
+  open,
+  setOpen,
+}: {
+  readonly contractor: Contractor | undefined;
+  readonly open: boolean;
+  readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const [stagesData, setStagesData] = useState<Stage[] | undefined>();
+
+  const supabase = createClient();
+
+  const getStages = async () => {
+    try {
+      if (!contractor) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("stages")
+        .select(
+          `
+            id,
+            name,
+            stage_contractors (
+              contractor_id
+            )
+          `
+        )
+        .eq("stage_contractors.contractor_id", contractor.id);
+
+      if (error) {
+        console.log(error.message);
+        return;
+      }
+
+      const newArray: Stage[] = [];
+      data.forEach((item) => {
+        item.stage_contractors.length && newArray.push(item);
+      });
+
+      setStagesData(newArray);
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getStages();
+  }, []);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent
+        className="sm:max-w-[425px]"
+        aria-describedby="contractor view dialog"
+      >
+        <DialogHeader>
+          <DialogTitle>
+            Contractor -{" "}
+            {contractor ? (
+              <span className="italic">{contractor?.name}</span>
+            ) : (
+              <Skeleton className="w-12 h-6" />
+            )}
+          </DialogTitle>
+        </DialogHeader>
+        {contractor ? (
+          <div className="grid grid-cols-2 gap-4">
+            <ViewLabel label="Name" content={contractor.name} />
+            <ViewLabel label="Project" content={contractor.projects.name} />
+            <ViewLabel
+              label="Location"
+              content={
+                contractor.city
+                  ? `${contractor.city}, ${contractor.country}`
+                  : contractor.country
+              }
+            />
+            <ViewLabel label="Description" content={contractor.description} />
+            <ViewLabel
+              label="Date started"
+              content={contractor.start_month + " " + contractor.start_year}
+            />
+            <ViewLabel label="Stages" custom>
+              {stagesData ? (
+                <p>
+                  {stagesData.map((item, i) => {
+                    return (
+                      <Fragment key={item.id}>
+                        <span className="">{item.name}</span>
+                        {i !== stagesData.length - 1 ? (
+                          <span className="">, </span>
+                        ) : null}
+                      </Fragment>
+                    );
+                  })}
+                </p>
+              ) : null}
+            </ViewLabel>
+            <ViewLabel label="status" custom>
+              {contractor.is_available ? (
+                <Banner text="ongoing" />
+              ) : (
+                <Banner text="unavailable" />
+              )}
+            </ViewLabel>
+            <ViewLabel
+              label="Created at"
+              content={formatAgo(contractor.created_at)}
+            />
+            {contractor.updated_at ? (
+              <ViewLabel
+                label="Updated at"
+                content={formatAgo(contractor.updated_at)}
+              />
+            ) : null}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-[80%]" />
+            <Skeleton className="h-5 w-[65%]" />
+            <Skeleton className="h-5 w-[55%]" />
+            <Skeleton className="h-5 w-[30%]" />
+            <Skeleton className="h-5 w-[20%]" />
+          </div>
+        )}
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Close</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 function Actions({
   contractor,

@@ -57,7 +57,7 @@ function MainPage() {
 
       const { data, error } = await supabase
         .from("contractors")
-        .select("*")
+        .select("*, projects (name, is_completed)")
         .eq("team_id", userData.team_id)
         .eq("project_id", project_id);
 
@@ -128,7 +128,6 @@ function MainPage() {
     };
   }, [supabase, allContractors, setAllContractors]);
 
-
   // INITIALIZING FORM VALUES FOR CREATE FUNCTIONALITY
   const [form, setForm] = useState({
     name: "",
@@ -175,19 +174,17 @@ function MainPage() {
         return;
       }
 
-      const { error } = await supabase
-        .from("contractors")
-        .insert({
-          name,
-          city,
-          country,
-          description: desc,
-          relevance,
-          is_available,
-          comment,
-          project_id,
-          team_id: userData.team_id
-        })
+      const { error } = await supabase.from("contractors").insert({
+        name,
+        city,
+        country,
+        description: desc,
+        relevance,
+        is_available,
+        comment,
+        project_id,
+        team_id: userData.team_id,
+      });
 
       if (error) {
         toast("Something went wrong", {
@@ -245,12 +242,9 @@ function MainPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             {projectName.length ? (
-              <>
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{projectName}</BreadcrumbPage>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-              </>
+              <BreadcrumbItem>
+                <BreadcrumbPage>{projectName}</BreadcrumbPage>
+              </BreadcrumbItem>
             ) : null}
           </BreadcrumbList>
         </Breadcrumb>
@@ -364,11 +358,7 @@ function MainPage() {
               ></textarea>
             </CustomInput>
             <div className="flex items-center gap-2 mt-3">
-              <Switch
-                id="status"
-                name="status"
-                checked={form.is_available}
-              />
+              <Switch id="status" name="status" checked={form.is_available} />
               <label htmlFor="status">Is contractor available?</label>
             </div>
             {/* SUBMIT BUTTON */}
@@ -379,9 +369,7 @@ function MainPage() {
         </AddButton>
       </div>
       <div className="mt-10">
-        <ContractorDisplay
-          allContractors={filteredContractors}
-        />
+        <ContractorDisplay allContractors={filteredContractors} />
       </div>
     </div>
   );

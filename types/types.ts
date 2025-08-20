@@ -92,20 +92,20 @@ export type Project = {
 export type Stage = {
   id: string;
   name: string;
-  team_id: string;
-  project_id: string;
-  description: string;
-  stage_number: number;
+  team_id?: string;
+  project_id?: string;
+  description?: string;
+  stage_number?: number;
   stage_contractors?: StageContractor[];
-  is_completed: boolean;
-  created_at: number;
-  updated_at: number | null;
+  is_completed?: boolean;
+  created_at?: number;
+  updated_at?: number | null;
 };
 
 // MANY TO MANY RELATIONSHIP BETWEEN STAGES AND CONTRACTORS
 export type StageContractor = {
   id?: string;
-  stage_id: string;
+  stage_id?: string;
   contractor_id: string;
   created_at?: number;
   updated_at?: number | null;
@@ -120,6 +120,9 @@ export type Contractor = {
   country: string;
   relevance: number;
   description: string;
+  start_month: string;
+  start_year: number;
+  projects: Project;
   comment?: string | null;
   is_available: boolean;
   created_at: string;

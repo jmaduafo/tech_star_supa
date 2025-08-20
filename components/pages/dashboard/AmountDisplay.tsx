@@ -12,7 +12,7 @@ import NotAvailable from "@/components/ui/NotAvailable";
 // import { collection, query, where } from "firebase/firestore";
 // import { db } from "@/firebase/config";
 import { convertCurrency, totalSum } from "@/utils/currencies";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading/Loading";
 import Reset from "@/components/ui/buttons/Reset";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import Header6 from "@/components/fontsize/Header6";

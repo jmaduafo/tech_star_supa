@@ -41,7 +41,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { format as formatAgo } from "timeago.js";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { createClient } from "@/lib/supabase/client";
 import { EditProjectSchema } from "@/zod/validation";

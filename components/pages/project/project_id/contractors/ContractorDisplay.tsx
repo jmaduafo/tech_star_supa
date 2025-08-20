@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import CustomInput from "@/components/ui/input/CustomInput";
 import SelectBar from "@/components/ui/input/SelectBar";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Contractor, MultiSelect, Stage, StageContractor } from "@/types/types";
@@ -55,6 +55,7 @@ import { useParams } from "next/navigation";
 import MultiSelectBar from "@/components/ui/input/MultiSelectBar";
 import { Button } from "@/components/ui/button";
 import ViewLabel from "@/components/ui/labels/ViewLabel";
+import { contractorStages } from "@/utils/stagesFilter";
 
 function ContractorDisplay({
   allContractors,
@@ -471,12 +472,7 @@ const ViewContractor = ({
         return;
       }
 
-      const newArray: Stage[] = [];
-      data.forEach((item) => {
-        item.stage_contractors.length && newArray.push(item);
-      });
-
-      setStagesData(newArray);
+      setStagesData(contractorStages(data));
     } catch (err: any) {
       console.error(err.message);
     }
@@ -843,7 +839,7 @@ function Actions({
           </form>
         </DialogContent>
       </Dialog>
-      
+
       {/* DELETE DIALOG POP UP */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>

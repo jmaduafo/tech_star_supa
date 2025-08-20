@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Header6 from "@/components/fontsize/Header6";
 import TextButton from "@/components/ui/buttons/TextButton";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading/Loading";
 import { optionalS } from "@/utils/optionalS";
 import { User } from "@/types/types";
 

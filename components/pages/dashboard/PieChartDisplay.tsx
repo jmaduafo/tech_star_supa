@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 // import { db } from "@/firebase/config";
 import { ChartConfig } from "@/components/ui/chart";
 import NotAvailable from "@/components/ui/NotAvailable";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading/Loading";
 import PieChart from "../../ui/charts/PieChart";
 import { Project, User } from "@/types/types";
 

@@ -128,19 +128,19 @@ export const contractColumns: ColumnDef<Contract>[] = [
         </div>
       );
     },
-    accessorKey: "currencies",
+    accessorKey: "contract_amounts",
     cell: ({ row }) => {
       const currencies = row.original;
 
       return (
         <div className="text-right">
-          {currencies?.currency_amount &&
+          {/* {currencies?.currency_amount &&
           currencies?.currency_amount !== "Unlimited"
             ? formatCurrency(
                 +currencies?.currency_amount,
                 currencies?.currency_code
               )
-            : `${currencies?.currency_symbol} Unlimited`}
+            : `${currencies?.currency_symbol} Unlimited`} */}
         </div>
       );
     },
@@ -274,19 +274,19 @@ export const paymentColumns: ColumnDef<Payment>[] = [
         </div>
       );
     },
-    accessorKey: "currencies",
+    accessorKey: "payment_amounts",
     cell: ({ row }) => {
       const currencies = row.original;
 
       return (
         <div className="text-right">
-          {currencies?.currency_amount &&
+          {/* {currencies?.currency_amount &&
           currencies?.currency_amount !== "Unlimited"
             ? formatCurrency(
                 +currencies?.currency_amount,
                 currencies?.currency_code
               )
-            : `${currencies?.currency_symbol} Unlimited`}
+            : `${currencies?.currency_symbol} Unlimited`} */}
         </div>
       );
     },
@@ -513,7 +513,7 @@ export const projectReportColumns: ColumnDef<ProjectReport>[] = [
     cell: ({ row }) => {
       const contracts: Contract[] = row.getValue("contracts");
       
-      return <div>{convertCurrency(totalSum(contracts.map(item => item.currency_amount !== "Unlimited" ? item.currency_amount : 0)))}</div>
+      // return <div>{convertCurrency(totalSum(contracts.map(item => item.currency_amount !== "Unlimited" ? item.currency_amount : 0)))}</div>
     },
   },
   {
@@ -534,7 +534,7 @@ export const projectReportColumns: ColumnDef<ProjectReport>[] = [
     cell: ({ row }) => {
       const expenses: Payment[] = row.getValue("expenses");
       
-      return <div>{convertCurrency(totalSum(expenses.map(item => item.currency_amount !== "Unlimited" ? item.currency_amount : 0)))}</div>
+      // return <div>{convertCurrency(totalSum(expenses.map(item => item.currency_amount !== "Unlimited" ? item.currency_amount : 0)))}</div>
     },
   },
 ];

@@ -130,16 +130,16 @@ export type Contractor = {
 };
 
 export type Amount = {
-  id: string;
+  id?: string;
   symbol: string;
   code: string;
   name: string;
-  // number or "Unlimited"
+  // amount: number or "Unlimited"
   amount: string;
-  contract_id: string | null;
-  payment_id: string | null;
-  created_at: string;
-  updated_at: string | null;
+  contract_id?: string | null;
+  payment_id?: string | null;
+  created_at?: string;
+  updated_at?: string | null;
 };
 
 export type Contract = {
@@ -149,16 +149,12 @@ export type Contract = {
   contractor_id: string;
   team_id: string;
   stage_id: string | null;
-  project_name: string;
-  contractor_name: string;
-  stage_name: string;
   contract_code: string;
   bank_name: string[];
-  contract_amount: Amount[];
+  contract_amounts: Amount[];
   is_completed: boolean;
   description: string;
   comment?: string | null;
-  is_contract: boolean;
   created_at: string;
   updated_at: string | null;
 };
@@ -172,16 +168,10 @@ export type Payment = {
   contract_id: string | null;
   stage_id: string | null;
   team_id: string;
-  project_name: string;
-  contractor_name: string;
-  stage_name: string;
   description: string;
   comment: string | null;
   bank_name: string;
-  currency_symbol: string;
-  currency_code: string;
-  currency_name: string;
-  currency_amount: string;
+  payment_amounts: Amount[];
   is_contract: boolean;
   contract_code: string | null;
   is_completed: boolean;

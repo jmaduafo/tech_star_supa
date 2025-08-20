@@ -1,6 +1,6 @@
 import React from "react";
 import { HiChevronRight } from "react-icons/hi2";
-import Loading from "../Loading";
+import Loading from "@/components/ui/loading/Loading";
 
 function Submit({
   loading,

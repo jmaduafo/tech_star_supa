@@ -10,18 +10,22 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { optionalS } from "@/utils/optionalS";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/UserContext";
-import { Contract, Payment } from "@/types/types";
+import { Contract, Payment, Stage } from "@/types/types";
 import { createClient } from "@/lib/supabase/client";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
+import { contractorStages } from "@/utils/stagesFilter";
+import ContractDisplay from "./ContractDisplay";
+import NonContractDisplay from "./NonContractDisplay";
 
 function MainPage() {
   const [contractData, setContractData] = useState<Contract[] | undefined>();
   const [nonContractData, setNonContractData] = useState<
     Payment[] | undefined
   >();
+  const [stagesData, setStagesData] = useState<Stage[] | undefined>();
 
   const [projectName, setProjectName] = useState("");
   const [contractorName, setContractorName] = useState("");
@@ -33,44 +37,65 @@ function MainPage() {
   // RETRIEVE CONTRACTOR DATA
   const getData = async () => {
     try {
-      if (!userData || !project_id) {
+      if (!userData || !contractor_id || !project_id) {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("contractors")
-        .select("*")
-        .eq("team_id", userData.team_id)
-        .eq("project_id", project_id);
-
-      const [contract, noncontract] = await Promise.all([
+      const [contract, noncontract, stages] = await Promise.all([
         supabase
           .from("contracts")
-          .select("*")
+          .select("*, contract_amounts (*)")
           .eq("project_id", project_id)
-          .eq("contractor_id", contractor_id),
-        supabase.from("payments").select("*").eq("id", contractor_id).single(),
+          .eq("contractor_id", contractor_id)
+          .eq("team_id", userData.team_id),
+        supabase
+          .from("payments")
+          .select("*, payment_amounts (*)")
+          .eq("id", contractor_id)
+          .eq("team_id", userData.team_id),
+        supabase
+          .from("stages")
+          .select("id, name, stage_contractors ( contractor_id )")
+          .eq("stage_contractors.contractor_id", contractor_id)
+          .eq("team_id", userData.team_id),
       ]);
 
-      if (error) {
+      if (contract.error) {
         toast("Something went wrong", {
-          description: error.message,
+          description: contract.error.message,
         });
 
         return;
       }
 
-      setContractData(data as Contract[]);
-      setNonContractData(data as Payment[]);
+      if (noncontract.error) {
+        toast("Something went wrong", {
+          description: noncontract.error.message,
+        });
+
+        return;
+      }
+
+      if (stages.error) {
+        toast("Something went wrong", {
+          description: stages.error.message,
+        });
+
+        return;
+      }
+
+      setContractData(contract.data as Contract[]);
+      setNonContractData(noncontract.data as Payment[]);
+      setStagesData(contractorStages(stages.data));
     } catch (err: any) {
-      console.log(err.message);
+      console.error(err.message);
     }
   };
 
   // RETRIEVE NAMES FOR BREADCRUMBS LINKS
   const getNames = async () => {
     try {
-      if (!userData || !project_id || !contractor_id) {
+      if (!project_id || !contractor_id) {
         return;
       }
 
@@ -102,9 +127,48 @@ function MainPage() {
       setProjectName(project.data.name);
       setContractorName(contractor.data.name);
     } catch (err: any) {
-      console.log(err.message);
+      console.error(err.message);
     }
   };
+
+  useEffect(() => {
+    getData();
+    getNames();
+  }, [project_id, contractor_id]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "contracts",
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "payments",
+        },
+        (payload) => getData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [
+    supabase,
+    nonContractData,
+    setNonContractData,
+    contractData,
+    setContractData,
+  ]);
 
   return (
     <div>
@@ -137,7 +201,6 @@ function MainPage() {
                     {projectName}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
               </>
             ) : null}
             {contractorName.length ? (
@@ -151,14 +214,19 @@ function MainPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="flex items-center gap-3">
-        <div className="flex-1"></div>
+      <div className="mt-10">
+        <ContractDisplay
+          stages={stagesData}
+          data={contractData}
+          user={userData}
+        />
       </div>
       <div className="mt-10">
-        {/* <ContractorDisplay
+        <NonContractDisplay
+          stages={stagesData}
+          data={nonContractData}
           user={userData}
-          allContractors={filteredContractors}
-        /> */}
+        />
       </div>
     </div>
   );

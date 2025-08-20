@@ -14,7 +14,7 @@ function CustomInput({
   return (
     <div className={className}>
       <label htmlFor={htmlFor}>{label}</label>
-      {children}
+      <div className="mt-1.5">{children}</div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Header6 from "@/components/fontsize/Header6";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading/Loading";
 // import { db } from "@/firebase/config";
 import { optionalS } from "@/utils/optionalS";
 // import { query, collection, where } from "firebase/firestore";

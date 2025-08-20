@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/ui/loading/Loading";
 import Input from "@/components/ui/input/Input";
 import CustomInput from "@/components/ui/input/CustomInput";
 import Submit from "@/components/ui/buttons/Submit";

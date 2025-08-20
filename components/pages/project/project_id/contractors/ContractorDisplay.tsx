@@ -27,12 +27,7 @@ import SelectBar from "@/components/ui/input/SelectBar";
 import Loading from "@/components/ui/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Contractor,
-  MultiSelect,
-  Stage,
-  StageContractor
-} from "@/types/types";
+import { Contractor, MultiSelect, Stage, StageContractor } from "@/types/types";
 import { country_list } from "@/utils/dataTools";
 import { ContractorSchema } from "@/zod/validation";
 import {
@@ -247,6 +242,19 @@ function DropDown({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      {/* ASSIGN STAGES DROPDOWN OPTION */}
+      <AssignStage
+        contractor={contractor}
+        open={assignOpen}
+        setOpen={setAssignOpen}
+        list={stagesList}
+      />
+      {/* VIEW CONTRACTORS DROPDOWN OPTION */}
+      <ViewContractor
+        contractor={contractor}
+        open={viewContractorOpen}
+        setOpen={setViewContractorOpen}
+      />
       {/* EDIT AND DELETE OPTIONS */}
       <Actions
         contractor={contractor}
@@ -254,17 +262,6 @@ function DropDown({
         deleteOpen={deleteOpen}
         setDeleteOpen={setDeleteOpen}
         setEditOpen={setEditOpen}
-      />
-      <AssignStage
-        contractor={contractor}
-        open={assignOpen}
-        setOpen={setAssignOpen}
-        list={stagesList}
-      />
-      <ViewContractor
-        contractor={contractor}
-        open={viewContractorOpen}
-        setOpen={setViewContractorOpen}
       />
     </>
   );
@@ -606,7 +603,7 @@ function Actions({
   const supabase = createClient();
 
   // EDIT CONTRACTOR FUNCTIONALITY
-  const editProject = async (e: React.FormEvent) => {
+  const editContractor = async (e: React.FormEvent) => {
     e.preventDefault();
     setEditLoading(true);
 
@@ -718,6 +715,7 @@ function Actions({
 
   return (
     <>
+      {/* EDIT DIALOG POPUP */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent
           aria-describedby="edit project popup"
@@ -729,10 +727,10 @@ function Actions({
               Update the selected contractor here
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={editProject}>
-            {/* PROJECT NAME */}
+          <form onSubmit={editContractor}>
+            {/* CONTRACTOR NAME */}
             <Input
-              label="Project name *"
+              label="Contractor name *"
               htmlFor="name"
               type="text"
               value={form.name}
@@ -740,6 +738,7 @@ function Actions({
               name={"name"}
               id="name"
             />
+            {/* CITY NAME */}
             <Input
               label="City"
               htmlFor="city"
@@ -770,6 +769,7 @@ function Actions({
                 })}
               </SelectBar>
             </CustomInput>
+            {/* CONTRACTOR DESCRIPTION */}
             <CustomInput label="Description *" htmlFor="desc" className="mt-3">
               <input
                 className="form"
@@ -787,6 +787,7 @@ function Actions({
                 {form.description.length} / 60
               </p>
             </div>
+            {/* RELEVANCE SLIDER SECTION */}
             <div className="mt-3">
               <label htmlFor="importance_level" className="">
                 Level of relevance (not as crucial to extremely crucial) *
@@ -804,6 +805,7 @@ function Actions({
                 className="mt-2"
               />
             </div>
+            {/* COMMENT INPUT */}
             <CustomInput
               label="Any additional information?"
               htmlFor="additional_info"
@@ -822,6 +824,7 @@ function Actions({
                 }
               ></textarea>
             </CustomInput>
+            {/* IS CONTRACTOR AVAILABLE */}
             <div className="flex items-center gap-2 mt-3">
               <Switch
                 id="is_available"
@@ -840,6 +843,8 @@ function Actions({
           </form>
         </DialogContent>
       </Dialog>
+      
+      {/* DELETE DIALOG POP UP */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

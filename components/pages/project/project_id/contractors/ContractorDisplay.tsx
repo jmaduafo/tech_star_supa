@@ -295,7 +295,7 @@ function AssignStage({
 
   const getData = async () => {
     try {
-      if (!user || !contractor || !stages) {
+      if (!contractor || !stages) {
         return;
       }
 
@@ -317,15 +317,20 @@ function AssignStage({
         return;
       }
 
+      console.log(data);
       setData(data as Stage[]);
 
+      // TURN DATA INTO AN ARRAY OF {label: string; value: string}[]
+      // FOR MULTI SELECT BAR
       const list: MultiSelect[] = [];
 
       data.forEach((item) => {
-        list.push({ label: item.name, value: item.id });
+        item.stage_contractors.length &&
+          list.push({ label: item.name, value: item.id });
       });
 
       setStageList(list);
+      console.log(list);
 
       setOpen(false);
     } catch (err: any) {
@@ -337,13 +342,14 @@ function AssignStage({
 
   useEffect(() => {
     getData();
-  }, [user, contractor, stages]);
+  }, [contractor, stages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setIsLoading(true);
 
+    // MAKE SURE THAT LIST IS NOT EMPTY
     if (!stageList.length) {
       toast("Something went wrong", {
         description: "You must add at least one stage",
@@ -355,10 +361,12 @@ function AssignStage({
     }
 
     try {
-      if (!user || !contractor || !data) {
+      if (!contractor || !data) {
         return;
       }
 
+      // DELETE ALL PREVIOUS STAGES ASSIGNED TO CONTRACTOR TO ENSURE
+      // NO DUPLICATES
       const { error: deleteError } = await supabase
         .from("stage_contractors")
         .delete()
@@ -369,25 +377,27 @@ function AssignStage({
           description: deleteError.message,
         });
 
-        return
+        return;
       }
 
-      const array: StageContractor[] = []
+      const array: StageContractor[] = [];
 
-      stageList.forEach(item => {
-        array.push({stage_id: item.value, contractor_id: contractor.id})
-      })
+      // CHANGE LIST ARRAY BACK TO STAGE_CONTRACTORS TYPE
+      stageList.forEach((item) => {
+        array.push({ stage_id: item.value, contractor_id: contractor.id });
+      });
 
+      // INSERT NEW ARRAY TO STAGE CONTRACTORS TABLE
       const { error: insertError } = await supabase
         .from("stage_contractors")
-        .insert(array)
+        .insert(array);
 
       if (insertError) {
         toast("Something went wrong", {
           description: insertError.message,
         });
 
-        return
+        return;
       }
 
       toast("Success!", {
@@ -395,6 +405,9 @@ function AssignStage({
       });
 
       setOpen(false);
+
+      // THIS METHOD IS ALSO A LESS HEADACHE INDUCING METHOD THAT TAKES CARE OF
+      // UPDATING. MAYBE NOT THE MOST OPTIMAL METHOD BUT IT WORKS
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,

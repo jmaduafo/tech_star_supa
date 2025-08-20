@@ -31,8 +31,7 @@ import {
   Contractor,
   MultiSelect,
   Stage,
-  StageContractor,
-  User,
+  StageContractor
 } from "@/types/types";
 import { country_list } from "@/utils/dataTools";
 import { ContractorSchema } from "@/zod/validation";
@@ -154,7 +153,6 @@ function DropDown({
   const [assignOpen, setAssignOpen] = useState(false);
 
   const [stagesList, setStagesList] = useState<MultiSelect[] | undefined>();
-  const [stages, setStages] = useState<Stage[] | undefined>();
 
   const { userData } = useAuth();
   const { project_id } = useParams();
@@ -187,7 +185,6 @@ function DropDown({
       });
 
       setStagesList(keyValue);
-      setStages(data as Stage[]);
     } catch (err: any) {
       console.log(err.message);
     }

@@ -49,14 +49,14 @@ function MultiSelectBar({
                 return (
                   <span
                     key={item.value}
-                    className="py-0.5 px-4 bg-darkText text-lightText h-full rounded-full whitespace-nowrap"
+                    className="py-0.5 px-3 bg-darkText text-lightText h-full rounded-full whitespace-nowrap"
                   >
                     <p className="text-[12.5px] flex items-center gap-2 font-light">
                       {item.label}
                       <span
                         role="button"
                         tabIndex={0}
-                        className="hover:bg-red-400 "
+                        className="hover:bg-lightText hover:text-darkText rounded-full duration-300 "
                         onClick={() =>
                           setSelectedArray((prev) =>
                             prev.filter((sel) => sel.value !== item.value)

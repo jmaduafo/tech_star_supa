@@ -25,7 +25,13 @@ import SelectBar from "@/components/ui/input/SelectBar";
 import Loading from "@/components/ui/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Contractor, MultiSelect, Stage, User } from "@/types/types";
+import {
+  Contractor,
+  MultiSelect,
+  Stage,
+  StageContractor,
+  User,
+} from "@/types/types";
 import { country_list } from "@/utils/dataTools";
 import { ContractorSchema } from "@/zod/validation";
 import {
@@ -144,7 +150,8 @@ function DropDown({
   const [viewStagesOpen, setViewStagesOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
 
-  const [stages, setStages] = useState<MultiSelect[] | undefined>();
+  const [stagesList, setStagesList] = useState<MultiSelect[] | undefined>();
+  const [stages, setStages] = useState<Stage[] | undefined>();
 
   const { userData } = useAuth();
   const { project_id } = useParams();
@@ -176,9 +183,8 @@ function DropDown({
         keyValue.push({ label: item.name, value: item.id });
       });
 
-      console.log(keyValue);
-
-      setStages(keyValue);
+      setStagesList(keyValue);
+      setStages(data as Stage[]);
     } catch (err: any) {
       console.log(err.message);
     }
@@ -260,6 +266,7 @@ function DropDown({
         user={userData}
         open={assignOpen}
         setOpen={setAssignOpen}
+        list={stagesList}
       />
     </>
   );
@@ -271,15 +278,131 @@ function AssignStage({
   user,
   open,
   setOpen,
+  list,
 }: {
-  readonly stages: MultiSelect[] | undefined;
+  readonly stages: Stage[] | undefined;
+  readonly list: MultiSelect[] | undefined;
   readonly contractor: Contractor | undefined;
   readonly user: User | undefined;
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [data, setData] = useState<Stage[] | undefined>();
   const [stageList, setStageList] = useState<MultiSelect[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const supabase = createClient();
+
+  const getData = async () => {
+    try {
+      if (!user || !contractor || !stages) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("stages")
+        .select(
+          `
+            id,
+            name,
+            stage_contractors (
+              contractor_id
+            )
+          `
+        )
+        .eq("stage_contractors.contractor_id", contractor.id);
+
+      if (error) {
+        console.log(error.message);
+        return;
+      }
+
+      setData(data as Stage[]);
+
+      const list: MultiSelect[] = [];
+
+      data.forEach((item) => {
+        list.push({ label: item.name, value: item.id });
+      });
+
+      setStageList(list);
+
+      setOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, [user, contractor, stages]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    if (!stageList.length) {
+      toast("Something went wrong", {
+        description: "You must add at least one stage",
+      });
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    try {
+      if (!user || !contractor || !data) {
+        return;
+      }
+
+      const { error: deleteError } = await supabase
+        .from("stage_contractors")
+        .delete()
+        .eq("contractor_id", contractor.id);
+
+      if (deleteError) {
+        toast("Something went wrong", {
+          description: deleteError.message,
+        });
+
+        return
+      }
+
+      const array: StageContractor[] = []
+
+      stageList.forEach(item => {
+        array.push({stage_id: item.value, contractor_id: contractor.id})
+      })
+
+      const { error: insertError } = await supabase
+        .from("stage_contractors")
+        .insert(array)
+
+      if (insertError) {
+        toast("Something went wrong", {
+          description: insertError.message,
+        });
+
+        return
+      }
+
+      toast("Success!", {
+        description: `Stage was successfully assigned to contractor ${contractor.name}`,
+      });
+
+      setOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -288,20 +411,23 @@ function AssignStage({
           <DialogTitle>Assign stage</DialogTitle>
           <DialogDescription>
             Appoint{" "}
-            <strong>{contractor
-              ? contractor.name.charAt(0).toUpperCase() +
-                contractor.name.slice(1)
-              : "contractor"}</strong>{" "}
+            <strong>
+              {contractor
+                ? contractor.name.charAt(0).toUpperCase() +
+                  contractor.name.slice(1)
+                : "contractor"}
+            </strong>{" "}
             one or multiple stages
           </DialogDescription>
         </DialogHeader>
-        <form>
+        <form onSubmit={handleSubmit}>
           {/* ADD AND DELETE BANK NAMES */}
           <MultiSelectBar
-            array={stages}
+            array={list}
             selectedArray={stageList}
             setSelectedArray={setStageList}
-            name="stages"           />
+            name="stages"
+          />
           <div className="flex justify-end mt-6">
             <Submit loading={isLoading} disabledLogic={isLoading} />
           </div>

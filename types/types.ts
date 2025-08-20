@@ -96,6 +96,7 @@ export type Stage = {
   project_id: string;
   description: string;
   stage_number: number;
+  stage_contractors?: StageContractor[];
   is_completed: boolean;
   created_at: number;
   updated_at: number | null;
@@ -103,13 +104,11 @@ export type Stage = {
 
 // MANY TO MANY RELATIONSHIP BETWEEN STAGES AND CONTRACTORS
 export type StageContractor = {
-  id: string;
+  id?: string;
   stage_id: string;
   contractor_id: string;
-  // What contractor does in this stage
-  role?: string | null;
-  created_at: number;
-  updated_at: number | null;
+  created_at?: number;
+  updated_at?: number | null;
 };
 
 export type Contractor = {
@@ -152,7 +151,7 @@ export type Contract = {
   stage_name: string;
   contract_code: string;
   bank_name: string[];
-  contract_amount: Amount[]
+  contract_amount: Amount[];
   is_completed: boolean;
   description: string;
   comment?: string | null;
@@ -187,7 +186,6 @@ export type Payment = {
   created_at: string;
   updated_at: string | null;
 };
-
 
 export type Chart = {
   id: string;

@@ -27,6 +27,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CustomInput from "@/components/ui/input/CustomInput";
 import Separator from "@/components/ui/Separator";
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
+import { useAuth } from "@/context/UserContext";
+import { createClient } from "@/lib/supabase/client";
+import { PaymentSchema } from "@/zod/validation";
 
 function NonContractDisplay({
   data,
@@ -40,7 +45,7 @@ function NonContractDisplay({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [paymentDate, setPaymentDate] = useState<Date | undefined>(undefined);
 
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
   const [bankInputs, setBankInputs] = useState<string[]>([]);
@@ -56,7 +61,13 @@ function NonContractDisplay({
       name: "",
     },
     is_completed: false,
+    is_paid: true,
   });
+
+  const { project_id, contractor_id } = useParams();
+  const { userData } = useAuth();
+
+  const supabase = createClient();
 
   function handleAddCurrency() {
     if (
@@ -89,6 +100,126 @@ function NonContractDisplay({
     }
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    const values = {
+      date: paymentDate,
+      stage_id: form.stage_id,
+      bank_name: bankInputs[0],
+      currency: currencyInputs,
+      is_completed: form.is_completed,
+      is_paid: !form.is_completed ? false : form.is_paid,
+      desc: form.desc.trim(),
+      comment: form.comment.length ? form.comment.trim() : null,
+    };
+
+    const result = PaymentSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      console.log(result.error.issues[0].message)
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    const {
+      date,
+      desc,
+      stage_id,
+      comment,
+      is_completed,
+      is_paid,
+      bank_name,
+      currency,
+    } = result.data;
+
+    try {
+      if (!userData || !project_id || !contractor_id) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("payments")
+        .insert({
+          date,
+          project_id,
+          contractor_id,
+          stage_id,
+          team_id: userData.team_id,
+          contract_id: null,
+          description: desc,
+          comment,
+          bank_name,
+          is_completed,
+          is_paid,
+        })
+        .select("id")
+        .single();
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: amountError } = await supabase
+        .from("payment_amounts")
+        .insert({
+          payment_id: data.id,
+          symbol: currency[0].symbol,
+          name: currency[0].name,
+          code: currency[0].code,
+          amount: currency[0].amount,
+        });
+
+      if (amountError) {
+        toast("Something went wrong", {
+          description: amountError.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: "Stand alone payment was added successfully",
+      });
+
+      setForm({
+        desc: "",
+        stage_id: "",
+        comment: "",
+        amounts: {
+          code: "",
+          symbol: "",
+          amount: "",
+          name: "",
+        },
+        is_completed: false,
+        is_paid: true,
+      });
+
+      setBankInputs([])
+      setCurrencyInputs([])
+      setPaymentDate(undefined)
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section>
       <div className="flex items-end justify-between">
@@ -109,7 +240,15 @@ function NonContractDisplay({
             setOpen={setOpen}
             open={open}
           >
-            <form>
+            <form
+              role="form"
+              onSubmit={handleSubmit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  return;
+                }
+              }}
+            >
               {/* DATE PICKER POPUP */}
               <Popover>
                 <PopoverTrigger asChild>
@@ -118,11 +257,11 @@ function NonContractDisplay({
                     type="button"
                     className={cn(
                       "w-full pl-3 text-left font-normal mb-3",
-                      !date && "text-darkText/50"
+                      !paymentDate && "text-darkText/50"
                     )}
                   >
-                    {date ? (
-                      format(date, "PPP")
+                    {paymentDate ? (
+                      format(paymentDate, "PPP")
                     ) : (
                       <span>Pick a payment date</span>
                     )}
@@ -132,13 +271,11 @@ function NonContractDisplay({
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={date ? new Date(date) : undefined}
+                    selected={paymentDate ? new Date(paymentDate) : undefined}
                     onDayClick={(date: Date) => {
-                      setDate(date);
+                      setPaymentDate(date);
                     }}
-                    disabled={(date: Date) =>
-                      date < new Date("1960-01-01")
-                    }
+                    disabled={(date: Date) => date < new Date("1960-01-01")}
                     captionLayout="dropdown"
                   />
                 </PopoverContent>
@@ -205,9 +342,7 @@ function NonContractDisplay({
                         <p>{item.code}</p>
                         <div className="flex items-center gap-1">
                           <p className="capitalize">
-                            {item.amount !== "Unlimited"
-                              ? formatCurrency(+item.amount, item.code)
-                              : `${item.symbol} Unlimited`}
+                            {formatCurrency(+item.amount, item.code)}
                           </p>
                         </div>
                       </div>
@@ -274,6 +409,20 @@ function NonContractDisplay({
                   Is this payment complete? *
                 </label>
               </div>
+              {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
+              {form.is_completed ? (
+                <div className="flex items-center gap-2 mt-3">
+                  <Switch
+                    id="is_paid"
+                    name="is_paid"
+                    checked={form.is_paid}
+                    onCheckedChange={(bool) =>
+                      setForm({ ...form, is_paid: bool })
+                    }
+                  />
+                  <label htmlFor="is_paid">Has this payment been paid? *</label>
+                </div>
+              ) : null}
               {/* OPTIONAL COMMENT INPUT */}
               <CustomInput
                 htmlFor="comment"

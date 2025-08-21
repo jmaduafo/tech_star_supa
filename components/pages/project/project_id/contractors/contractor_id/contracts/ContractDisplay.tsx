@@ -236,6 +236,10 @@ function ContractDisplay({
         is_completed: false,
         is_unlimited: false,
       });
+
+      setBankInputs([])
+      setCurrencyInputs([])
+      setContractDate(undefined)
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,
@@ -265,6 +269,8 @@ function ContractDisplay({
           open={open}
         >
           <form
+            role="form"
+            aria-label="form"
             onSubmit={handleSubmit}
             onKeyDown={(e) => {
               if (e.key === "Enter") {

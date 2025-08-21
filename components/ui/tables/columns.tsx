@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Amount,
-  Contract,
-  Payment,
-  ProjectReport,
-  TimeStamp,
-  User,
-} from "@/types/types";
+import { Amount, Contract, Payment, ProjectReport, User } from "@/types/types";
 import { convertCurrency, formatCurrency, totalSum } from "@/utils/currencies";
 import { formatDate } from "@/utils/dateAndTime";
 import { ColumnDef } from "@tanstack/react-table";
@@ -21,6 +14,7 @@ import UserAction from "./UserAction";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 import { getInitials } from "@/utils/initials";
 
+// CONTRACT DATA COLUMN
 export const contractColumns: ColumnDef<Contract>[] = [
   {
     header: ({ table }) => (
@@ -159,6 +153,7 @@ export const contractColumns: ColumnDef<Contract>[] = [
   },
 ];
 
+// PAYMENT DATA COLUMN
 export const paymentColumns: ColumnDef<Payment>[] = [
   {
     header: ({ table }) => (
@@ -219,9 +214,11 @@ export const paymentColumns: ColumnDef<Payment>[] = [
     },
     accessorKey: "is_completed",
     cell: ({ row }) => {
-      const status: boolean = row.getValue("is_completed");
+      const contract = row.original;
 
-      return <Banner text={status ? "paid" : "pending"} />;
+      const checkPaid = contract.is_paid ? "paid" : "unpaid";
+
+      return <Banner text={contract.is_completed ? checkPaid : "pending"} />;
     },
   },
   {
@@ -240,9 +237,9 @@ export const paymentColumns: ColumnDef<Payment>[] = [
     },
     accessorKey: "date",
     cell: ({ row }) => {
-      const date: TimeStamp = row.getValue("date");
+      const date: string = row.getValue("date");
 
-      return <div className=""></div>;
+      return <div className="">{formatDate(date)}</div>;
     },
   },
   {
@@ -306,6 +303,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
   },
 ];
 
+// TEAMS DATA COLUMN
 export const teamColumns: ColumnDef<User>[] = [
   {
     header: ({ column }) => {
@@ -515,6 +513,7 @@ export const projectReportColumns: ColumnDef<ProjectReport>[] = [
     accessorKey: "contracts",
     cell: ({ row }) => {
       const contracts: Contract[] = row.getValue("contracts");
+      console.log(contracts);
 
       // return <div>{convertCurrency(totalSum(contracts.map(item => item.currency_amount !== "Unlimited" ? item.currency_amount : 0)))}</div>
     },
@@ -536,7 +535,7 @@ export const projectReportColumns: ColumnDef<ProjectReport>[] = [
     accessorKey: "expenses",
     cell: ({ row }) => {
       const expenses: Payment[] = row.getValue("expenses");
-
+      console.log(expenses);
       // return <div>{convertCurrency(totalSum(expenses.map(item => item.currency_amount !== "Unlimited" ? item.currency_amount : 0)))}</div>
     },
   },

@@ -7,10 +7,10 @@ export const CreateUserSchema = z.object({
   last_name: z.string().min(1, {
     message: "Last name must be filled in",
   }),
-  email: z
-    .string()
-    .min(1, { message: "This field has to be filled." })
-    .email("This is not a valid email."),
+  // email: z
+  //   .string()
+  //   .min(1, { message: "This field has to be filled." })
+  //   .email("This is not a valid email."),
   password: z
     .string()
     .min(6, {
@@ -28,10 +28,10 @@ export const CreateMemberSchema = z.object({
   last_name: z.string().min(1, {
     message: "Last name must be filled in",
   }),
-  email: z
-    .string()
-    .min(1, { message: "This field has to be filled." })
-    .email("This is not a valid email."),
+  // email: z
+  //   .string()
+  //   .min(1, { message: "This field has to be filled." })
+  //   .email("This is not a valid email."),
   password: z
     .string()
     .min(6, {
@@ -71,7 +71,7 @@ export const EditUserSchema = z.object({
   }),
   location: z.nullable(z.string()),
   job_title: z.nullable(z.string()),
-  image_url: z.string().url().optional(),
+  // image_url: z.string().url().optional(),
 });
 
 export const EditMemberSchema = z.object({
@@ -148,9 +148,7 @@ export const EditProjectSchema = z.object({
 
 export const StagesSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name for this stage." }),
-  description: z.nullable(
-    z.string()
-  ),
+  description: z.nullable(z.string()),
   is_completed: z.boolean(),
 });
 
@@ -215,7 +213,9 @@ export const ContractSchema = z.object({
 });
 
 export const PaymentSchema = z.object({
-  desc: z.nullable(z.string()),
+  desc: z
+    .string()
+    .min(1, { message: "You must enter a description for this payment." }),
   date: z
     .date({
       message: "Please select a date",
@@ -223,10 +223,11 @@ export const PaymentSchema = z.object({
     .min(new Date("1960-01-01"), {
       message: "The date cannot be earlier than 1960",
     }),
-  bank_names: z.string().array().nonempty({
-    message: "There must be at least one bank entered.",
+  bank_name: z.string().nonempty({
+    message: "You must enter a bank name for this payment.",
   }),
   is_completed: z.boolean(),
+  is_paid: z.boolean(),
   stage_id: z.string().nonempty({
     message: "There must be a stage selected.",
   }),
@@ -241,12 +242,9 @@ export const PaymentSchema = z.object({
       symbol: z.string().nonempty({
         message: "You must enter a currency symbol.",
       }),
-      amount: z
-        .number()
-        .min(0.01, {
-          message: "You must enter an amount greater than 0.",
-        })
-        .or(z.string().includes("Unlimited")),
+      amount: z.string().nonempty({
+        message: "You must enter a currency amount.",
+      }),
     })
     .array()
     .nonempty({

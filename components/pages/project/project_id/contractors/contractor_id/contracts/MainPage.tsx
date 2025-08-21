@@ -51,7 +51,8 @@ function MainPage() {
         supabase
           .from("payments")
           .select("*, payment_amounts (*)")
-          .eq("id", contractor_id)
+          .eq("project_id", project_id)
+          .eq("contractor_id", contractor_id)
           .eq("team_id", userData.team_id),
         supabase
           .from("stages")

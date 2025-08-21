@@ -38,15 +38,18 @@ export function fullDate() {
   return date;
 }
 
-export function formatDate(timestamp: TimeStamp, formatOption?: number) {
-  const date = new Date(timestamp.seconds * 1000);
+export function formatDate(input_date: string, formatOption?: number) {
+  const date = new Date(input_date);
 
+  // Output: 12 Aug 23
   const format =
     date.getDate() +
     " " +
     months[date.getMonth()].substring(0, 3) +
     " " +
     date.getFullYear().toString().slice(2);
+  
+  // Output: Aug 12, 2023
   const format2 =
     months[date.getMonth()].substring(0, 3) +
     " " +

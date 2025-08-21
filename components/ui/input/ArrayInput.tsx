@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Input from "./Input";
 import { X } from "lucide-react";
+import CustomInput from "./CustomInput";
 
 type Input = {
   readonly label: string;
@@ -46,7 +47,11 @@ function ArrayInput({
             >
               <p className="capitalize whitespace-nowrap">{item}</p>
               {!hideX ? (
-                <button className="hover:bg-lightText hover:text-darkText rounded-full duration-300" type="button" onClick={() => deleteInput(item)}>
+                <button
+                  className="hover:bg-lightText hover:text-darkText rounded-full duration-300"
+                  type="button"
+                  onClick={() => deleteInput(item)}
+                >
                   <X className="w-3 h-3" />
                 </button>
               ) : null}
@@ -54,15 +59,20 @@ function ArrayInput({
           );
         })}
       </div>
-      <Input
-        htmlFor={htmlFor}
-        label={label}
-        type="text"
-        onChange={(e) => setValue(e.target.value)}
-        value={value}
-        id={htmlFor}
-        name={htmlFor}
-      />
+      <CustomInput htmlFor={htmlFor} label={label}>
+        <input
+          className="form"
+          type="text"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAddInput();
+            }
+          }}
+          onChange={(e) => setValue(e.target.value)}
+          value={value}
+          id={htmlFor}
+        />
+      </CustomInput>
       {children}
       {/* CLICK BUTTON TO ADD INPUT TO ARRAY */}
       <div className="flex justify-end">

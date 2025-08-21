@@ -129,12 +129,12 @@ export type Contractor = {
   updated_at: string | null;
 };
 
+// amount: number or "Unlimited"
 export type Amount = {
   id?: string;
   symbol: string;
   code: string;
   name: string;
-  // amount: number or "Unlimited"
   amount: string;
   contract_id?: string | null;
   payment_id?: string | null;

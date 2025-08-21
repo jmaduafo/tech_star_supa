@@ -8,7 +8,7 @@ function Submit({
   width_height,
   arrow_width_height,
   width,
-  disabledLogic
+  disabledLogic,
 }: {
   readonly disabledLogic?: boolean;
   readonly loading: boolean;
@@ -17,17 +17,18 @@ function Submit({
   readonly width?: string;
   readonly buttonClick?: () => void;
 }) {
-
   return (
     <button
       type="submit"
       onClick={buttonClick}
       aria-label="submit button"
       // LOGIN/SIGNUP WIDTH
-      // width_height: w-[160px] h-[60px]  
+      // width_height: w-[160px] h-[60px]
       // width: w-[60px]
-      // arrow_width_height: w-10 h-10 
-      className={`rounded-full bg-dark35 group ${width_height ?? "w-[85px] h-[40px]"} ${disabledLogic ? "opacity-60" : "opacity-100"}`}
+      // arrow_width_height: w-10 h-10
+      className={`rounded-full bg-dark35 group ${
+        width_height ?? "w-[85px] h-[40px]"
+      } ${disabledLogic ? "opacity-60" : "opacity-100"}`}
       disabled={!!(loading || disabledLogic)}
     >
       <span

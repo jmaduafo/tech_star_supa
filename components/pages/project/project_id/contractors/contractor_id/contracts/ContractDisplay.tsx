@@ -28,6 +28,11 @@ import Separator from "@/components/ui/Separator";
 import { cn } from "@/lib/utils";
 import CustomInput from "@/components/ui/input/CustomInput";
 import { Calendar } from "@/components/ui/calendar";
+import { ContractSchema } from "@/zod/validation";
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
+import { useAuth } from "@/context/UserContext";
+import { createClient } from "@/lib/supabase/client";
 
 function ContractDisplay({
   data,
@@ -41,7 +46,7 @@ function ContractDisplay({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [contractDate, setContractDate] = useState<Date | undefined>(undefined);
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
   const [bankInputs, setBankInputs] = useState<string[]>([]);
 
@@ -60,12 +65,18 @@ function ContractDisplay({
     is_unlimited: false,
   });
 
+  const { project_id, contractor_id } = useParams();
+  const { userData } = useAuth();
+
+  const supabase = createClient();
+
   function handleAddCurrency() {
     // CHECKS IF CODE IS ENTERED, IF THE TOTAL AMOUNT IS MORE THAN
     // 0, AND IF THE AMOUNT IS AT MOST 15 DIGITS
     if (
       (form.amounts.code.length && +form.amounts.amount > 0) ||
-      (form.is_unlimited && form.amounts.amount.length < 16)
+      form.is_unlimited ||
+      form.amounts.amount.length < 16
     ) {
       const checkDuplicate = currencyInputs.find(
         (item) => item.code === form.amounts.code
@@ -114,8 +125,125 @@ function ContractDisplay({
   }
 
   function deleteInput(item: Amount) {
-    setCurrencyInputs(prev => prev.filter((inp) => inp.code !== item.code));
+    setCurrencyInputs((prev) => prev.filter((inp) => inp.code !== item.code));
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    const values = {
+      date: contractDate,
+      stage_id: form.stage_id,
+      code: form.contract_code.trim(),
+      bank_names: bankInputs,
+      currency: currencyInputs,
+      is_completed: form.is_completed,
+      desc: form.desc.trim(),
+      comment: form.comment.length ? form.comment.trim() : null,
+    };
+
+    const result = ContractSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    const {
+      date,
+      desc,
+      stage_id,
+      code,
+      comment,
+      is_completed,
+      bank_names,
+      currency,
+    } = result.data;
+
+    try {
+      if (!userData || !project_id || !contractor_id) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("contracts")
+        .insert({
+          date,
+          project_id,
+          contractor_id,
+          stage_id,
+          team_id: userData.team_id,
+          contract_code: code,
+          description: desc,
+          comment,
+          bank_names,
+          is_completed,
+        })
+        .select("id")
+        .single();
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      const amountsArray: Amount[] = [];
+
+      currency.forEach((item) => {
+        amountsArray.push({
+          ...item,
+          contract_id: data.id,
+        });
+      });
+
+      const { error: amountError } = await supabase
+        .from("contract_amounts")
+        .insert(amountsArray);
+
+      if (amountError) {
+        toast("Something went wrong", {
+          description: amountError.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: "Contract was added successfully",
+      });
+
+      setForm({
+        contract_code: "",
+        desc: "",
+        stage_id: "",
+        comment: "",
+        amounts: {
+          code: "",
+          symbol: "",
+          amount: "",
+          name: "",
+        },
+        is_completed: false,
+        is_unlimited: false,
+      });
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <section>
@@ -136,8 +264,14 @@ function ContractDisplay({
           setOpen={setOpen}
           open={open}
         >
-          <form>
-            {/* CONTRACT CODE INPUT */}
+          <form
+            onSubmit={handleSubmit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                return;
+              }
+            }}
+          >
             {/* DATE PICKER POPUP */}
             <Popover>
               <PopoverTrigger asChild>
@@ -146,11 +280,11 @@ function ContractDisplay({
                   type="button"
                   className={cn(
                     "w-full pl-3 text-left font-normal mb-3",
-                    !date && "text-darkText/50"
+                    !contractDate && "text-darkText/50"
                   )}
                 >
-                  {date ? (
-                    format(date, "PPP")
+                  {contractDate ? (
+                    format(contractDate, "PPP")
                   ) : (
                     <span>Pick a contract date</span>
                   )}
@@ -160,16 +294,16 @@ function ContractDisplay({
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={date ? new Date(date) : undefined}
+                  selected={contractDate ? new Date(contractDate) : undefined}
                   onDayClick={(date: Date) => {
-                    setDate(date);
-                    setOpen(false);
+                    setContractDate(date);
                   }}
-                  disabled={(date: Date) => date < new Date("1955-01-01")}
+                  disabled={(date: Date) => date < new Date("1960-01-01")}
                   captionLayout="dropdown"
                 />
               </PopoverContent>
             </Popover>
+            {/* CONTRACT CODE INPUT */}
             <Input
               htmlFor="code"
               label="Contract code *"
@@ -209,6 +343,7 @@ function ContractDisplay({
               <SelectBar
                 name="stage_id"
                 value={form.stage_id}
+                valueChange={(id) => setForm({ ...form, stage_id: id })}
                 placeholder="Select the project stage *"
                 label="Stages"
                 className="w-full sm:w-full mb-3"

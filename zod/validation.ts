@@ -173,7 +173,7 @@ export const ContractorSchema = z.object({
   comment: z.nullable(z.string()),
 });
 
-export const CreateContractSchema = z.object({
+export const ContractSchema = z.object({
   code: z.string().min(1, { message: "You must enter a contract code." }),
   desc: z
     .string()
@@ -203,12 +203,9 @@ export const CreateContractSchema = z.object({
       symbol: z.string().nonempty({
         message: "You must enter a currency symbol.",
       }),
-      amount: z
-        .number()
-        .min(0.01, {
-          message: "You must enter an amount greater than 0.",
-        })
-        .or(z.string().includes("Unlimited")),
+      amount: z.string().nonempty({
+        message: "You must enter a currency amount.",
+      }),
     })
     .array()
     .nonempty({
@@ -217,7 +214,7 @@ export const CreateContractSchema = z.object({
   comment: z.nullable(z.string()),
 });
 
-export const CreatePaymentSchema = z.object({
+export const PaymentSchema = z.object({
   desc: z.nullable(z.string()),
   date: z
     .date({

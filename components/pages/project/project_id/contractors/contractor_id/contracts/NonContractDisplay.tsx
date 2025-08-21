@@ -137,7 +137,7 @@ function NonContractDisplay({
                       setDate(date);
                     }}
                     disabled={(date: Date) =>
-                      date < new Date("1955-01-01")
+                      date < new Date("1960-01-01")
                     }
                     captionLayout="dropdown"
                   />

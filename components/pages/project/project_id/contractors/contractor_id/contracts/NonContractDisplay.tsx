@@ -52,7 +52,7 @@ function NonContractDisplay({
     amounts: {
       code: "",
       symbol: "",
-      amount: 0,
+      amount: "",
       name: "",
     },
     is_completed: false,
@@ -63,7 +63,7 @@ function NonContractDisplay({
     //
     if (
       (form.amounts.code.length && +form.amounts.amount > 0) ||
-      (form.is_unlimited && form.amounts.amount < 16)
+      (form.is_unlimited && +form.amounts.amount < 16)
     ) {
       // FIND WHERE THE SELECTED CODE IS IN THE CURRENCY LIST
       const currencyIndex = currency_list.findIndex(
@@ -82,7 +82,7 @@ function NonContractDisplay({
       ]);
 
       setForm({ ...form, is_unlimited: false });
-      setForm({ ...form, amounts: { ...form.amounts, amount: 0 } });
+      setForm({ ...form, amounts: { ...form.amounts, amount: "" } });
     }
   }
   return (
@@ -117,7 +117,7 @@ function NonContractDisplay({
                       !date && "text-darkText/50"
                     )}
                   >
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    {date ? format(date, "PPP") : <span>Pick a payment date</span>}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -221,24 +221,29 @@ function NonContractDisplay({
                     })}
                   </SelectBar>
                 </CustomInput>
-                <Input
+                <CustomInput
                   htmlFor="amount"
                   label="Payment amount *"
                   className="mt-3"
-                  type="number"
-                  id="amount"
-                  name="amount"
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      amounts: {
-                        ...form.amounts,
-                        amount: e.target.valueAsNumber,
-                      },
-                    })
-                  }
-                  value={form.amounts.code}
-                />
+                >
+                  <input
+                    className="form"
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        amounts: {
+                          ...form.amounts,
+                          amount: e.target.value,
+                        },
+                      })
+                    }
+                    value={form.amounts.amount}
+                    disabled={form.is_unlimited}
+                  />
+                </CustomInput>
                 <div className="flex items-center gap-2 mt-3">
                   <Switch
                     id="is_unlimited"

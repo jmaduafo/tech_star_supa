@@ -120,7 +120,7 @@ function ContractDisplay({
                   {date ? (
                     format(date, "PPP")
                   ) : (
-                    <span>Pick a date</span>
+                    <span>Pick a contract date</span>
                   )}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>

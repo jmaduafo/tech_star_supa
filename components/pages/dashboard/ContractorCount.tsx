@@ -2,39 +2,42 @@
 import React, { useState, useEffect } from "react";
 import Header6 from "@/components/fontsize/Header6";
 import Loading from "@/components/ui/loading/Loading";
-// import { db } from "@/firebase/config";
 import { optionalS } from "@/utils/optionalS";
-// import { query, collection, where } from "firebase/firestore";
-// import { getQueriedCount } from "@/firebase/actions";
 import { User } from "@/types/types";
+import { createClient } from "@/lib/supabase/client";
 
 function ContractorCount({ user }: { readonly user: User | undefined }) {
   const [count, setCount] = useState<number | undefined>();
 
-  // async function getUser() {
-  //   if (!user) {
-  //     return;
-  //   }
+  const supabase = createClient();
 
-  //   const q = query(
-  //     collection(db, "contractors"),
-  //     where("team_id", "==", user?.team_id)
-  //   );
+  const getUser = async () => {
+    try {
+      if (!user) {
+        return;
+      }
 
-  //   const contractorCount = await getQueriedCount(q);
+      const { data } = await supabase
+        .from("contractors")
+        .select("id")
+        .eq("team_id", user.team_id)
+        .throwOnError();
 
-  //   setCount(contractorCount);
-  // }
+      setCount(data.length);
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  };
 
   useEffect(() => {
-    // getUser();
-  }, [user?.id ?? "guest"]);
+    getUser();
+  }, [user]);
 
   return (
     <>
       {typeof count === "number" ? (
         <div className="flex flex-col h-full">
-          <div className="mt-auto mb-3">
+          <div className="mt-auto">
             <p className="text-center font-semibold text-[4vw] leading-[1]">
               {count}
             </p>

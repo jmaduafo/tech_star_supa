@@ -1,56 +1,46 @@
-import React from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import Header3 from "@/components/fontsize/Header3";
-// import {
-//   collection,
-//   limit,
-//   orderBy,
-//   where,
-//   query,
-//   getDocs,
-// } from "firebase/firestore";
-// import { db } from "@/firebase/config";
 import { optionalS } from "@/utils/optionalS";
 import TextButton from "@/components/ui/buttons/TextButton";
 import { Payment } from "@/types/types";
-// import { useAuth } from "@/context/AuthContext";
-import Loading from "@/components/ui/Loading";
-// import DataTable from "@/components/ui/tables/DataTable";
+import Loading from "@/components/ui/loading/Loading";
 import Header6 from "@/components/fontsize/Header6";
 import { paymentColumns } from "@/components/ui/tables/columns";
 import MainTable from "@/components/ui/tables/MainTable";
+import { useAuth } from "@/context/UserContext";
+import { createClient } from "@/lib/supabase/client";
 
 function PaymentDisplay() {
-  // const { userData } = useAuth();
+  const [data, setData] = useState<Payment[] | undefined>();
 
-  // async function getLatest() {
-  //   try {
-  //     if (!userData) {
-  //       return;
-  //     }
-  //     const q = query(
-  //       collection(db, "payments"),
-  //       orderBy("date", "desc"),
-  //       where("team_id", "==", userData?.team_id),
-  //       limit(5)
-  //     );
+  const { userData } = useAuth();
+  const supabase = createClient();
 
-  //     const latestDocs = await getDocs(q);
+  const getLatest = async () => {
+    try {
+      if (!userData) {
+        return;
+      }
 
-  //     const payments: Payment[] = [];
+      const { data } = await supabase
+        .from("payments")
+        .select("*, payment_amounts (*)")
+        .eq("team_id", userData.team_id)
+        .order("date", { ascending: false })
+        .limit(5)
+        .throwOnError()
 
-  //     latestDocs.forEach((doc) => {
-  //       payments.push({ ...(doc.data() as Payment), id: doc.id });
-  //     });
 
-  //     setLatestPayments(payments);
-  //   } catch (err: any) {
-  //     console.log(err.message);
-  //   }
-  // }
+      setData(data as Payment[]);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
 
-  // useEffect(() => {
-  //   getLatest();
-  // }, [userData?.id ?? "guest"]);
+  useEffect(() => {
+    getLatest();
+  }, []);
 
   return (
     <section className="w-full py-4">
@@ -58,46 +48,42 @@ function PaymentDisplay() {
         <div className="flex items-start gap-5">
           {/* LATEST HEADING WITH PAYMENTS COUNT */}
           <Header3 text="Latest Payments" />
-          {/* {latestPayments ? (
+          {data ? (
             <Header6
               text={
-                latestPayments.length === 5
+                data.length === 5
                   ? "Max. 5 results"
-                  : `${latestPayments.length} result${optionalS(
-                      latestPayments.length
-                    )}`
+                  : `${data.length} result${optionalS(data.length)}`
               }
             />
-          ) : null} */}
+          ) : null}
         </div>
         {/* PAYMENTS  */}
         <div>
-          {/* {latestPayments?.length ? (
+          {data?.length ? (
             <TextButton
               href="/payments"
               text="View all"
               iconDirection="right"
             />
-          ) : null} */}
+          ) : null}
         </div>
       </div>
+      <div className="mt-6"></div>
       <div className="mt-6">
-        <MainTable columns={[]} data={[]} is_payment={false} team_name={""} />
-      </div>
-      {/* <div className="mt-6">
-        {!latestPayments ? (
+        {!data ? (
           <div className="flex justify-center py-8">
             <Loading />
           </div>
         ) : (
-          <DataTable
+          <MainTable
             columns={paymentColumns}
-            data={latestPayments}
+            data={data}
             is_payment
             team_name={"My"}
           />
         )}
-      </div> */}
+      </div>
     </section>
   );
 }

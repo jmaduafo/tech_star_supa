@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React from "react";
 import IconTextButton from "../buttons/IconTextButton";
 import {
   BsColumnsGap,
@@ -14,8 +14,6 @@ import { usePathname } from "next/navigation";
 function BottomBar() {
   const pathname = usePathname()
   const path = pathname.split('/')[1]
-  
-  const [nav, setNav] = useState(path);
 
   const navLinks = [
     {

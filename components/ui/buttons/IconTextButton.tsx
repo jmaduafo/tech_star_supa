@@ -4,23 +4,16 @@ import React from "react";
 function IconTextButton({
   icon,
   text,
-  // textNav,
-  // setText,
   path,
 }: {
   readonly icon: React.ReactNode;
   readonly text: string;
-  // readonly setText: React.Dispatch<React.SetStateAction<string>>;
-  // textNav is the pathname
-  // readonly textNav: string;
   readonly path: string;
 }) {
   return (
     <button
-      // onClick={() => setText(text.toLowerCase())}
       title={text}
       className={`${
-        // textNav.toLowerCase() === text.toLowerCase() ||
         path.toLowerCase() === text.toLowerCase()
           ? "bg-light85"
           : "bg-transparent"

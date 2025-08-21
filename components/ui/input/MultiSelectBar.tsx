@@ -26,7 +26,11 @@ function MultiSelectBar({
   setSelectedArray,
 }: {
   readonly name: string;
+  // MultiSelect[]: {label: string; value: string}[]
+
+  // array: Array of all values that user can choose from
   readonly array: MultiSelect[] | undefined;
+  // selectedArray: New array of only the selected values
   readonly selectedArray: MultiSelect[];
   readonly setSelectedArray: React.Dispatch<
     React.SetStateAction<MultiSelect[]>
@@ -43,6 +47,7 @@ function MultiSelectBar({
           aria-expanded={open}
           className="w-full justify-between py-6"
         >
+          {/* Styling of the selected items for users to view */}
           {selectedArray.length ? (
             <span className="flex flex-wrap gap-1 items-center">
               {selectedArray.map((item) => {
@@ -82,6 +87,7 @@ function MultiSelectBar({
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
+              {/* Display of all options in the combobox */}
               {array
                 ? array.map((item, i) => (
                     <Fragment key={item.value}>
@@ -120,7 +126,9 @@ const ToggleItem = ({
   const [value, setValue] = useState("");
 
   const handleToggle = (currentValue: string, value: string) => {
+    // SEARCH LOGIC
     if (array) {
+      // Search array for values where the label matches what the user types in
       const obj = array.find(
         (sel) => sel.label.toLowerCase() === currentValue
       )?.value;
@@ -128,16 +136,21 @@ const ToggleItem = ({
       obj && setValue(obj);
     }
 
+    // CHECK/SELECT LOGIC
+
+    // Find the entered value in the selectedArray array
     let checkArray = selectedArray.find((sel) => sel.value === value);
 
     if (checkArray) {
+      // If value is already in the array, remove the value from the array after user click
       setSelectedArray((prev) => prev.filter((val) => val.value !== value));
     } else {
+      // If value is not already in the array, append the selected item (an object) to the selectedArray array
       setSelectedArray((prev) => [...prev, item]);
     }
 
-    // ENSURES THAT THE ARRAY IS UNIQUE EVERY TIME SO THERE ARE NO ISSUES WITH
-    // KEYS
+    // ENSURES THAT THE ARRAY IS UNIQUE EVERY TIME SO THERE ARE NO ISSUES
+    // WITH KEYS
     setSelectedArray((prev) => {
       const uniqueSet = new Set(prev.map((obj) => JSON.stringify(obj)));
       return Array.from(uniqueSet).map((str) => JSON.parse(str));
@@ -155,6 +168,7 @@ const ToggleItem = ({
       <Check
         className={cn(
           "ml-auto",
+          // If the value is in the array, make the check visible. Else make it non-visible
           selectedArray.find((sel) => sel.value === item.value)
             ? "opacity-100"
             : "opacity-0"

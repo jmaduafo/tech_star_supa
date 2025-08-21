@@ -56,35 +56,39 @@ function NonContractDisplay({
       name: "",
     },
     is_completed: false,
-    is_unlimited: false,
   });
 
   function handleAddCurrency() {
-    //
     if (
+      // CHECKS IF CODE IS ENTERED, IF THE TOTAL AMOUNT IS MORE THAN
+      // 0, AND IF THE AMOUNT IS AT MOST 15 DIGITS
       (form.amounts.code.length && +form.amounts.amount > 0) ||
-      (form.is_unlimited && +form.amounts.amount < 16)
+      form.amounts.amount.length < 16
     ) {
       // FIND WHERE THE SELECTED CODE IS IN THE CURRENCY LIST
       const currencyIndex = currency_list.findIndex(
         (curr) => curr.code === form.amounts.code
       );
 
-      setCurrencyInputs([
-        {
-          code: form.amounts.code,
-          name: currency_list[currencyIndex].name,
-          symbol: currency_list[currencyIndex].symbol,
-          amount: form.is_unlimited
-            ? "Unlimited"
-            : form.amounts.amount.toString(),
-        },
-      ]);
+      if (currencyIndex > -1) {
+        setCurrencyInputs([
+          {
+            code: form.amounts.code,
+            name: currency_list[currencyIndex].name,
+            symbol: currency_list[currencyIndex].symbol,
+            amount: form.amounts.amount,
+          },
+        ]);
 
-      setForm({ ...form, is_unlimited: false });
-      setForm({ ...form, amounts: { ...form.amounts, amount: "" } });
+        // SET AMOUNT AND CODE TO AN EMPTY STRING
+        setForm({
+          ...form,
+          amounts: { ...form.amounts, amount: "", code: "" },
+        });
+      }
     }
   }
+
   return (
     <section>
       <div className="flex items-end justify-between">
@@ -117,7 +121,11 @@ function NonContractDisplay({
                       !date && "text-darkText/50"
                     )}
                   >
-                    {date ? format(date, "PPP") : <span>Pick a payment date</span>}
+                    {date ? (
+                      format(date, "PPP")
+                    ) : (
+                      <span>Pick a payment date</span>
+                    )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -129,7 +137,7 @@ function NonContractDisplay({
                       setDate(date);
                     }}
                     disabled={(date: Date) =>
-                      date > new Date() || date < new Date("1900-01-01")
+                      date < new Date("1955-01-01")
                     }
                     captionLayout="dropdown"
                   />
@@ -154,6 +162,7 @@ function NonContractDisplay({
                 inputs={bankInputs}
                 disabledLogic={bankInputs.length >= 1}
               />
+              {/* ADD STAGES */}
               <CustomInput
                 htmlFor={"stages"}
                 label={"Project stage *"}
@@ -179,13 +188,19 @@ function NonContractDisplay({
                 ) : null}
               </CustomInput>
               <Separator />
-              <ObjectArray handleAdd={handleAddCurrency}>
-                <div className="mb-2">
+              {/* HANDLE PAYMENT AMOUNT */}
+              <ObjectArray
+                handleAdd={handleAddCurrency}
+                disabledLogic={
+                  !form.amounts.amount.length || !form.amounts.code.length
+                }
+              >
+                <div className="mb-2 flex flex-col gap-1.5">
                   {currencyInputs.map((item) => {
                     return (
                       <div
                         key={item.name}
-                        className="flex justify-between items-center text-[14px] mb-1"
+                        className="flex justify-between items-center text-[13.5px] py-0.5 px-3 bg-darkText text-lightText rounded-full"
                       >
                         <p>{item.code}</p>
                         <div className="flex items-center gap-1">
@@ -241,20 +256,8 @@ function NonContractDisplay({
                       })
                     }
                     value={form.amounts.amount}
-                    disabled={form.is_unlimited}
                   />
                 </CustomInput>
-                <div className="flex items-center gap-2 mt-3">
-                  <Switch
-                    id="is_unlimited"
-                    name="is_unlimited"
-                    checked={form.is_unlimited}
-                    onCheckedChange={(bool) =>
-                      setForm({ ...form, is_unlimited: bool })
-                    }
-                  />
-                  <label htmlFor="is_unlimited">Unlimited amount?</label>
-                </div>
               </ObjectArray>
               <Separator />
               {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
@@ -308,6 +311,7 @@ function NonContractDisplay({
             is_payment
             // DISPLAYS EXPORT BUTTON IF TRUE
             is_export
+            // DISPLAYS PAGINATION IF TRUE
             advanced
             team_name={user ? user?.first_name : "My"}
           />

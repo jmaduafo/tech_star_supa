@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { SelectItem } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import Input from "@/components/ui/input/Input";
 import React, { useState } from "react";
@@ -61,28 +61,60 @@ function ContractDisplay({
   });
 
   function handleAddCurrency() {
-    //
+    // CHECKS IF CODE IS ENTERED, IF THE TOTAL AMOUNT IS MORE THAN
+    // 0, AND IF THE AMOUNT IS AT MOST 15 DIGITS
     if (
       (form.amounts.code.length && +form.amounts.amount > 0) ||
       (form.is_unlimited && form.amounts.amount.length < 16)
     ) {
+      const checkDuplicate = currencyInputs.find(
+        (item) => item.code === form.amounts.code
+      );
+
+      // IF CHECK DUPLICATE IS NOT UNDEFINED, MEANING THAT THE
+      // CURRENCY CODE ALREADY EXISTS,
+      // THEN CLEAR THE INPUT FIELDS AND DO NOTHING
+      if (checkDuplicate) {
+        setForm({
+          ...form,
+          is_unlimited: false,
+          amounts: {
+            ...form.amounts,
+            amount: "",
+            code: "",
+          },
+        });
+        return;
+      }
+
       // FIND WHERE THE SELECTED CODE IS IN THE CURRENCY LIST
       const currencyIndex = currency_list.findIndex(
         (curr) => curr.code === form.amounts.code
       );
 
-      setCurrencyInputs([
-        {
-          code: form.amounts.code,
-          name: currency_list[currencyIndex].name,
-          symbol: currency_list[currencyIndex].symbol,
-          amount: form.is_unlimited ? "Unlimited" : form.amounts.amount,
-        },
-      ]);
+      if (currencyIndex > -1) {
+        setCurrencyInputs([
+          ...currencyInputs,
+          {
+            code: form.amounts.code,
+            name: currency_list[currencyIndex].name,
+            symbol: currency_list[currencyIndex].symbol,
+            amount: form.is_unlimited ? "Unlimited" : form.amounts.amount,
+          },
+        ]);
 
-      setForm({ ...form, is_unlimited: false });
-      setForm({ ...form, amounts: { ...form.amounts, amount: "" } });
+        // SET AMOUNT AND CODE TO AN EMPTY STRING
+        setForm({
+          ...form,
+          is_unlimited: false,
+          amounts: { ...form.amounts, amount: "", code: "" },
+        });
+      }
     }
+  }
+
+  function deleteInput(item: Amount) {
+    setCurrencyInputs(prev => prev.filter((inp) => inp.code !== item.code));
   }
 
   return (
@@ -133,9 +165,7 @@ function ContractDisplay({
                     setDate(date);
                     setOpen(false);
                   }}
-                  disabled={(date: Date) =>
-                    date > new Date() || date < new Date("1900-01-01")
-                  }
+                  disabled={(date: Date) => date < new Date("1955-01-01")}
                   captionLayout="dropdown"
                 />
               </PopoverContent>
@@ -167,9 +197,9 @@ function ContractDisplay({
               htmlFor="banks"
               setInputs={setBankInputs}
               inputs={bankInputs}
-              disabledLogic={bankInputs.length === 4}
+              disabledLogic={bankInputs.length >= 4}
             >
-              {bankInputs.length === 4 ? (
+              {bankInputs.length >= 4 ? (
                 <p className="text-[14px] text-red-700">
                   You have reached the max
                 </p>
@@ -195,13 +225,21 @@ function ContractDisplay({
               </SelectBar>
             </CustomInput>
             <Separator />
-            <ObjectArray handleAdd={handleAddCurrency}>
-              <div className="mb-2">
+            {/* HANDLE OF CURRENCY AMOUNT AND CODE  */}
+            <ObjectArray
+              handleAdd={handleAddCurrency}
+              disabledLogic={
+                !form.amounts.code.length ||
+                currencyInputs.length >= 4 ||
+                (!form.amounts.amount.length && !form.is_unlimited)
+              }
+            >
+              <div className="mb-2 flex flex-col gap-1.5">
                 {currencyInputs.map((item) => {
                   return (
                     <div
                       key={item.name}
-                      className="flex justify-between items-center text-[14px] mb-1"
+                      className="flex justify-between items-center text-[13.5px] py-0.5 px-3 bg-darkText text-lightText rounded-full"
                     >
                       <p>{item.code}</p>
                       <div className="flex items-center gap-1">
@@ -210,12 +248,28 @@ function ContractDisplay({
                             ? formatCurrency(+item.amount, item.code)
                             : `${item.symbol} Unlimited`}
                         </p>
+                        <button
+                          className="hover:bg-lightText hover:text-darkText rounded-full duration-300"
+                          type="button"
+                          onClick={() => deleteInput(item)}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <CustomInput htmlFor={"currency"} label={"Currency *"}>
+              {currencyInputs.length >= 4 ? (
+                <p className="text-[14px] text-red-700">
+                  You have reached the max
+                </p>
+              ) : null}
+              <CustomInput
+                htmlFor={"currency"}
+                label={"Currency *"}
+                className="mt-2"
+              >
                 <SelectBar
                   valueChange={(name) =>
                     setForm({
@@ -237,21 +291,29 @@ function ContractDisplay({
                   })}
                 </SelectBar>
               </CustomInput>
-              <Input
+              <CustomInput
                 htmlFor="amount"
                 label="Payment amount *"
                 className="mt-3"
-                type="number"
-                id="amount"
-                name="amount"
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    amounts: { ...form.amounts, amount: e.target.value },
-                  })
-                }
-                value={form.amounts.code}
-              />
+              >
+                <input
+                  className="form"
+                  type="number"
+                  id="amount"
+                  name="amount"
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      amounts: {
+                        ...form.amounts,
+                        amount: e.target.value,
+                      },
+                    })
+                  }
+                  value={form.amounts.amount}
+                  disabled={form.is_unlimited}
+                />
+              </CustomInput>
               <div className="flex items-center gap-2 mt-3">
                 <Switch
                   id="is_unlimited"

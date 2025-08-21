@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Input from "./CustomInput";
+import Input from "./Input";
 import { X } from "lucide-react";
 
 type Input = {
@@ -20,12 +20,12 @@ function ArrayInput({
   inputs,
   disabledLogic,
   children,
-  hideX
+  hideX,
 }: Input) {
   const [value, setValue] = useState("");
 
   function handleAddInput() {
-    if (value.length) {
+    if (value.length && isNaN(+value)) {
       setInputs([...new Set([...inputs, value.toLowerCase().trim()])]);
       setValue("");
     }
@@ -42,33 +42,28 @@ function ArrayInput({
           return (
             <div
               key={item}
-              className="flex items-center gap-1 py-1 px-4 text-[13.5px] border border-lightText rounded-full"
+              className="flex items-center gap-2 py-0.5 px-3 text-[13.5px] bg-darkText text-lightText rounded-full"
             >
-              <p className="capitalize">{item}</p>
-              {
-                !hideX ?
-                <button type="button" onClick={() => deleteInput(item)}>
-                <X className="w-4 h-4" />
-              </button>
-              :
-              null
-              }
+              <p className="capitalize whitespace-nowrap">{item}</p>
+              {!hideX ? (
+                <button className="hover:bg-lightText hover:text-darkText rounded-full duration-300" type="button" onClick={() => deleteInput(item)}>
+                  <X className="w-3 h-3" />
+                </button>
+              ) : null}
             </div>
           );
         })}
       </div>
-      <Input htmlFor={htmlFor} label={label}>
-        <input
-          className="form"
-          type="text"
-          onChange={(e) => setValue(e.target.value)}
-          value={value}
-          id={htmlFor}
-        />
-      </Input>
-      {
-        children
-      }
+      <Input
+        htmlFor={htmlFor}
+        label={label}
+        type="text"
+        onChange={(e) => setValue(e.target.value)}
+        value={value}
+        id={htmlFor}
+        name={htmlFor}
+      />
+      {children}
       {/* CLICK BUTTON TO ADD INPUT TO ARRAY */}
       <div className="flex justify-end">
         <button

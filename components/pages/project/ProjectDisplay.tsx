@@ -84,7 +84,7 @@ function ProjectDisplay({
           {allProjects?.map((item) => {
             return (
               <Fragment key={item.id}>
-                <Card className="h-[25vh] z-0 hover:opacity-90 duration-300 hover:shadow-md">
+                <Card className="h-[27vh] z-0 hover:opacity-90 duration-300 hover:shadow-md">
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-start">
                       <div>

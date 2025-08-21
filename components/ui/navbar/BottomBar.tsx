@@ -46,10 +46,9 @@ function BottomBar() {
         return (
           <Link key={item.text} href={`/${item.text.toLowerCase()}`}>
             <IconTextButton
-              textNav={nav}
-              setText={setNav}
               text={item.text}
               icon={item.icon}
+              path={path}
             />
           </Link>
         );

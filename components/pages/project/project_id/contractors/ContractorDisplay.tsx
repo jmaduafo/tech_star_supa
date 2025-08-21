@@ -85,7 +85,7 @@ function ContractorDisplay({
           {allContractors?.map((item) => {
             return (
               <Fragment key={item.id}>
-                <Card className="h-[25vh] text-lightText hover:opacity-80 duration-300 hover:shadow-md">
+                <Card className="h-[27vh] text-lightText hover:opacity-80 duration-300 hover:shadow-md">
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-start gap-5">
                       <div>

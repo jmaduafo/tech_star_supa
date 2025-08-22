@@ -24,6 +24,7 @@ import { Skeleton } from "../skeleton";
 import Banner from "../Banner";
 import { formatDate } from "@/utils/dateAndTime";
 import { format } from "timeago.js";
+import { formatCurrency } from "@/utils/currencies";
 
 function PaymentAction({ data }: { readonly data: Payment | undefined }) {
   const [viewOpen, setViewOpen] = useState(false);
@@ -109,6 +110,14 @@ const ViewAction = ({
             />
             {/* DESCRIPTION */}
             <ViewLabel label={"Description"} content={data.description} />
+            {/* AMOUNT */}
+            <ViewLabel label={"Payment amount"} custom>
+              <div>{data.payment_amounts.map((item) => {
+                return (
+                  <p key={item.id}>{item.code} {formatCurrency(+item.amount, item.code)}</p>
+                )
+              })}</div>
+            </ViewLabel>
             {/* COMMENTS */}
             <ViewLabel label={"Comment"} content={data?.comment ?? "N/A"} />
             {/* STATUS */}

@@ -25,6 +25,7 @@ import { Skeleton } from "../skeleton";
 import Banner from "../Banner";
 import { formatDate } from "@/utils/dateAndTime";
 import { format } from "timeago.js";
+import { formatCurrency } from "@/utils/currencies";
 
 function ContractAction({ data }: { readonly data: Contract | undefined }) {
   const [viewOpen, setViewOpen] = useState(false);
@@ -128,6 +129,18 @@ const ViewAction = ({
             </ViewLabel>
             {/* DESCRIPTION */}
             <ViewLabel label={"Description"} content={data.description} />
+            {/* AMOUNT */}
+            <ViewLabel label={"Amounts"} custom>
+              <div className="flex flex-col">
+                {data.contract_amounts.map((item) => {
+                  return (
+                    <p key={item.id}>
+                      {item.code} {formatCurrency(+item.amount, item.code)}
+                    </p>
+                  );
+                })}
+              </div>
+            </ViewLabel>
             {/* COMMENT */}
             <ViewLabel label={"Comment"} content={data?.comment ?? "N/A"} />
             {/* STATUS */}

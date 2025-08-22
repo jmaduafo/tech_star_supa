@@ -89,6 +89,9 @@ function MainPage() {
         return;
       }
 
+      console.log(contract)
+      console.log(noncontract)
+
       setContractData(contract.data as Contract[]);
       setNonContractData(noncontract.data as Payment[]);
       setStagesData(contractorStages(stages.data));

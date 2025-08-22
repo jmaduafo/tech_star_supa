@@ -44,13 +44,17 @@ function MainPage() {
       const [contract, noncontract, stages] = await Promise.all([
         supabase
           .from("contracts")
-          .select("*, contract_amounts (*)")
+          .select(
+            `*, projects (name), contractors (name), stages ( id, name ), contract_amounts (*)`
+          )
           .eq("project_id", project_id)
           .eq("contractor_id", contractor_id)
           .eq("team_id", userData.team_id),
         supabase
           .from("payments")
-          .select("*, payment_amounts (*)")
+          .select(
+            `*, projects (name), contractors (name), stages ( id, name ), contracts (contract_code), payment_amounts (*)`
+          )
           .eq("project_id", project_id)
           .eq("contractor_id", contractor_id)
           .eq("team_id", userData.team_id),

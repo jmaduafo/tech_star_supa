@@ -81,6 +81,7 @@ function PaymentDisplay() {
             data={data}
             is_payment
             team_name={"My"}
+            filterCategory="description"
           />
         )}
       </div>

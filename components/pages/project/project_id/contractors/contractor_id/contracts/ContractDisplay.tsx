@@ -237,9 +237,9 @@ function ContractDisplay({
         is_unlimited: false,
       });
 
-      setBankInputs([])
-      setCurrencyInputs([])
-      setContractDate(undefined)
+      setBankInputs([]);
+      setCurrencyInputs([]);
+      setContractDate(undefined);
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,
@@ -516,6 +516,7 @@ function ContractDisplay({
             is_export
             advanced
             team_name={user ? user?.first_name : "My"}
+            filterCategory="description"
           />
         )}
       </div>

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  ColumnDef,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -93,41 +92,17 @@ function DataTable<TData, TValue>({
     <div>
       <div className="mb-5 flex items-end flex-wrap gap-x-4 gap-y-3">
         {/* SEARCH ENGINE */}
-        {table.getAllColumns().find((x) => x.id === "description") ? (
-          <input
-            placeholder="Filter by description"
-            className="searchTable flex-shrink-1 placeholder:text-light70 max-w-sm backdrop-blur-[100px]"
-            value={
-              (table.getColumn("description")?.getFilterValue() as string) || ""
-            }
-            onChange={(e) =>
-              table.getColumn("description")?.setFilterValue(e.target.value)
-            }
-          />
-        ) : !filterCategory ? (
-          <input
-            placeholder="Filter by name"
-            className="searchTable flex-shrink-1 placeholder:text-light70 max-w-sm backdrop-blur-2xl"
-            value={
-              (table.getColumn("full_name")?.getFilterValue() as string) || ""
-            }
-            onChange={(e) =>
-              table.getColumn("full_name")?.setFilterValue(e.target.value)
-            }
-          />
-        ) : (
-          <input
-            placeholder={`Filter by ${filterCategory}`}
-            className="searchTable flex-shrink-1 placeholder:text-light70 max-w-sm backdrop-blur-2xl"
-            value={
-              (table.getColumn(filterCategory)?.getFilterValue() as string) ||
-              ""
-            }
-            onChange={(e) =>
-              table.getColumn(filterCategory)?.setFilterValue(e.target.value)
-            }
-          />
-        )}
+        <input
+          placeholder={`Filter by ${filterCategory}`}
+          className="searchTable flex-shrink-1 placeholder:text-light70 max-w-sm backdrop-blur-2xl"
+          value={
+            (table.getColumn(filterCategory)?.getFilterValue() as string) || ""
+          }
+          onChange={(e) =>
+            table.getColumn(filterCategory)?.setFilterValue(e.target.value)
+          }
+        />
+
         {/* EXPORT AS CSV BUTTON */}
         {is_export && exportedData.length && data.length ? (
           <Button

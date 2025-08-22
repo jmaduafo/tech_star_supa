@@ -463,6 +463,7 @@ function NonContractDisplay({
             // DISPLAYS PAGINATION IF TRUE
             advanced
             team_name={user ? user?.first_name : "My"}
+            filterCategory="description"
           />
         )}
       </div>

@@ -39,7 +39,7 @@ import { format } from "date-fns";
 
 import { toast } from "sonner";
 import Link from "next/link";
-import Loading from "../Loading";
+// import Loading from "../Loading";
 import { currency_list } from "@/utils/dataTools";
 import {
   Popover,
@@ -149,14 +149,14 @@ function ActionDialog({ data, is_payment }: Dialog) {
         (curr) => curr.code === currencyCode
       );
 
-      setCurrencyInputs([
-        {
-          code: currencyCode,
-          name: currency_list[currencyIndex].name,
-          symbol: currency_list[currencyIndex].symbol,
-          amount: isUnlimited ? "Unlimited" : +currencyAmount,
-        },
-      ]);
+      // setCurrencyInputs([
+      //   {
+      //     code: currencyCode,
+      //     name: currency_list[currencyIndex].name,
+      //     symbol: currency_list[currencyIndex].symbol,
+      //     amount: isUnlimited ? "Unlimited" : +currencyAmount,
+      //   },
+      // ]);
 
       setIsUnlimited(false);
       setCurrencyAmount("");
@@ -385,10 +385,10 @@ function ActionDialog({ data, is_payment }: Dialog) {
   //   getNames();
   // }, []);
 
-  const ongoing =
-    !data?.is_completed && data?.is_contract ? "ongoing" : "pending";
+  // const ongoing =
+  //   !data?.is_completed && data?.is_contract ? "ongoing" : "pending";
 
-  const paid = data?.is_completed && !data?.is_contract ? "paid" : ongoing;
+  // const paid = data?.is_completed && !data?.is_contract ? "paid" : ongoing;
 
   return (
     <div>
@@ -408,7 +408,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
           </DropdownMenuItem>
           {!is_payment ? (
             <Link
-              href={`/projects/${data?.project_id}/contractors/${data?.contractor_id}/contract/${data?.id}`}
+              href={`/projects/${data?.project_id}/contractors/${data?.contractor_id}/contracts/${data?.id}/payments`}
             >
               <DropdownMenuItem>View payments</DropdownMenuItem>
             </Link>
@@ -443,7 +443,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {data?.is_contract ? "Contract" : "Payment"} overview
+              {/* {data?.is_contract ? "Contract" : "Payment"} overview */}
             </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
@@ -477,13 +477,13 @@ function ActionDialog({ data, is_payment }: Dialog) {
             </div>
             {/* BANK NAMES AND CONTRACT DESCRIPTION */}
             <div className="flex justify-between items-start gap-5">
-              <div className="flex-1">
+              {/* <div className="flex-1">
                 <Detail
                   title="Bank"
                   item={data?.bank_name}
                   className="capitalize"
                 />
-              </div>
+              </div> */}
               <div className="flex-1">
                 <Detail title="description" item={data?.description} />
               </div>
@@ -495,7 +495,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
                   <Detail title="Stage" item={stageName} />
                 ) : null}
               </div>
-              <div className="flex-1">
+              {/* <div className="flex-1">
                 {data?.currency_amount && data?.currency_code ? (
                   <Detail
                     title="Amount"
@@ -512,12 +512,12 @@ function ActionDialog({ data, is_payment }: Dialog) {
                     }
                   />
                 ) : null}
-              </div>
+              </div> */}
             </div>
             {/* CONTRACT STATUS & OPTIONAL COMMENT */}
             <div className="flex justify-between items-start gap-5">
               <div className="flex-1">
-                <Detail title="Status" custom>
+                {/* <Detail title="Status" custom>
                   <Banner
                     text={
                       data?.is_completed && data?.is_contract
@@ -525,7 +525,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
                         : paid
                     }
                   />
-                </Detail>
+                </Detail> */}
               </div>
               <div className="flex-1">
                 {data?.comment ? (
@@ -557,14 +557,14 @@ function ActionDialog({ data, is_payment }: Dialog) {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
-              Edit {data?.is_contract ? "contract" : "payment"}
+              {/* Edit {data?.is_contract ? "contract" : "payment"} */}
             </DialogTitle>
             <DialogDescription>Modify your item here.</DialogDescription>
           </DialogHeader>
           {/* Add your edit form inside DialogContent */}
           <form>
             {/* CONTRACT CODE INPUT */}
-            {data?.is_contract ? (
+            {/* {data?.is_contract ? (
               <Input htmlFor="code" label="Contract code *">
                 <input
                   className="form"
@@ -575,16 +575,16 @@ function ActionDialog({ data, is_payment }: Dialog) {
                   onChange={(e) => setContractCode(e.target.value)}
                 />
               </Input>
-            ) : null}
+            ) : null} */}
             {/* DATE PICKER POPUP */}
             <Popover>
-              <p
+              {/* <p
                 className={`text-[14.5px] text-darkText ${
                   data?.is_contract ? "my-3" : "mt-0 mb-[5px]"
                 }`}
               >
                 {data?.is_contract ? "Contract" : "Payment"} date *
-              </p>
+              </p> */}
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -610,7 +610,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
                 />
               </PopoverContent>
               {/* DESCRIPTION INPUT */}
-              <Input
+              {/* <Input
                 htmlFor="desc"
                 label={`Description ${data?.is_contract ? "*" : ""}`}
                 className="my-3"
@@ -622,7 +622,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
-              </Input>
+              </Input> */}
               {/* ADD AND DELETE BANK NAMES */}
               <ArrayInput
                 label="Bank name *"
@@ -632,7 +632,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
                 disabledLogic={bankInputs.length >= 1}
                 hideX
               />
-              {data?.is_contract ? (
+              {/* {data?.is_contract ? (
                 <SelectBar
                   valueChange={setStageId}
                   value={stageId}
@@ -650,9 +650,9 @@ function ActionDialog({ data, is_payment }: Dialog) {
                       })
                     : null}
                 </SelectBar>
-              ) : null}
+              ) : null} */}
               <Separator />
-              <ObjectArray handleAdd={handleAddCurrency}>
+              {/* <ObjectArray handleAdd={handleAddCurrency}>
                 <div className="mb-2">
                   {currencyInputs.map((item) => {
                     return (
@@ -671,8 +671,8 @@ function ActionDialog({ data, is_payment }: Dialog) {
                       </div>
                     );
                   })}
-                </div>
-                <SelectBar
+                </div> */}
+                {/* <SelectBar
                   valueChange={setCurrencyCode}
                   value={currencyCode}
                   placeholder="Select a currency"
@@ -695,8 +695,8 @@ function ActionDialog({ data, is_payment }: Dialog) {
                       {data?.currency_name}
                     </SelectItem>
                   )}
-                </SelectBar>
-                <Input
+                </SelectBar> */}
+                {/* <Input
                   htmlFor="amount"
                   label={`${
                     data?.is_contract ? "Contract" : "Payment"
@@ -723,9 +723,9 @@ function ActionDialog({ data, is_payment }: Dialog) {
                   </div>
                 ) : null}
               </ObjectArray>
-              <Separator />
+              <Separator /> */}
               {/* CHECK IF CONTRACT/PAYMENT IS COMPLETE OR NOT */}
-              <div className="flex items-center gap-2 mt-3">
+              {/* <div className="flex items-center gap-2 mt-3">
                 <Switch
                   id="is_completed"
                   name="is_completed"
@@ -736,7 +736,7 @@ function ActionDialog({ data, is_payment }: Dialog) {
                   Is this {data?.is_contract ? "contract" : "payment"} complete?
                   *
                 </label>
-              </div>
+              </div> */}
               {/* OPTIONAL COMMENT INPUT */}
               <Input
                 htmlFor="comment"
@@ -774,11 +774,11 @@ function ActionDialog({ data, is_payment }: Dialog) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            {/* <AlertDialogDescription>
               {data?.is_contract
                 ? "This action cannot be undone. This will permanently delete this contract and remove all payments under this contract from our servers."
                 : "This action cannot be undone. This will permanently delete this row and remove this payment from our servers."}
-            </AlertDialogDescription>
+            </AlertDialogDescription> */}
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="text-darkText">

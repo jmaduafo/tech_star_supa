@@ -27,7 +27,7 @@ export interface DataTableProps<TData, TValue> {
   readonly is_export?: boolean;
   readonly team_name: string;
   readonly advanced?: boolean;
-  readonly filterCategory?: string;
+  readonly filterCategory: string;
 }
 
 export type ChartData = { name: string; value: number };
@@ -150,8 +150,11 @@ export type Contract = {
   team_id: string;
   stage_id: string | null;
   contract_code: string;
-  bank_name: string[];
+  bank_names: string[];
   contract_amounts: Amount[];
+  projects: Project;
+  contractors: Contractor;
+  stages: Stage;
   is_completed: boolean;
   description: string;
   comment?: string | null;
@@ -168,6 +171,10 @@ export type Payment = {
   contract_id: string | null;
   stage_id: string | null;
   team_id: string;
+  projects: Project;
+  contractors: Contractor;
+  stages: Stage;
+  contracts: Contract | null;
   description: string;
   comment: string | null;
   bank_name: string;

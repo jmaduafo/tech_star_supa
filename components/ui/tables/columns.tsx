@@ -7,12 +7,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import Banner from "../Banner";
 import { Checkbox } from "../checkbox";
 
-import ActionDialog from "./ActionDialog";
 import { ArrowUpDown } from "lucide-react";
 import OnlineStatus from "../OnlineStatus";
 import UserAction from "./UserAction";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 import { getInitials } from "@/utils/initials";
+import ContractAction from "./ContractAction";
+import PaymentAction from "./PaymentAction";
 
 // CONTRACT DATA COLUMN
 export const contractColumns: ColumnDef<Contract>[] = [
@@ -148,7 +149,7 @@ export const contractColumns: ColumnDef<Contract>[] = [
     cell: ({ row }) => {
       const contract = row.original;
 
-      return <ActionDialog data={contract} />;
+      return <ContractAction data={contract} />;
     },
   },
 ];
@@ -296,7 +297,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
 
       return (
         <div className="flex justify-around">
-          <ActionDialog data={payment} is_payment />
+          <PaymentAction data={payment} />
         </div>
       );
     },

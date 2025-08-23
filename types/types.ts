@@ -148,7 +148,7 @@ export type Contract = {
   project_id: string;
   contractor_id: string;
   team_id: string;
-  stage_id: string | null;
+  stage_id: string;
   contract_code: string;
   bank_names: string[];
   contract_amounts: Amount[];
@@ -169,7 +169,7 @@ export type Payment = {
   project_id: string;
   contractor_id: string;
   contract_id: string | null;
-  stage_id: string | null;
+  stage_id: string;
   team_id: string;
   projects: Project;
   contractors: Contractor;

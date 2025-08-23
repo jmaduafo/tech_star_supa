@@ -165,6 +165,15 @@ function MainPage() {
         },
         (payload) => getData()
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "stages",
+        },
+        (payload) => getData()
+      )
       .subscribe();
 
     return () => {

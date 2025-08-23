@@ -516,7 +516,7 @@ function ContractDisplay({
             is_export
             advanced
             team_name={user ? user?.first_name : "My"}
-            filterCategory="description"
+            filterCategory="contract_code"
           />
         )}
       </div>

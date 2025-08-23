@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,8 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "../dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Ellipsis } from "lucide-react";
-import { Contract } from "@/types/types";
+import { CalendarIcon, Ellipsis, X } from "lucide-react";
+import { Amount, Contract, Stage } from "@/types/types";
 import { useAuth } from "@/context/UserContext";
 import Link from "next/link";
 import {
@@ -21,18 +21,75 @@ import {
   DialogTitle,
 } from "../dialog";
 import ViewLabel from "../labels/ViewLabel";
+import { Calendar } from "../calendar";
 import { Skeleton } from "../skeleton";
 import Banner from "../Banner";
 import { formatDate } from "@/utils/dateAndTime";
-import { format } from "timeago.js";
+import { format as formatAgo } from "timeago.js";
+import { format } from "date-fns";
 import { formatCurrency } from "@/utils/currencies";
+import { currency_list } from "@/utils/dataTools";
+import { createClient } from "@/lib/supabase/client";
+import { useParams } from "next/navigation";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
+import { cn } from "@/lib/utils";
+import { SelectItem } from "../select";
+import { Switch } from "../switch";
+import Separator from "../Separator";
+import Input from "../input/Input";
+import Submit from "../buttons/Submit";
+import ArrayInput from "../input/ArrayInput";
+import CustomInput from "../input/CustomInput";
+import ObjectArray from "../input/ObjectArray";
+import SelectBar from "../input/SelectBar";
+import { contractorStages } from "@/utils/stagesFilter";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../alert-dialog";
+import Loading from "../loading/Loading";
+import { ContractSchema } from "@/zod/validation";
 
 function ContractAction({ data }: { readonly data: Contract | undefined }) {
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const [stages, setStages] = useState<Stage[] | undefined>();
+
   const { userData } = useAuth();
+  const supabase = createClient();
+
+  // RETRIEVE CONTRACTOR DATA
+  const getStages = async () => {
+    try {
+      if (!userData || !data?.contractor_id) {
+        return;
+      }
+
+      const { data: stagesData } = await supabase
+        .from("stages")
+        .select("id, name, stage_contractors ( contractor_id )")
+        .eq("stage_contractors.contractor_id", data.contractor_id)
+        .eq("team_id", userData.team_id)
+        .throwOnError();
+
+      setStages(contractorStages(stagesData));
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getStages();
+  }, [data]);
 
   return (
     <>
@@ -66,7 +123,12 @@ function ContractAction({ data }: { readonly data: Contract | undefined }) {
         </DropdownMenuContent>
       </DropdownMenu>
       <ViewAction open={viewOpen} setOpen={setViewOpen} data={data} />
-      <EditAction open={editOpen} setOpen={setEditOpen} data={data} />
+      <EditAction
+        open={editOpen}
+        setOpen={setEditOpen}
+        data={data}
+        stages={stages}
+      />
       <DeleteAction open={deleteOpen} setOpen={setDeleteOpen} data={data} />
     </>
   );
@@ -152,12 +214,12 @@ const ViewAction = ({
               )}
             </ViewLabel>
             {/* CREATED AT */}
-            <ViewLabel label={"Created"} content={format(data.created_at)} />
+            <ViewLabel label={"Created"} content={formatAgo(data.created_at)} />
             {/* UPDATED AT */}
             {data?.updated_at ? (
               <ViewLabel
                 label={"Updated at"}
-                content={format(data?.updated_at)}
+                content={formatAgo(data?.updated_at)}
               />
             ) : null}
           </div>
@@ -185,12 +247,445 @@ const EditAction = ({
   open,
   setOpen,
   data,
+  stages,
 }: {
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   readonly data: Contract | undefined;
+  readonly stages: Stage[] | undefined;
 }) => {
-  return <div></div>;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [contractDate, setContractDate] = useState<Date | undefined>(
+    data ? new Date(data.date) : undefined
+  );
+  const [currencyInputs, setCurrencyInputs] = useState<Amount[]>(
+    data ? data.contract_amounts : []
+  );
+  const [bankInputs, setBankInputs] = useState<string[]>(
+    data ? data.bank_names : []
+  );
+
+  const [form, setForm] = useState({
+    contract_code: data ? data.contract_code : "",
+    desc: data ? data.description : "",
+    stage_id: data ? data.stage_id : "",
+    comment: data?.comment ?? "",
+    amounts: {
+      code: "",
+      symbol: "",
+      amount: "",
+      name: "",
+    },
+    is_completed: data ? data.is_completed : false,
+    is_unlimited: false,
+  });
+
+  const supabase = createClient();
+  const { userData } = useAuth();
+
+  function handleAddCurrency() {
+    // CHECKS IF CODE IS ENTERED, IF THE TOTAL AMOUNT IS MORE THAN
+    // 0, AND IF THE AMOUNT IS AT MOST 15 DIGITS
+    if (
+      (form.amounts.code.length && +form.amounts.amount > 0) ||
+      form.is_unlimited ||
+      form.amounts.amount.length < 16
+    ) {
+      const checkDuplicate = currencyInputs.find(
+        (item) => item.code === form.amounts.code
+      );
+
+      // IF CHECK DUPLICATE IS NOT UNDEFINED, MEANING THAT THE
+      // CURRENCY CODE ALREADY EXISTS,
+      // THEN CLEAR THE INPUT FIELDS AND DO NOTHING
+      if (checkDuplicate) {
+        setForm({
+          ...form,
+          is_unlimited: false,
+          amounts: {
+            ...form.amounts,
+            amount: "",
+            code: "",
+          },
+        });
+        return;
+      }
+
+      // FIND WHERE THE SELECTED CODE IS IN THE CURRENCY LIST
+      const currencyIndex = currency_list.findIndex(
+        (curr) => curr.code === form.amounts.code
+      );
+
+      if (currencyIndex > -1) {
+        setCurrencyInputs([
+          ...currencyInputs,
+          {
+            code: form.amounts.code,
+            name: currency_list[currencyIndex].name,
+            symbol: currency_list[currencyIndex].symbol,
+            amount: form.is_unlimited ? "Unlimited" : form.amounts.amount,
+          },
+        ]);
+
+        // SET AMOUNT AND CODE TO AN EMPTY STRING
+        setForm({
+          ...form,
+          is_unlimited: false,
+          amounts: { ...form.amounts, amount: "", code: "" },
+        });
+      }
+    }
+  }
+
+  function deleteInput(item: Amount) {
+    setCurrencyInputs((prev) => prev.filter((inp) => inp.code !== item.code));
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    const values = {
+      date: contractDate,
+      stage_id: form.stage_id,
+      code: form.contract_code.trim(),
+      bank_names: bankInputs,
+      currency: currencyInputs,
+      is_completed: form.is_completed,
+      desc: form.desc.trim(),
+      comment: form.comment.length ? form.comment.trim() : null,
+    };
+
+    const result = ContractSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    const {
+      date,
+      desc,
+      stage_id,
+      code,
+      comment,
+      is_completed,
+      bank_names,
+      currency,
+    } = result.data;
+
+    try {
+      if (!userData || !data) {
+        return;
+      }
+
+      const { error } = await supabase
+        .from("contracts")
+        .update({
+          date,
+          stage_id,
+          team_id: userData.team_id,
+          contract_code: code,
+          description: desc,
+          comment,
+          bank_names,
+          is_completed,
+        })
+        .eq("id", data.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      const amountsArray: Amount[] = [];
+
+      currency.forEach((item) => {
+        amountsArray.push({
+          ...item,
+          contract_id: data.id,
+        });
+      });
+
+      const { error: amountError } = await supabase
+        .from("contract_amounts")
+        .upsert(amountsArray)
+        .eq("contract_id", data.id);
+
+      if (amountError) {
+        toast("Something went wrong", {
+          description: amountError.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: "Contract was updated successfully",
+      });
+
+      setOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            Edit {data ? `contract ${data.contract_code}` : ""}
+          </DialogTitle>
+        </DialogHeader>
+        <form
+          role="form"
+          aria-label="form"
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              return;
+            }
+          }}
+        >
+          {/* DATE PICKER POPUP */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                type="button"
+                className={cn(
+                  "w-full pl-3 text-left font-normal mb-3",
+                  !contractDate && "text-darkText/50"
+                )}
+              >
+                {contractDate ? (
+                  format(contractDate, "PPP")
+                ) : (
+                  <span>Pick a contract date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={contractDate ? new Date(contractDate) : undefined}
+                onDayClick={(date: Date) => {
+                  setContractDate(date);
+                }}
+                disabled={(date: Date) => date < new Date("1960-01-01")}
+                captionLayout="dropdown"
+              />
+            </PopoverContent>
+          </Popover>
+          {/* CONTRACT CODE INPUT */}
+          <Input
+            htmlFor="code"
+            label="Contract code *"
+            type="text"
+            id="code"
+            name="code"
+            value={form.contract_code}
+            onChange={(e) =>
+              setForm({ ...form, contract_code: e.target.value })
+            }
+          />
+          <Input
+            htmlFor="desc"
+            label="Description *"
+            className="my-3"
+            type="text"
+            id="desc"
+            name="desc"
+            value={form.desc}
+            onChange={(e) => setForm({ ...form, desc: e.target.value })}
+          />
+          {/* ADD AND DELETE BANK NAMES */}
+          <ArrayInput
+            label="Bank names *"
+            htmlFor="banks"
+            setInputs={setBankInputs}
+            inputs={bankInputs}
+            disabledLogic={bankInputs.length >= 4}
+          >
+            {bankInputs.length >= 4 ? (
+              <p className="text-[14px] text-red-700">
+                You have reached the max
+              </p>
+            ) : null}
+          </ArrayInput>
+          <CustomInput htmlFor={"stage"} label={"Project stage *"}>
+            <SelectBar
+              name="stage_id"
+              value={form.stage_id}
+              valueChange={(id) => setForm({ ...form, stage_id: id })}
+              placeholder="Select the project stage *"
+              label="Stages"
+              className="w-full sm:w-full mb-3"
+            >
+              {stages
+                ? stages.map((item) => {
+                    return (
+                      <SelectItem key={item.name} value={item.id}>
+                        {item.name}
+                      </SelectItem>
+                    );
+                  })
+                : null}
+            </SelectBar>
+          </CustomInput>
+          <Separator />
+          {/* HANDLE OF CURRENCY AMOUNT AND CODE  */}
+          <ObjectArray
+            handleAdd={handleAddCurrency}
+            disabledLogic={
+              !form.amounts.code.length ||
+              currencyInputs.length >= 4 ||
+              (!form.amounts.amount.length && !form.is_unlimited)
+            }
+          >
+            <div className="mb-2 flex flex-col gap-1.5">
+              {currencyInputs.map((item) => {
+                return (
+                  <div
+                    key={item.name}
+                    className="flex justify-between items-center text-[13.5px] py-0.5 px-3 bg-darkText text-lightText rounded-full"
+                  >
+                    <p>{item.code}</p>
+                    <div className="flex items-center gap-1">
+                      <p className="capitalize">
+                        {item.amount !== "Unlimited"
+                          ? formatCurrency(+item.amount, item.code)
+                          : `${item.symbol} Unlimited`}
+                      </p>
+                      <button
+                        className="hover:bg-lightText hover:text-darkText rounded-full duration-300"
+                        type="button"
+                        onClick={() => deleteInput(item)}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {currencyInputs.length >= 4 ? (
+              <p className="text-[14px] text-red-700">
+                You have reached the max
+              </p>
+            ) : null}
+            <CustomInput
+              htmlFor={"currency"}
+              label={"Currency *"}
+              className="mt-2"
+            >
+              <SelectBar
+                valueChange={(name) =>
+                  setForm({
+                    ...form,
+                    amounts: { ...form.amounts, code: name },
+                  })
+                }
+                value={form.amounts.code}
+                placeholder="Select a currency"
+                label="Currency"
+                className="w-full"
+              >
+                {currency_list.map((item) => {
+                  return (
+                    <SelectItem key={item.name} value={item.code}>
+                      {item.name}
+                    </SelectItem>
+                  );
+                })}
+              </SelectBar>
+            </CustomInput>
+            <CustomInput
+              htmlFor="amount"
+              label="Payment amount *"
+              className="mt-3"
+            >
+              <input
+                className="form"
+                type="number"
+                id="amount"
+                name="amount"
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    amounts: {
+                      ...form.amounts,
+                      amount: e.target.value,
+                    },
+                  })
+                }
+                value={form.amounts.amount}
+                disabled={form.is_unlimited}
+              />
+            </CustomInput>
+            <div className="flex items-center gap-2 mt-3">
+              <Switch
+                id="is_unlimited"
+                name="is_unlimited"
+                checked={form.is_unlimited}
+                onCheckedChange={(bool) =>
+                  setForm({ ...form, is_unlimited: bool })
+                }
+              />
+              <label htmlFor="is_unlimited">Unlimited amount?</label>
+            </div>
+          </ObjectArray>
+          <Separator />
+          {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
+          <div className="flex items-center gap-2 mt-3">
+            <Switch
+              id="is_completed"
+              name="is_completed"
+              checked={form.is_completed}
+              onCheckedChange={(bool) =>
+                setForm({ ...form, is_completed: bool })
+              }
+            />
+            <label htmlFor="is_completed">Is the contract complete? *</label>
+          </div>
+          {/* OPTIONAL COMMENT INPUT */}
+          <CustomInput
+            htmlFor="comment"
+            label="Optional comment"
+            className="mt-3"
+          >
+            <textarea
+              className="form"
+              id="comment"
+              name="comment"
+              value={form.comment}
+              onChange={(e) => setForm({ ...form, comment: e.target.value })}
+            ></textarea>
+          </CustomInput>
+          {/* SUBMIT BUTTON */}
+          <div className="flex justify-end mt-6">
+            <Submit loading={isLoading} disabledLogic={isLoading} />
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 const DeleteAction = ({
@@ -202,5 +697,60 @@ const DeleteAction = ({
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   readonly data: Contract | undefined;
 }) => {
-  return <div></div>;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const supabase = createClient();
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+
+    try {
+      if (!data) {
+        return;
+      }
+
+      const { error } = await supabase
+        .from("contracts")
+        .delete()
+        .eq("id", data.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: "Contract was deleted successfully",
+      });
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the
+            selected contract from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleSubmit}>
+            {isLoading ? <Loading className="w-5 h-5" /> : "Continue"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 };

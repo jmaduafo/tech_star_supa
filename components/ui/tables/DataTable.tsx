@@ -93,7 +93,7 @@ function DataTable<TData, TValue>({
       <div className="mb-5 flex items-end flex-wrap gap-x-4 gap-y-3">
         {/* SEARCH ENGINE */}
         <input
-          placeholder={`Filter by ${filterCategory}`}
+          placeholder={`Filter by ${filterCategory.split("_").join(" ")}`}
           className="searchTable flex-shrink-1 placeholder:text-light70 max-w-sm backdrop-blur-2xl"
           value={
             (table.getColumn(filterCategory)?.getFilterValue() as string) || ""

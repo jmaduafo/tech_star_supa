@@ -9,7 +9,7 @@ import {
 } from "../dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, Ellipsis } from "lucide-react";
-import { Amount, Payment, Stage } from "@/types/types";
+import { Amount, Contract, Payment, Stage } from "@/types/types";
 import { useAuth } from "@/context/UserContext";
 import {
   Dialog,
@@ -54,8 +54,15 @@ import {
 import Loading from "../loading/Loading";
 import { toast } from "sonner";
 import { PaymentSchema } from "@/zod/validation";
+import { useParams } from "next/navigation";
 
-function PaymentAction({ data }: { readonly data: Payment | undefined }) {
+function PaymentAction({
+  data,
+  is_contract,
+}: {
+  readonly data: Payment | undefined;
+  readonly is_contract?: boolean;
+}) {
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -121,6 +128,7 @@ function PaymentAction({ data }: { readonly data: Payment | undefined }) {
         setOpen={setEditOpen}
         data={data}
         stages={stages}
+        is_contract={is_contract}
       />
       <DeleteAction open={deleteOpen} setOpen={setDeleteOpen} data={data} />
     </>
@@ -225,15 +233,18 @@ const EditAction = ({
   setOpen,
   data,
   stages,
+  is_contract,
 }: {
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   readonly data: Payment | undefined;
   readonly stages: Stage[] | undefined;
+  readonly is_contract: boolean | undefined;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [contract, setContract] = useState<Contract | undefined>();
 
-  const [paymentDate, setPaymentDate] = useState<Date | undefined>(undefined);
+  const [paymentDate, setPaymentDate] = useState<string | undefined>(undefined);
 
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
   const [bankInputs, setBankInputs] = useState<string[]>(
@@ -244,6 +255,7 @@ const EditAction = ({
     desc: "",
     stage_id: "",
     comment: "",
+    bank_name: "",
     amounts: {
       code: "",
       symbol: "",
@@ -256,6 +268,31 @@ const EditAction = ({
 
   const { userData } = useAuth();
   const supabase = createClient();
+  const { contract_id, project_id, contractor_id } = useParams();
+
+  const getContract = async () => {
+    try {
+      if (!userData || !project_id || !contractor_id || !contract_id) {
+        return;
+      }
+
+      const { data } = await supabase
+        .from("contracts")
+        .select(
+          `*, projects (name), contractors (name), stages ( id, name ), contract_amounts (*)`
+        )
+        .eq("project_id", project_id)
+        .eq("contractor_id", contractor_id)
+        .eq("id", contract_id)
+        .eq("team_id", userData.team_id)
+        .single()
+        .throwOnError();
+
+      setContract(data as Contract);
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  };
 
   // UPDATES EVERY TIME THE PAYMENT IS UPDATED SO THAT THE EDIT
   // INPUTS REFLECTS APPROPRIATELY AFTER THE DATA CHANGES
@@ -264,6 +301,7 @@ const EditAction = ({
       desc: data ? data.description : "",
       stage_id: data ? data.stage_id : "",
       comment: data?.comment ?? "",
+      bank_name: data?.bank_name ?? "",
       amounts: {
         code: "",
         symbol: "",
@@ -274,10 +312,12 @@ const EditAction = ({
       is_paid: data ? data.is_paid : true,
     });
 
-    setPaymentDate(data ? new Date(data.date) : undefined);
+    setPaymentDate(data ? data.date : undefined);
     setCurrencyInputs(data ? data.payment_amounts : []);
     setBankInputs(data ? [data.bank_name] : []);
+    getContract()
   }, [data]);
+
 
   function handleAddCurrency() {
     if (
@@ -318,7 +358,7 @@ const EditAction = ({
     const values = {
       date: paymentDate,
       stage_id: form.stage_id,
-      bank_name: bankInputs[0],
+      bank_name: is_contract ? form.bank_name : bankInputs[0],
       currency: currencyInputs,
       is_completed: form.is_completed,
       is_paid: !form.is_completed ? false : form.is_paid,
@@ -370,8 +410,6 @@ const EditAction = ({
         return;
       }
 
-      console.log(currencyInputs);
-
       const { error: amountError } = await supabase
         .from("payment_amounts")
         .update({
@@ -394,7 +432,7 @@ const EditAction = ({
       }
 
       toast("Success!", {
-        description: "Stand alone payment was updated successfully",
+        description: "Payment was updated successfully",
       });
 
       setOpen(false);
@@ -414,9 +452,7 @@ const EditAction = ({
         aria-describedby="payment edit dialog"
       >
         <DialogHeader>
-          <DialogTitle>
-            Edit
-          </DialogTitle>
+          <DialogTitle>Edit</DialogTitle>
         </DialogHeader>
         <form
           role="form"
@@ -427,190 +463,416 @@ const EditAction = ({
             }
           }}
         >
-          {/* DATE PICKER POPUP */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                type="button"
-                className={cn(
-                  "w-full pl-3 text-left font-normal mb-3",
-                  !paymentDate && "text-darkText/50"
-                )}
-              >
-                {paymentDate ? (
-                  format(paymentDate, "PPP")
-                ) : (
-                  <span>Pick a payment date</span>
-                )}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={paymentDate ? new Date(paymentDate) : undefined}
-                onDayClick={(date: Date) => {
-                  setPaymentDate(date);
-                }}
-                disabled={(date: Date) => date < new Date("1960-01-01")}
-                captionLayout="dropdown"
-              />
-            </PopoverContent>
-          </Popover>
-          {/* DESCRIPTION INPUT */}
-          <Input
-            htmlFor="desc"
-            label="Description *"
-            className="my-3"
-            type="text"
-            id="desc"
-            name="desc"
-            value={form.desc}
-            onChange={(e) => setForm({ ...form, desc: e.target.value })}
-          />
-          {/* ADD AND DELETE BANK NAMES */}
-          <ArrayInput
-            label="Bank name *"
-            htmlFor="banks"
-            setInputs={setBankInputs}
-            inputs={bankInputs}
-            disabledLogic={bankInputs.length >= 1}
-          />
-          {/* ADD STAGES */}
-          <CustomInput
-            htmlFor={"stages"}
-            label={"Project stage *"}
-            className="mb-3"
-          >
-            {stages ? (
-              <SelectBar
-                name="stage_id"
-                value={form.stage_id}
-                valueChange={(id) => setForm({ ...form, stage_id: id })}
-                placeholder="Select a stage *"
-                label="Stages"
-                className="w-full sm:w-full"
-              >
-                {stages.map((item) => {
-                  return (
-                    <SelectItem key={item.name} value={item.id}>
-                      {item.name}
-                    </SelectItem>
-                  );
-                })}
-              </SelectBar>
-            ) : null}
-          </CustomInput>
-          <Separator />
-          {/* HANDLE PAYMENT AMOUNT */}
-          <ObjectArray
-            handleAdd={handleAddCurrency}
-            disabledLogic={
-              !form.amounts.amount.length || !form.amounts.code.length
-            }
-          >
-            <div className="mb-2 flex flex-col gap-1.5">
-              {currencyInputs.map((item) => {
-                return (
-                  <div
-                    key={item.name}
-                    className="flex justify-between items-center text-[13.5px] py-0.5 px-3 bg-darkText text-lightText rounded-full"
+          {!is_contract ? (
+            <>
+              {/* DATE PICKER POPUP */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    type="button"
+                    className={cn(
+                      "w-full pl-3 text-left font-normal mb-3",
+                      !paymentDate && "text-darkText/50"
+                    )}
                   >
-                    <p>{item.code}</p>
-                    <div className="flex items-center gap-1">
-                      <p className="capitalize">
-                        {formatCurrency(+item.amount, item.code)}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <CustomInput htmlFor={"currency"} label={"Currency *"}>
-              <SelectBar
-                valueChange={(name) =>
-                  setForm({
-                    ...form,
-                    amounts: { ...form.amounts, code: name },
-                  })
-                }
-                value={form.amounts.code}
-                placeholder="Select a currency"
-                label="Currency"
-                className="w-full mt-1.5"
+                    {paymentDate ? (
+                      format(paymentDate, "PPP")
+                    ) : (
+                      <span>Pick a payment date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={paymentDate ? new Date(paymentDate) : undefined}
+                    onDayClick={(date: Date) => {
+                      const normalized = format(date, "yyyy-MM-dd");
+                      setPaymentDate(normalized);
+                    }}
+                    disabled={(date: Date) => date < new Date("1960-01-01")}
+                    captionLayout="dropdown"
+                  />
+                </PopoverContent>
+              </Popover>
+              {/* DESCRIPTION INPUT */}
+              <Input
+                htmlFor="desc"
+                label="Description *"
+                className="my-3"
+                type="text"
+                id="desc"
+                name="desc"
+                value={form.desc}
+                onChange={(e) => setForm({ ...form, desc: e.target.value })}
+              />
+              {/* ADD AND DELETE BANK NAMES */}
+              <ArrayInput
+                label="Bank name *"
+                htmlFor="banks"
+                setInputs={setBankInputs}
+                inputs={bankInputs}
+                disabledLogic={bankInputs.length >= 1}
+              />
+              {/* ADD STAGES */}
+              <CustomInput
+                htmlFor={"stages"}
+                label={"Project stage *"}
+                className="mb-3"
               >
-                {currency_list.map((item) => {
-                  return (
-                    <SelectItem key={item.name} value={item.code}>
-                      {item.name}
-                    </SelectItem>
-                  );
-                })}
-              </SelectBar>
-            </CustomInput>
-            <CustomInput
-              htmlFor="amount"
-              label="Payment amount *"
-              className="mt-3"
-            >
-              <input
-                className="form"
-                type="number"
-                id="amount"
-                name="amount"
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    amounts: {
-                      ...form.amounts,
-                      amount: e.target.value,
-                    },
-                  })
+                {stages ? (
+                  <SelectBar
+                    name="stage_id"
+                    value={form.stage_id}
+                    valueChange={(id) => setForm({ ...form, stage_id: id })}
+                    placeholder="Select a stage *"
+                    label="Stages"
+                    className="w-full sm:w-full"
+                  >
+                    {stages.map((item) => {
+                      return (
+                        <SelectItem key={item.name} value={item.id}>
+                          {item.name}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectBar>
+                ) : null}
+              </CustomInput>
+              <Separator />
+              {/* HANDLE PAYMENT AMOUNT */}
+              <ObjectArray
+                handleAdd={handleAddCurrency}
+                disabledLogic={
+                  !form.amounts.amount.length || !form.amounts.code.length
                 }
-                value={form.amounts.amount}
-              />
-            </CustomInput>
-          </ObjectArray>
-          <Separator />
-          {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
-          <div className="flex items-center gap-2 mt-3">
-            <Switch
-              id="is_completed"
-              name="is_completed"
-              checked={form.is_completed}
-              onCheckedChange={(bool) =>
-                setForm({ ...form, is_completed: bool })
-              }
-            />
-            <label htmlFor="is_completed">Is this payment complete? *</label>
-          </div>
-          {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
-          {form.is_completed ? (
-            <div className="flex items-center gap-2 mt-3">
-              <Switch
-                id="is_paid"
-                name="is_paid"
-                checked={form.is_paid}
-                onCheckedChange={(bool) => setForm({ ...form, is_paid: bool })}
-              />
-              <label htmlFor="is_paid">Has this payment been paid? *</label>
-            </div>
-          ) : null}
-          {/* OPTIONAL COMMENT INPUT */}
-          <CustomInput
-            htmlFor="comment"
-            label="Optional comment"
-            className="mt-3"
-          >
-            <textarea
-              className="form"
-              id="comment"
-              name="comment"
-              value={form.comment}
-              onChange={(e) => setForm({ ...form, comment: e.target.value })}
-            ></textarea>
-          </CustomInput>
+              >
+                <div className="mb-2 flex flex-col gap-1.5">
+                  {currencyInputs.map((item) => {
+                    return (
+                      <div
+                        key={item.name}
+                        className="flex justify-between items-center text-[13.5px] py-0.5 px-3 bg-darkText text-lightText rounded-full"
+                      >
+                        <p>{item.code}</p>
+                        <div className="flex items-center gap-1">
+                          <p className="capitalize">
+                            {formatCurrency(+item.amount, item.code)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <CustomInput htmlFor={"currency"} label={"Currency *"}>
+                  <SelectBar
+                    valueChange={(name) =>
+                      setForm({
+                        ...form,
+                        amounts: { ...form.amounts, code: name },
+                      })
+                    }
+                    value={form.amounts.code}
+                    placeholder="Select a currency"
+                    label="Currency"
+                    className="w-full mt-1.5"
+                  >
+                    {currency_list.map((item) => {
+                      return (
+                        <SelectItem key={item.name} value={item.code}>
+                          {item.name}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectBar>
+                </CustomInput>
+                <CustomInput
+                  htmlFor="amount"
+                  label="Payment amount *"
+                  className="mt-3"
+                >
+                  <input
+                    className="form"
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        amounts: {
+                          ...form.amounts,
+                          amount: e.target.value,
+                        },
+                      })
+                    }
+                    value={form.amounts.amount}
+                  />
+                </CustomInput>
+              </ObjectArray>
+              <Separator />
+              {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
+              <div className="flex items-center gap-2 mt-3">
+                <Switch
+                  id="is_completed"
+                  name="is_completed"
+                  checked={form.is_completed}
+                  onCheckedChange={(bool) =>
+                    setForm({ ...form, is_completed: bool })
+                  }
+                />
+                <label htmlFor="is_completed">
+                  Is this payment complete? *
+                </label>
+              </div>
+              {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
+              {form.is_completed ? (
+                <div className="flex items-center gap-2 mt-3">
+                  <Switch
+                    id="is_paid"
+                    name="is_paid"
+                    checked={form.is_paid}
+                    onCheckedChange={(bool) =>
+                      setForm({ ...form, is_paid: bool })
+                    }
+                  />
+                  <label htmlFor="is_paid">Has this payment been paid? *</label>
+                </div>
+              ) : null}
+              {/* OPTIONAL COMMENT INPUT */}
+              <CustomInput
+                htmlFor="comment"
+                label="Optional comment"
+                className="mt-3"
+              >
+                <textarea
+                  className="form"
+                  id="comment"
+                  name="comment"
+                  value={form.comment}
+                  onChange={(e) =>
+                    setForm({ ...form, comment: e.target.value })
+                  }
+                ></textarea>
+              </CustomInput>
+            </>
+          ) : (
+            <>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    type="button"
+                    className={cn(
+                      "w-full pl-3 text-left font-normal mb-3",
+                      !paymentDate && "text-darkText/50"
+                    )}
+                  >
+                    {paymentDate ? (
+                      format(paymentDate, "PPPP")
+                    ) : (
+                      <span>Pick a payment date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={paymentDate ? new Date(paymentDate) : undefined}
+                    onDayClick={(date: Date) => {
+                      const normalized = format(date, "yyyy-MM-dd");
+                      setPaymentDate(normalized);
+                    }}
+                    disabled={(date: Date) =>
+                      contract?.date ? date < new Date(contract?.date) : true
+                    }
+                    captionLayout="dropdown"
+                  />
+                </PopoverContent>
+              </Popover>
+              {/* DESCRIPTION INPUT */}
+              {contract ? (
+                <CustomInput
+                  htmlFor={"desc"}
+                  label={"Description *"}
+                  className="mb-3"
+                >
+                  <input
+                    value={contract.description}
+                    onChange={(e) =>
+                      setForm({ ...form, desc: contract.description })
+                    }
+                    className="form"
+                    disabled
+                  />
+                </CustomInput>
+              ) : null}
+              {/* ADD AND DELETE BANK NAMES */}
+              <CustomInput
+                htmlFor={"bank_name"}
+                label={"Bank name *"}
+                className="mb-3"
+              >
+                <SelectBar
+                  valueChange={(name) => setForm({ ...form, bank_name: name })}
+                  value={form.bank_name}
+                  placeholder="Select a bank"
+                  label="Banks"
+                  className="w-full mt-1.5"
+                >
+                  {contract?.bank_names
+                    ? contract.bank_names.map((item) => {
+                        return (
+                          <SelectItem
+                            key={item}
+                            value={item.charAt(0).toUpperCase() + item.slice(1)}
+                            className="capitalize"
+                          >
+                            {item}
+                          </SelectItem>
+                        );
+                      })
+                    : null}
+                </SelectBar>
+              </CustomInput>
+              {/* ADD STAGES */}
+              {contract?.stages ? (
+                <CustomInput
+                  htmlFor={"stages"}
+                  label={"Project stage *"}
+                  className="mb-3"
+                >
+                  <input
+                    value={contract.stages?.name}
+                    onChange={(e) =>
+                      setForm({ ...form, stage_id: contract.stages?.id })
+                    }
+                    className="form"
+                    disabled
+                  />
+                </CustomInput>
+              ) : null}
+              <Separator />
+              {/* HANDLE PAYMENT AMOUNT */}
+              <ObjectArray
+                handleAdd={handleAddCurrency}
+                disabledLogic={
+                  !form.amounts.amount.length || !form.amounts.code.length
+                }
+              >
+                <div className="mb-2 flex flex-col gap-1.5">
+                  {currencyInputs.map((item) => {
+                    return (
+                      <div
+                        key={item.name}
+                        className="flex justify-between items-center text-[13.5px] py-0.5 px-3 bg-darkText text-lightText rounded-full"
+                      >
+                        <p>{item.code}</p>
+                        <div className="flex items-center gap-1">
+                          <p className="capitalize">
+                            {formatCurrency(+item.amount, item.code)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <CustomInput htmlFor={"currency"} label={"Currency *"}>
+                  <SelectBar
+                    valueChange={(name) =>
+                      setForm({
+                        ...form,
+                        amounts: { ...form.amounts, code: name },
+                      })
+                    }
+                    value={form.amounts.code}
+                    placeholder="Select a currency"
+                    label="Currency"
+                    className="w-full mt-1.5"
+                  >
+                    {contract?.contract_amounts
+                      ? contract.contract_amounts?.map((item) => {
+                          return (
+                            <SelectItem key={item.name} value={item.code}>
+                              {item.name}
+                            </SelectItem>
+                          );
+                        })
+                      : null}
+                  </SelectBar>
+                </CustomInput>
+                <CustomInput
+                  htmlFor="amount"
+                  label="Payment amount *"
+                  className="mt-3"
+                >
+                  <input
+                    className="form"
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        amounts: {
+                          ...form.amounts,
+                          amount: e.target.value,
+                        },
+                      })
+                    }
+                    value={form.amounts.amount}
+                  />
+                </CustomInput>
+              </ObjectArray>
+              <Separator />
+              {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
+              <div className="flex items-center gap-2 mt-3">
+                <Switch
+                  id="is_completed"
+                  name="is_completed"
+                  checked={form.is_completed}
+                  onCheckedChange={(bool) =>
+                    setForm({ ...form, is_completed: bool })
+                  }
+                />
+                <label htmlFor="is_completed">
+                  Is this payment complete? *
+                </label>
+              </div>
+              {/* CHECK IF CONTRACT IS COMPLETE OR NOT */}
+              {form.is_completed ? (
+                <div className="flex items-center gap-2 mt-3">
+                  <Switch
+                    id="is_paid"
+                    name="is_paid"
+                    checked={form.is_paid}
+                    onCheckedChange={(bool) =>
+                      setForm({ ...form, is_paid: bool })
+                    }
+                  />
+                  <label htmlFor="is_paid">Has this payment been paid? *</label>
+                </div>
+              ) : null}
+              {/* OPTIONAL COMMENT INPUT */}
+              <CustomInput
+                htmlFor="comment"
+                label="Optional comment"
+                className="mt-3"
+              >
+                <textarea
+                  className="form"
+                  id="comment"
+                  name="comment"
+                  value={form.comment}
+                  onChange={(e) =>
+                    setForm({ ...form, comment: e.target.value })
+                  }
+                ></textarea>
+              </CustomInput>
+            </>
+          )}
           {/* SUBMIT BUTTON */}
           <div className="flex justify-end mt-6">
             <Submit loading={isLoading} disabledLogic={isLoading} />

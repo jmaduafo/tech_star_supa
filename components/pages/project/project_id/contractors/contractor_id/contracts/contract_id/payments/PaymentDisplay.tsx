@@ -46,7 +46,7 @@ function PaymentDisplay({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [paymentDate, setPaymentDate] = useState<Date | undefined>(undefined);
+  const [paymentDate, setPaymentDate] = useState<string | undefined>(undefined);
 
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
 
@@ -105,14 +105,18 @@ function PaymentDisplay({
 
     setIsLoading(true);
 
+    if (!user || !project_id || !contractor_id || !contract) {
+      return;
+    }
+
     const values = {
       date: paymentDate,
-      stage_id: form.stage_id,
+      stage_id: contract.stage_id,
       bank_name: form.bank_name,
       currency: currencyInputs,
       is_completed: form.is_completed,
       is_paid: !form.is_completed ? false : form.is_paid,
-      desc: form.desc.trim(),
+      desc: contract.description,
       comment: form.comment.length ? form.comment.trim() : null,
     };
 
@@ -142,10 +146,6 @@ function PaymentDisplay({
     } = result.data;
 
     try {
-      if (!user || !project_id || !contractor_id || !contract) {
-        return;
-      }
-
       const { data, error } = await supabase
         .from("payments")
         .insert({
@@ -195,10 +195,10 @@ function PaymentDisplay({
       });
 
       setForm({
-        desc: "",
-        stage_id: "",
         comment: "",
         bank_name: "",
+        stage_id: contract.stage_id,
+        desc: contract.description,
         amounts: {
           code: "",
           symbol: "",
@@ -261,7 +261,7 @@ function PaymentDisplay({
                       )}
                     >
                       {paymentDate ? (
-                        format(paymentDate, "PPP")
+                        format(paymentDate, "PPPP")
                       ) : (
                         <span>Pick a payment date</span>
                       )}
@@ -273,7 +273,8 @@ function PaymentDisplay({
                       mode="single"
                       selected={paymentDate ? new Date(paymentDate) : undefined}
                       onDayClick={(date: Date) => {
-                        setPaymentDate(date);
+                        const normalized = format(date, "yyyy-MM-dd");
+                        setPaymentDate(normalized);
                       }}
                       disabled={(date: Date) =>
                         contract?.date ? date < new Date(contract?.date) : true
@@ -292,7 +293,7 @@ function PaymentDisplay({
                     <input
                       value={contract.description}
                       onChange={(e) =>
-                        setForm({ ...form, desc: e.target.value })
+                        setForm({ ...form, desc: contract.description })
                       }
                       className="form"
                       disabled
@@ -492,7 +493,7 @@ function PaymentDisplay({
             // DISPLAYS PAGINATION IF TRUE
             advanced
             team_name={user ? user?.first_name : "My"}
-            filterCategory="description"
+            filterCategory="currency"
           />
         )}
       </div>

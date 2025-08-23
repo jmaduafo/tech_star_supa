@@ -192,11 +192,11 @@ export const paymentColumns: ColumnDef<Payment>[] = [
         </div>
       );
     },
-    accessorKey: "contract_code",
+    accessorKey: "contracts",
     cell: ({ row }) => {
-      const code: string = row.getValue("contract_code");
+      const data = row.original;
 
-      return <div className="">{code ?? "--"}</div>;
+      return <div className="">{data.contracts?.contract_code ?? "--"}</div>;
     },
   },
   {
@@ -283,15 +283,25 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       );
     },
     accessorFn: (row) =>
-      row?.payment_amounts ? row?.payment_amounts[0]?.code : "",
-    id: "paymentCurrency",
+      row?.payment_amounts ? row?.payment_amounts[0]?.name : "",
+    id: "currency",
+    filterFn: (row, columnId, filterValue: string) => {
+      const names = row.original.payment_amounts?.map((a: any) => a.name) ?? [];
+      return names.some((name: string) =>
+        name.toLowerCase().includes(filterValue.toLowerCase())
+      );
+    },
     cell: ({ row }) => {
       const data = row.original;
 
       return (
         <div className="text-right">
-          {data?.payment_amounts[0]?.amount && data?.payment_amounts[0]?.amount !== "Unlimited"
-            ? formatCurrency(+data?.payment_amounts[0]?.amount, data?.payment_amounts[0]?.code)
+          {data?.payment_amounts[0]?.amount &&
+          data?.payment_amounts[0]?.amount !== "Unlimited"
+            ? formatCurrency(
+                +data?.payment_amounts[0]?.amount,
+                data?.payment_amounts[0]?.code
+              )
             : `${data?.payment_amounts[0]?.symbol} Unlimited`}
           {data?.payment_amounts?.length > 1 ? ", ..." : ""}
         </div>
@@ -305,7 +315,8 @@ export const paymentColumns: ColumnDef<Payment>[] = [
 
       return (
         <div className="flex justify-around">
-          <PaymentAction data={payment} />
+          {/* IF PAYMENT HAS A CONTRACT ID, GIVE A SLIGHTLY DIFFERENT EDIT DIALOG */}
+          <PaymentAction data={payment} is_contract={!!payment?.contract_id}/>
         </div>
       );
     },

@@ -216,13 +216,9 @@ export const PaymentSchema = z.object({
   desc: z
     .string()
     .min(1, { message: "You must enter a description for this payment." }),
-  date: z
-    .date({
-      message: "Please select a date",
-    })
-    .min(new Date("1960-01-01"), {
-      message: "The date cannot be earlier than 1960",
-    }),
+  date: z.string().nonempty({
+    message: "Please select a date",
+  }),
   bank_name: z.string().nonempty({
     message: "You must enter a bank name for this payment.",
   }),

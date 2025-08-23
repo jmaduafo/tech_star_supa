@@ -66,6 +66,67 @@ function MainPage() {
     getData();
   }, []);
 
+  useEffect(() => {
+      const channel = supabase
+        .channel("db-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "contracts",
+          },
+          (payload) => getData()
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "contract_amounts",
+          },
+          (payload) => getData()
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "payments",
+          },
+          (payload) => getData()
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "payment_amounts",
+          },
+          (payload) => getData()
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "stages",
+          },
+          (payload) => getData()
+        )
+        .subscribe();
+  
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }, [
+      supabase,
+      data,
+      setData,
+      contractData,
+      setContractData
+    ]);
+
   return (
     <>
       <div className="">

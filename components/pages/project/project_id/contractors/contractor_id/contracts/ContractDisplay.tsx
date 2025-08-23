@@ -300,7 +300,7 @@ function ContractDisplay({
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={contractDate ? new Date(contractDate) : undefined}
+                  selected={contractDate ? new Date(contractDate + "T00:00:00") : undefined}
                   onDayClick={(date: Date) => {
                     setContractDate(date);
                   }}

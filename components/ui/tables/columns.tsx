@@ -269,14 +269,21 @@ export const paymentColumns: ColumnDef<Payment>[] = [
     },
   },
   {
-    header: () => {
+    header: ({ column }) => {
       return (
         <div className="flex justify-end">
-          <div>Amount</div>
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
+            Amount
+            <ArrowUpDown className="h-4 w-4" />
+          </button>
         </div>
       );
     },
-    accessorKey: "payment_amounts",
+    accessorFn: (row) => row?.payment_amounts[0]?.code ?? "",
+    id: "paymentCurrency",
     cell: ({ row }) => {
       const currencies: Amount[] = row.getValue("payment_amounts");
 

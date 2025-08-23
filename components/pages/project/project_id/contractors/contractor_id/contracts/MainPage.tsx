@@ -59,6 +59,7 @@ function MainPage() {
           .eq("project_id", project_id)
           .eq("contractor_id", contractor_id)
           .eq("team_id", userData.team_id)
+          .is("contract_id", null)
           .throwOnError(),
         supabase
           .from("stages")

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import Header3 from "@/components/fontsize/Header3";
 import { optionalS } from "@/utils/optionalS";
@@ -25,12 +25,13 @@ function PaymentDisplay() {
 
       const { data } = await supabase
         .from("payments")
-        .select("*, contracts (contract_code), payment_amounts (*)")
+        .select(
+          "*, contracts (contract_code), projects (name), contractors (name), stages ( id, name), payment_amounts (*)"
+        )
         .eq("team_id", userData.team_id)
         .order("date", { ascending: false })
         .limit(5)
-        .throwOnError()
-
+        .throwOnError();
 
       setData(data as Payment[]);
     } catch (err: any) {

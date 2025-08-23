@@ -268,27 +268,27 @@ const EditAction = ({
 
   const { userData } = useAuth();
   const supabase = createClient();
-  const { contract_id, project_id, contractor_id } = useParams();
 
   const getContract = async () => {
     try {
-      if (!userData || !project_id || !contractor_id || !contract_id) {
-        return;
+      if (!userData || !data || !data.contract_id ) {
+        return
       }
 
-      const { data } = await supabase
+      const { data: contractData } = await supabase
         .from("contracts")
         .select(
           `*, projects (name), contractors (name), stages ( id, name ), contract_amounts (*)`
         )
-        .eq("project_id", project_id)
-        .eq("contractor_id", contractor_id)
-        .eq("id", contract_id)
+        .eq("project_id", data.project_id)
+        .eq("contractor_id", data.contractor_id)
+        .eq("id", data.contract_id)
         .eq("team_id", userData.team_id)
         .single()
         .throwOnError();
 
-      setContract(data as Contract);
+      console.log(contractData);
+      setContract(contractData as Contract);
     } catch (err: any) {
       console.error(err.message);
     }
@@ -315,9 +315,9 @@ const EditAction = ({
     setPaymentDate(data ? data.date : undefined);
     setCurrencyInputs(data ? data.payment_amounts : []);
     setBankInputs(data ? [data.bank_name] : []);
+
     getContract()
   }, [data]);
-
 
   function handleAddCurrency() {
     if (

@@ -25,7 +25,7 @@ function PaymentDisplay() {
 
       const { data } = await supabase
         .from("payments")
-        .select("*, payment_amounts (*)")
+        .select("*, contracts (contract_code), payment_amounts (*)")
         .eq("team_id", userData.team_id)
         .order("date", { ascending: false })
         .limit(5)

@@ -192,11 +192,13 @@ export const paymentColumns: ColumnDef<Payment>[] = [
         </div>
       );
     },
+    accessorFn: (row) => (row?.contracts ? row?.contracts?.contract_code : ""),
+    // id: "contract_code",
     accessorKey: "contracts",
     cell: ({ row }) => {
       const data = row.original;
 
-      return <div className="">{data.contracts?.contract_code ?? "--"}</div>;
+      return <div className="">{data?.contracts?.contract_code ?? "--"}</div>;
     },
   },
   {
@@ -316,7 +318,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       return (
         <div className="flex justify-around">
           {/* IF PAYMENT HAS A CONTRACT ID, GIVE A SLIGHTLY DIFFERENT EDIT DIALOG */}
-          <PaymentAction data={payment} is_contract={!!payment?.contract_id}/>
+          <PaymentAction data={payment} is_contract={!!payment?.contract_id} />
         </div>
       );
     },

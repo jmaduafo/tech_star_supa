@@ -158,7 +158,25 @@ function MainPage() {
         {
           event: "*",
           schema: "public",
+          table: "contract_amounts",
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
           table: "payments",
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "payment_amounts",
         },
         (payload) => getData()
       )
@@ -182,6 +200,8 @@ function MainPage() {
     setNonContractData,
     contractData,
     setContractData,
+    stagesData,
+    setStagesData
   ]);
 
   return (

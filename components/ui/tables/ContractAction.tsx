@@ -256,33 +256,48 @@ const EditAction = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const [contractDate, setContractDate] = useState<Date | undefined>(
-    data ? new Date(data.date) : undefined
-  );
-  const [currencyInputs, setCurrencyInputs] = useState<Amount[]>(
-    data ? data.contract_amounts : []
-  );
-  const [bankInputs, setBankInputs] = useState<string[]>(
-    data ? data.bank_names : []
-  );
+  const [contractDate, setContractDate] = useState<Date | undefined>(undefined);
+  const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
+  const [bankInputs, setBankInputs] = useState<string[]>([]);
 
   const [form, setForm] = useState({
-    contract_code: data ? data.contract_code : "",
-    desc: data ? data.description : "",
-    stage_id: data ? data.stage_id : "",
-    comment: data?.comment ?? "",
+    contract_code: "",
+    desc: "",
+    stage_id: "",
+    comment: "",
     amounts: {
       code: "",
       symbol: "",
       amount: "",
       name: "",
     },
-    is_completed: data ? data.is_completed : false,
+    is_completed: false,
     is_unlimited: false,
   });
 
   const supabase = createClient();
   const { userData } = useAuth();
+
+  useEffect(() => {
+    setForm({
+      contract_code: data ? data.contract_code : "",
+      desc: data ? data.description : "",
+      stage_id: data ? data.stage_id : "",
+      comment: data?.comment ?? "",
+      amounts: {
+        code: "",
+        symbol: "",
+        amount: "",
+        name: "",
+      },
+      is_completed: data ? data.is_completed : false,
+      is_unlimited: false,
+    });
+
+    setContractDate(data ? new Date(data.date) : undefined);
+    setCurrencyInputs(data ? data.contract_amounts : []);
+    setBankInputs(data ? data.bank_names : []);
+  }, [data]);
 
   function handleAddCurrency() {
     // CHECKS IF CODE IS ENTERED, IF THE TOTAL AMOUNT IS MORE THAN

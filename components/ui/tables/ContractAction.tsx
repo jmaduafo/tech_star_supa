@@ -30,7 +30,6 @@ import { format } from "date-fns";
 import { formatCurrency } from "@/utils/currencies";
 import { currency_list } from "@/utils/dataTools";
 import { createClient } from "@/lib/supabase/client";
-import { useParams } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { cn } from "@/lib/utils";
 import { SelectItem } from "../select";
@@ -278,6 +277,8 @@ const EditAction = ({
   const supabase = createClient();
   const { userData } = useAuth();
 
+  // UPDATES EVERY TIME THE PAYMENT IS UPDATED SO THAT THE EDIT
+  // INPUTS REFLECTS APPROPRIATELY AFTER THE DATA CHANGES
   useEffect(() => {
     setForm({
       contract_code: data ? data.contract_code : "",

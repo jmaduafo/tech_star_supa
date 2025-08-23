@@ -232,13 +232,9 @@ const EditAction = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const [paymentDate, setPaymentDate] = useState<Date | undefined>(
-    undefined
-  );
+  const [paymentDate, setPaymentDate] = useState<Date | undefined>(undefined);
 
-  const [currencyInputs, setCurrencyInputs] = useState<Amount[]>(
-    []
-  );
+  const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
   const [bankInputs, setBankInputs] = useState<string[]>(
     data ? [data.bank_name] : []
   );
@@ -260,6 +256,8 @@ const EditAction = ({
   const { userData } = useAuth();
   const supabase = createClient();
 
+  // UPDATES EVERY TIME THE PAYMENT IS UPDATED SO THAT THE EDIT
+  // INPUTS REFLECTS APPROPRIATELY AFTER THE DATA CHANGES
   useEffect(() => {
     setForm({
       desc: data ? data.description : "",
@@ -277,8 +275,8 @@ const EditAction = ({
 
     setPaymentDate(data ? new Date(data.date) : undefined);
     setCurrencyInputs(data ? data.payment_amounts : []);
-    setBankInputs(data ? [data.bank_name] : [])
-  }, [data])
+    setBankInputs(data ? [data.bank_name] : []);
+  }, [data]);
 
   function handleAddCurrency() {
     if (

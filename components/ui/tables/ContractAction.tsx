@@ -27,7 +27,7 @@ import Banner from "../Banner";
 import { formatDate } from "@/utils/dateAndTime";
 import { format as formatAgo } from "timeago.js";
 import { format } from "date-fns";
-import { formatCurrency } from "@/utils/currencies";
+import { formatCurrency, upsertCurrencies } from "@/utils/currencies";
 import { currency_list } from "@/utils/dataTools";
 import { createClient } from "@/lib/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
@@ -333,16 +333,17 @@ const EditAction = ({
         (curr) => curr.code === form.amounts.code
       );
 
-      if (currencyIndex > -1) {
-        setCurrencyInputs([
-          ...currencyInputs,
-          {
-            code: form.amounts.code,
-            name: currency_list[currencyIndex].name,
-            symbol: currency_list[currencyIndex].symbol,
-            amount: form.is_unlimited ? "Unlimited" : form.amounts.amount,
-          },
-        ]);
+      if (currencyIndex !== -1) {
+        setCurrencyInputs((prev) =>
+          upsertCurrencies(prev, [
+            {
+              code: form.amounts.code,
+              name: currency_list[currencyIndex].name,
+              symbol: currency_list[currencyIndex].symbol,
+              amount: form.is_unlimited ? "Unlimited" : form.amounts.amount,
+            },
+          ])
+        );
 
         // SET AMOUNT AND CODE TO AN EMPTY STRING
         setForm({
@@ -413,6 +414,7 @@ const EditAction = ({
           comment,
           bank_names,
           is_completed,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", data.id);
 
@@ -424,19 +426,30 @@ const EditAction = ({
         return;
       }
 
-      const amountsArray: Amount[] = [];
+    //   DELETE ALL PREVIOUS AMOUNT DATA
+      const { error: deleteError } = await supabase
+        .from("contract_amounts")
+        .delete()
+        .eq("contract_id", data.id);
 
-      currency.forEach((item) => {
-        amountsArray.push({
-          ...item,
-          contract_id: data.id,
+      if (deleteError) {
+        toast("Something went wrong", {
+          description: deleteError.message,
         });
-      });
 
+        return;
+      }
+
+      const newAmounts: Amount[] = []
+
+      currency.forEach(item => {
+        newAmounts.push({... item, contract_id: data.id})
+      })
+
+      // INSERT NEW AMOUNTS DATA CONTAINING CONTRACT_ID
       const { error: amountError } = await supabase
         .from("contract_amounts")
-        .upsert(amountsArray)
-        .eq("contract_id", data.id);
+        .insert(newAmounts);
 
       if (amountError) {
         toast("Something went wrong", {

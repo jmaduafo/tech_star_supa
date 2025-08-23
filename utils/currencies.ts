@@ -35,6 +35,7 @@ export function formatCurrency(num: number, code: string) {
   }
 }
 
+// FOR ONE ITEM
 export function upsertCurrency(
   list: Amount[],
   newCurrency: Pick<Amount, "code" | "name" | "symbol" | "amount">
@@ -61,4 +62,40 @@ export function upsertCurrency(
       ...newCurrency,
     },
   ];
+}
+
+type EditableCurrency = Pick<
+  Amount,
+  "code" | "name" | "symbol" | "amount"
+>;
+
+// FOR AN ARRAY OF ITEMS
+export function upsertCurrencies(
+  list: Amount[],
+  newCurrencies: EditableCurrency[]
+): Amount[] {
+  let result = [...list];
+
+  newCurrencies.forEach((newCurrency) => {
+    const idx = result.findIndex((c) => c.code === newCurrency.code);
+
+    if (idx !== -1) {
+      // update existing — preserve id, created_at, etc.
+      result[idx] = {
+        ...result[idx],
+        ...newCurrency,
+      };
+    } else {
+      // insert new — leave id/payment_id empty so Supabase can fill in
+      result.push({
+        id: crypto.randomUUID(), // temp id until backend responds
+        payment_id: "",
+        created_at: new Date().toISOString(),
+        updated_at: null,
+        ...newCurrency,
+      });
+    }
+  });
+
+  return result;
 }

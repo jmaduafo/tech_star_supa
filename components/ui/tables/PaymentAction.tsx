@@ -143,9 +143,10 @@ const ViewAction = ({
   ) : (
     <Banner text="unpaid" />
   );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="" aria-describedby="contract view details">
+      <DialogContent className="" aria-describedby="payment view details">
         <DialogHeader>
           <DialogTitle>
             {data?.contracts
@@ -192,9 +193,9 @@ const ViewAction = ({
             {/* CREATED AT */}
             <ViewLabel label={"Created"} content={formatAgo(data.created_at)} />
             {/* UPDATED AT */}
-            {data?.updated_at ? (
+            {data.updated_at ? (
               <ViewLabel
-                label={"Updated at"}
+                label={"Updated"}
                 content={formatAgo(data?.updated_at)}
               />
             ) : null}
@@ -357,6 +358,7 @@ const EditAction = ({
           bank_name,
           is_completed,
           is_paid,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", data.id);
 
@@ -413,7 +415,7 @@ const EditAction = ({
       >
         <DialogHeader>
           <DialogTitle>
-            Edit {data ? `contract ${data.contract_code}` : ""}
+            Edit
           </DialogTitle>
         </DialogHeader>
         <form

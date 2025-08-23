@@ -65,7 +65,6 @@ function NonContractDisplay({
   });
 
   const { project_id, contractor_id } = useParams();
-  const { userData } = useAuth();
 
   const supabase = createClient();
 
@@ -142,7 +141,7 @@ function NonContractDisplay({
     } = result.data;
 
     try {
-      if (!userData || !project_id || !contractor_id) {
+      if (!user || !project_id || !contractor_id) {
         return;
       }
 
@@ -153,7 +152,7 @@ function NonContractDisplay({
           project_id,
           contractor_id,
           stage_id,
-          team_id: userData.team_id,
+          team_id: user.team_id,
           contract_id: null,
           description: desc,
           comment,

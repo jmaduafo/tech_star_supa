@@ -49,7 +49,8 @@ function MainPage() {
           )
           .eq("project_id", project_id)
           .eq("contractor_id", contractor_id)
-          .eq("team_id", userData.team_id),
+          .eq("team_id", userData.team_id)
+          .throwOnError(),
         supabase
           .from("payments")
           .select(
@@ -57,37 +58,15 @@ function MainPage() {
           )
           .eq("project_id", project_id)
           .eq("contractor_id", contractor_id)
-          .eq("team_id", userData.team_id),
+          .eq("team_id", userData.team_id)
+          .throwOnError(),
         supabase
           .from("stages")
           .select("id, name, stage_contractors ( contractor_id )")
           .eq("stage_contractors.contractor_id", contractor_id)
-          .eq("team_id", userData.team_id),
+          .eq("team_id", userData.team_id)
+          .throwOnError(),
       ]);
-
-      if (contract.error) {
-        toast("Something went wrong", {
-          description: contract.error.message,
-        });
-
-        return;
-      }
-
-      if (noncontract.error) {
-        toast("Something went wrong", {
-          description: noncontract.error.message,
-        });
-
-        return;
-      }
-
-      if (stages.error) {
-        toast("Something went wrong", {
-          description: stages.error.message,
-        });
-
-        return;
-      }
 
       setContractData(contract.data as Contract[]);
       setNonContractData(noncontract.data as Payment[]);

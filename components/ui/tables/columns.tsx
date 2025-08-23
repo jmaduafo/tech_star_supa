@@ -282,17 +282,18 @@ export const paymentColumns: ColumnDef<Payment>[] = [
         </div>
       );
     },
-    accessorFn: (row) => row?.payment_amounts[0]?.code ?? "",
+    accessorFn: (row) =>
+      row?.payment_amounts ? row?.payment_amounts[0]?.code : "",
     id: "paymentCurrency",
     cell: ({ row }) => {
-      const currencies: Amount[] = row.getValue("payment_amounts");
+      const data = row.original;
 
       return (
         <div className="text-right">
-          {currencies[0]?.amount && currencies[0]?.amount !== "Unlimited"
-            ? formatCurrency(+currencies[0]?.amount, currencies[0]?.code)
-            : `${currencies[0]?.symbol} Unlimited`}
-          {currencies?.length > 1 ? ", ..." : ""}
+          {data?.payment_amounts[0]?.amount && data?.payment_amounts[0]?.amount !== "Unlimited"
+            ? formatCurrency(+data?.payment_amounts[0]?.amount, data?.payment_amounts[0]?.code)
+            : `${data?.payment_amounts[0]?.symbol} Unlimited`}
+          {data?.payment_amounts?.length > 1 ? ", ..." : ""}
         </div>
       );
     },

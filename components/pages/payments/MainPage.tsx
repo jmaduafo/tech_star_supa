@@ -37,7 +37,7 @@ function MainPage() {
   }, [userData]);
 
   return !data ? (
-    <div className="py-8 flex justify-center">
+    <div className="py-16 flex justify-center">
       <Loading className="w-10 h-10" />
     </div>
   ) : (

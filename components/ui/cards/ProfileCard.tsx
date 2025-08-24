@@ -1,10 +1,8 @@
 "use client";
 import React, {
   useEffect,
-  useActionState,
   useState,
   useRef,
-  startTransition,
 } from "react";
 import { User } from "@/types/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../dialog";
@@ -21,8 +19,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "../avatar";
 import { MapPin, Pencil } from "lucide-react";
 import { Skeleton } from "../skeleton";
 import { getInitials } from "@/utils/initials";
-import Detail from "./Detail";
-import { formatDate } from "@/utils/dateAndTime";
 import Input from "../input/CustomInput";
 import SelectBar from "../input/SelectBar";
 import { country_list, job_titles } from "@/utils/dataTools";
@@ -31,6 +27,8 @@ import Submit from "../buttons/Submit";
 // import { editUser } from "@/zod/actions";
 import { toast } from "sonner";
 import FilePicker from "../buttons/FilePicker";
+import ViewLabel from "../labels/ViewLabel";
+import { format } from "timeago.js";
 
 type Card = {
   readonly user: User | undefined;
@@ -53,114 +51,26 @@ function ProfileCard({
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
 
-  const [formValues, setFormValues] = useState({
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [form, setForm] = useState({
     first_name: "",
     last_name: "",
     location: "",
     job_title: "",
   });
 
-  // const [state, action, isLoading] = useActionState(
-  //   (prevState: any, values: object) =>
-  //     editUser(prevState, values, {
-  //       id: user?.id as string,
-  //       team_id: user?.team_id as string,
-  //     }),
-  //   {
-  //     message: "",
-  //     success: false,
-  //   }
-  // );
-
-  // const currentUser = auth.currentUser;
-
   const fileInputRef = useRef<HTMLInputElement>(null);
   const prevEditOpenRef = useRef<boolean | null>(null);
 
-  // useEffect(() => {
-  //   // If previous was true and now it's false, then open profile
-  //   if (prevEditOpenRef.current && !editProfileOpen) {
-  //     setProfileOpen(true);
-  //   }
+  useEffect(() => {
+    // If previous was true and now it's false, then open profile
+    if (prevEditOpenRef.current && !editProfileOpen) {
+      setProfileOpen(true);
+    }
 
-  //   prevEditOpenRef.current = editProfileOpen ?? null;
-  // }, [editProfileOpen]);
-
-  // useEffect(() => {
-  //   // REVOKE URL WHEN IT'S NO LONGER NEEDED TO SAVE MEMORY
-  //   return () => {
-  //     if (imagePreview) {
-  //       URL.revokeObjectURL(imagePreview);
-  //     }
-  //   };
-  // }, [imagePreview]);
-
-  // useEffect(() => {
-  //   // SET FORM VALUES TO USER INFO
-  //   if (user) {
-  //     setFormValues({
-  //       first_name: user?.first_name ?? "",
-  //       last_name: user?.last_name ?? "",
-  //       location: user?.location ?? "",
-  //       job_title: user?.job_title ?? "",
-  //     });
-  //     setCurrentImage(user?.image_url ?? null);
-  //   }
-  // }, [user?.id ?? "guest"]);
-
-  // useEffect(() => {
-  //   if (!state?.success && state?.message) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Uh oh! Something went wrong",
-  //       description: state?.message,
-  //     });
-  //   } else if (state?.success) {
-  //     toast({
-  //       title: "Your profile was updated successfully!",
-  //     });
-
-  //     setEditProfileOpen && setEditProfileOpen(false)
-  //   }
-  // }, [state]);
-
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   // INITIALIZE WITH THE CURRENT IMAGE IN CASE THE USER MADE NO CHANGES TO THEIR PROFILE PIC
-  //   let imageUrl = currentImage;
-
-  //   // IF USER HAS CHOSEN A NEW IMAGE, THEN REPLACE PREVIOUS IMAGE WITH THE NEW IMAGE
-  //   if (newImage) {
-  //     // Upload the new image to Firebase Storage
-  //     const result = await uploadImage(newImage, `users/${user?.id}`);
-
-  //     // IF AN ERROR OCCURS, DISPLAY A TOAST MESSAGE WITH THE ERROR MESSAGE
-  //     if (!result.success) {
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Uh oh! Something went wrong",
-  //         description: result.response,
-  //       });
-
-  //       return;
-  //     }
-
-  //     // IF NO ERRORS, REPLACE CURRENT IMAGE WITH NEW IMAGE
-  //     imageUrl = result.response;
-  //   }
-
-  //   const values = {
-  //     first_name: formValues.first_name,
-  //     last_name: formValues.last_name,
-  //     location: formValues.location.length ? formValues.location : null,
-  //     job_title: formValues.job_title.length ? formValues.job_title : null,
-  //     image_url: imageUrl ?? null,
-  //   };
-
-  //   // USE START TRANSITION TO RUN "ACTION" FUNCTION
-  //   startTransition(() => action(values)); // call useActionState's action function
-  // };
+    prevEditOpenRef.current = editProfileOpen ?? null;
+  }, [editProfileOpen]);
 
   return (
     <>
@@ -171,13 +81,14 @@ function ProfileCard({
         >
           <DialogHeader>
             <DialogTitle className="capitalize">
-              {/* {currentUser?.uid === user?.id ? "My" : user?.first_name + "'s"}{" "} */}
+              {user ? user.first_name + "'s " : null}
               Profile
             </DialogTitle>
           </DialogHeader>
-          <div className="text-dark75">
+          <div className="text-darkText/75">
+            {/* AVATAR IMAGE */}
             <div className="flex justify-center mt-2">
-              {!user?.image_url ? (
+              {!user ? (
                 <div>
                   <Skeleton className="w-[140px] h-[140px] rounded-full" />
                 </div>
@@ -189,7 +100,7 @@ function ProfileCard({
                       alt="user profile url"
                     />
                     <AvatarFallback className="text-5xl">
-                      {getInitials(user?.full_name)}
+                      {getInitials(user.full_name)}
                     </AvatarFallback>
                   </Avatar>
                   <button
@@ -206,6 +117,7 @@ function ProfileCard({
                 </div>
               )}
             </div>
+            {/* FULL NAME DISPLAY */}
             <div className="mt-4">
               {!user?.full_name ? (
                 <div className="flex justify-center">
@@ -218,9 +130,11 @@ function ProfileCard({
                 />
               )}
             </div>
+            {/* LOCATION WITH ROLE */}
+            {/* OUTPUT: South Africa | Admin */}
             <div className="mt-2 flex justify-center items-end gap-2">
               <div>
-                {!user?.location ? (
+                {!user ? (
                   <div className="">
                     <Skeleton className="h-4 w-[30%]" />
                   </div>
@@ -231,7 +145,7 @@ function ProfileCard({
                   </div>
                 ) : null}
               </div>
-              {user?.location ? <Header6 text="|"/> : null}
+              {user?.location ? <Header6 text="|" /> : null}
               <div>
                 {!user?.role ? (
                   <div className="">
@@ -247,73 +161,45 @@ function ProfileCard({
                 )}
               </div>
             </div>
-            <div className="mt-5">
-              {/* FIRST NAME & LAST NAME */}
-              <div className={`${user ? "mt-0" : "mt-4"} flex items-start`}>
-                <div className="flex-1">
-                  {user?.first_name ? (
-                    <Detail title="First name" item={user?.first_name} />
-                  ) : (
-                    <Skeleton className="w-[65%] h-5" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  {user?.last_name ? (
-                    <Detail title="Last name" item={user?.last_name} />
-                  ) : (
-                    <Skeleton className="w-[65%] h-5" />
-                  )}
-                </div>
+            {/* USER INFO GRID */}
+            {user ? (
+              <div className="mt-5 grid grid-cols-2 gap-4">
+                {/* FIRST NAME */}
+                <ViewLabel
+                  label="First name"
+                  className="capitalize"
+                  content={user.first_name}
+                />
+                {/* LAST NAME */}
+                <ViewLabel
+                  label="Last name"
+                  className="capitalize"
+                  content={user.last_name}
+                />
+                {/* EMAIL */}
+                <ViewLabel label="Email" content={user.email} />
+                {/* HIRE TYPE */}
+                <ViewLabel
+                  label="Hire type"
+                  className="capitalize"
+                  content={user.hire_type}
+                />
+                {/* JOB TITLE */}
+                <ViewLabel
+                  label="Job title"
+                  content={user?.job_title ?? "N/A"}
+                />
+                {/* USER CREATED AT */}
+                <ViewLabel label="Joined" content={format(user?.created_at)} />
               </div>
-              {/* EMAIL & HIRE TYPE */}
-              <div className={`${user ? "mt-0" : "mt-4"} flex items-start`}>
-                <div className="flex-1">
-                  {user?.email ? (
-                    <Detail title="Email" item={user?.email} />
-                  ) : (
-                    <Skeleton className="w-[65%] h-5" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  {user?.hire_type ? (
-                    <Detail
-                      title="Hire type"
-                      className="capitalize"
-                      item={user?.hire_type}
-                    />
-                  ) : (
-                    <Skeleton className="w-[65%] h-5" />
-                  )}
-                </div>
-              </div>
-              {/* JOB TITLE & CREATED AT */}
-              <div className={`${user ? "mt-0" : "mt-4"} flex items-start`}>
-                <div className="flex-1">
-                  {user?.job_title ? (
-                    <Detail
-                      title="Job title"
-                      className="capitalize"
-                      item={user?.job_title ?? "N/A"}
-                    />
-                  ) : (
-                    <Skeleton className="w-[65%] h-6" />
-                  )}
-                </div>
-                {/* <div className="flex-1">
-                  {user?.created_at ? (
-                    <Detail
-                      title="Joined at"
-                      item={formatDate(user?.created_at, 2)}
-                    />
-                  ) : (
-                    <Skeleton className="w-[65%] h-6" />
-                  )}
-                </div> */}
-              </div>
-            </div>
+            ) : (
+              <div></div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* EDIT SHEET POPUP */}
       <Sheet open={editProfileOpen} onOpenChange={setEditProfileOpen}>
         <SheetContent>
           <SheetHeader>
@@ -350,9 +236,9 @@ function ProfileCard({
                 type="text"
                 id="first_name"
                 name="first_name"
-                value={formValues.first_name}
+                value={form.first_name}
                 onChange={(e) =>
-                  setFormValues((prev) => ({
+                  setForm((prev) => ({
                     ...prev,
                     first_name: e.target.value,
                   }))
@@ -365,9 +251,9 @@ function ProfileCard({
                 type="text"
                 id="last_name"
                 name="last_name"
-                value={formValues.last_name}
+                value={form.last_name}
                 onChange={(e) =>
-                  setFormValues((prev) => ({
+                  setForm((prev) => ({
                     ...prev,
                     last_name: e.target.value,
                   }))
@@ -379,9 +265,9 @@ function ProfileCard({
                 placeholder={"Select your location"}
                 label={"Location"}
                 name="location"
-                value={formValues.location}
+                value={form.location}
                 valueChange={(text) =>
-                  setFormValues((prev) => ({
+                  setForm((prev) => ({
                     ...prev,
                     location: text,
                   }))
@@ -401,9 +287,9 @@ function ProfileCard({
               <SelectBar
                 placeholder={"Select a job title"}
                 label={"Job title"}
-                value={formValues.job_title}
+                value={form.job_title}
                 valueChange={(text) =>
-                  setFormValues((prev) => ({
+                  setForm((prev) => ({
                     ...prev,
                     job_title: text,
                   }))
@@ -419,15 +305,9 @@ function ProfileCard({
                 })}
               </SelectBar>
             </Input>
-            {/* <div className="flex justify-end mt-6">
-              <Submit
-                loading={isLoading}
-                width_height="w-[85px] h-[40px]"
-                width="w-[40px]"
-                arrow_width_height="w-6 h-6"
-                disabledLogic={isLoading}
-              />
-            </div> */}
+            <div className="flex justify-end mt-6">
+              <Submit loading={isLoading} disabledLogic={isLoading} />
+            </div>
           </form>
         </SheetContent>
       </Sheet>

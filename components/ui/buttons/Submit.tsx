@@ -39,7 +39,7 @@ function Submit({
         {loading ? (
           <Loading className="mr-2 w-6 h-6" />
         ) : (
-          <HiChevronRight className={`${arrow_width_height ?? "w-6 h-6"}`} />
+          <HiChevronRight className={`${arrow_width_height ?? "w-6 h-6 text-lightText"}`} />
         )}
       </span>
     </button>

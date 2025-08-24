@@ -1,24 +1,19 @@
 "use client";
 
-import { createContext, useContext } from "react";
-import type { User as SupabaseUser } from "@supabase/supabase-js"; // or your custom type
-import { User } from "@/types/types";
+import { createContext, useContext, useState } from "react";
 
-type UserContextType = {
-  user: SupabaseUser | null;
-  userData: User | undefined; // replace with your actual type for db profile
-};
-
-const UserContext = createContext<UserContextType | null>(null);
+const UserContext = createContext<any>(null);
 
 export function UserProvider({
   value,
   children,
 }: {
-  readonly value: UserContextType;
+  readonly value: any;
   readonly children: React.ReactNode;
 }) {
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+   const [userData, setUserData] = useState(value.userData);
+   
+  return <UserContext.Provider value={{...value, userData, setUserData }}>{children}</UserContext.Provider>;
 }
 
 export function useAuth() {

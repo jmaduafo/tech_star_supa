@@ -1,9 +1,5 @@
 "use client";
-import React, {
-  useEffect,
-  useState,
-  useRef,
-} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { User } from "@/types/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../dialog";
 import {
@@ -18,7 +14,7 @@ import Header6 from "@/components/fontsize/Header6";
 import { Avatar, AvatarImage, AvatarFallback } from "../avatar";
 import { MapPin, Pencil } from "lucide-react";
 import { Skeleton } from "../skeleton";
-import { getInitials } from "@/utils/initials";
+import { getFullName, getInitials } from "@/utils/initials";
 import Input from "../input/CustomInput";
 import SelectBar from "../input/SelectBar";
 import { country_list, job_titles } from "@/utils/dataTools";
@@ -29,6 +25,8 @@ import { toast } from "sonner";
 import FilePicker from "../buttons/FilePicker";
 import ViewLabel from "../labels/ViewLabel";
 import { format } from "timeago.js";
+import { createClient } from "@/lib/supabase/client";
+import { EditUserSchema } from "@/zod/validation";
 
 type Card = {
   readonly user: User | undefined;
@@ -60,6 +58,8 @@ function ProfileCard({
     job_title: "",
   });
 
+  const supabase = createClient();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const prevEditOpenRef = useRef<boolean | null>(null);
 
@@ -71,6 +71,118 @@ function ProfileCard({
 
     prevEditOpenRef.current = editProfileOpen ?? null;
   }, [editProfileOpen]);
+
+  useEffect(() => {
+    if (user) {
+      setForm({
+        first_name: user.first_name ?? "",
+        last_name: user.last_name ?? "",
+        location: user.location ?? "",
+        job_title: user.job_title ?? "",
+      });
+
+      setCurrentImage(user.image_url);
+    }
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    const values = {
+      first_name: form.first_name.trim(),
+      last_name: form.last_name.trim(),
+      location: form.location.length ? form.location : null,
+      job_title: form.job_title.length ? form.job_title : null,
+    };
+
+    const result = EditUserSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    const { first_name, last_name, location, job_title } = result.data;
+
+    try {
+      if (!user) {
+        return;
+      }
+      // INITIALIZE WITH THE CURRENT IMAGE IN CASE THE USER MADE NO CHANGES TO THEIR PROFILE PIC
+      let imageUrl = currentImage;
+
+      // IF USER HAS CHOSEN A NEW IMAGE, THEN REPLACE PREVIOUS IMAGE WITH THE NEW IMAGE
+      if (newImage) {
+        // Upload the new image to Supabase storage
+        const { data: downloadData, error: downloadError } =
+          await supabase.storage
+            .from("users")
+            .upload(`/avatars/${user.id}/${newImage.name}`, newImage, {
+              cacheControl: "3600",
+              upsert: false,
+            });
+
+        if (downloadError) {
+          toast("Something went wrong", {
+            description: downloadError.message,
+          });
+
+          console.log(downloadError.message);
+
+          return;
+        }
+
+        // If there are no errors, retrieve the public URL
+        const { data: urlData } = supabase.storage
+          .from("users")
+          .getPublicUrl(downloadData.path);
+
+        //  Replace the current image with the new image
+        imageUrl = urlData.publicUrl;
+      }
+
+      const { data, error } = await supabase
+        .from("users")
+        .update({
+          first_name,
+          last_name,
+          full_name: getFullName(first_name, last_name),
+          job_title,
+          image_url: imageUrl,
+          location,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        console.error(error.message);
+        return;
+      }
+
+      console.log(data);
+
+      toast("Success!", {
+        description: "Your profile was updated successfully",
+      });
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -208,7 +320,7 @@ function ProfileCard({
               Make changes to your profile here. Click save when you're done.
             </SheetDescription>
           </SheetHeader>
-          <form className="mt-5">
+          <form className="mt-5" onSubmit={handleSubmit}>
             <div className="flex justify-center">
               <Avatar className="w-[110px] h-[110px]">
                 {imagePreview && (

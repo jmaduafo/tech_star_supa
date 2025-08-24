@@ -17,7 +17,7 @@ export function downloadToExcel(
           value: (row) => (row.is_contract ? "Yes" : "No"),
         },
         { label: "CONTRACT CODE", value: (row) => row.contract_code ?? "--" },
-        { label: "DATE", value: (row) => formatDate(row.date as TimeStamp) },
+        { label: "DATE", value: (row) => formatDate(row.date as string) },
         { label: "DESCRIPTION", value: "description" },
         { label: "PROJECT NAME", value: "project_name" },
         { label: "CONTRACTOR NAME", value: "contractor_name" },
@@ -59,7 +59,7 @@ export function downloadToExcel(
         {
           label: "UPDATED AT",
           value: (row) =>
-            row.updated_at ? formatDate(row.updated_at as TimeStamp) : "",
+            row.updated_at ? formatDate(row.updated_at as string) : "",
         },
         {
           label: "COMMENT",

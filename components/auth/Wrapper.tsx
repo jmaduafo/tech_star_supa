@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { UserProvider } from "@/context/UserContext";
 import Loader from "@/components/ui/loading/Loader";
 import { Suspense } from "react";
+import UserRealtimeListener from "./UserRealtimeListener";
 
 export default async function ClientWrapper({
   children,
@@ -31,7 +32,10 @@ export default async function ClientWrapper({
   return (
     <UserProvider value={{ user, userData: profile }}>
       <Suspense fallback={<Loader />}>
-        <CheckAuth>{children}</CheckAuth>
+        <CheckAuth>
+          {children}
+          <UserRealtimeListener />
+        </CheckAuth>
       </Suspense>
     </UserProvider>
   );

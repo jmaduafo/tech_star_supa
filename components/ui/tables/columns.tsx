@@ -215,7 +215,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
         </div>
       );
     },
-    accessorKey: "is_completed",
+    accessorKey: "status",
     cell: ({ row }) => {
       const contract = row.original;
 
@@ -310,6 +310,46 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       );
     },
   },
+
+  // HIDDEN COLUMNS FOR FILTERING
+  {
+    accessorKey: "project_id",
+    header: "Project",
+    enableHiding: false, // can hide
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+      return filterValues.includes(row.getValue(columnId));
+    },
+  },
+  {
+    accessorKey: "contractor_id",
+    header: "Contractor",
+    enableHiding: false,
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+      return filterValues.includes(row.getValue(columnId));
+    },
+  },
+  {
+    accessorKey: "contract_id",
+    header: "Contract",
+    enableHiding: false,
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+      return filterValues.includes(row.getValue(columnId));
+    },
+  },
+  {
+    accessorKey: "stage_id",
+    header: "Stage",
+    enableHiding: false,
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+      return filterValues.includes(row.getValue(columnId));
+    },
+  },
+
+  // ACTIONS DROPDOWN MENU
   {
     id: "actions",
     cell: ({ row }) => {

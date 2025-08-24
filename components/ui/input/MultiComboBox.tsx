@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { MultiSelect } from "@/types/types";
 
-function MultiSelectBar({
+function MultiComboBox({
   name,
   array,
   selectedArray,
@@ -45,9 +45,39 @@ function MultiSelectBar({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between gap-4"
+          className="w-full justify-between py-6"
         >
-          <span>Select {name}...</span>
+          {/* Styling of the selected items for users to view */}
+          {selectedArray.length ? (
+            <span className="flex flex-wrap gap-1 items-center">
+              {selectedArray.map((item) => {
+                return (
+                  <span
+                    key={item.value}
+                    className="py-0.5 px-3 bg-darkText text-lightText h-full rounded-full whitespace-nowrap"
+                  >
+                    <p className="text-[12.5px] flex items-center gap-2 font-light">
+                      {item.label}
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        className="hover:bg-lightText hover:text-darkText rounded-full duration-300 "
+                        onClick={() =>
+                          setSelectedArray((prev) =>
+                            prev.filter((sel) => sel.value !== item.value)
+                          )
+                        }
+                      >
+                        <X size={12} strokeWidth={1} />
+                      </span>
+                    </p>
+                  </span>
+                );
+              })}
+            </span>
+          ) : (
+            <span>Select {name}...</span>
+          )}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -78,7 +108,7 @@ function MultiSelectBar({
   );
 }
 
-export default MultiSelectBar;
+export default MultiComboBox;
 
 const ToggleItem = ({
   item,

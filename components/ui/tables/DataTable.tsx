@@ -30,7 +30,18 @@ import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../button";
 import { downloadToExcel } from "@/utils/export";
 import { IContent } from "json-as-xlsx";
-import { DataTableProps } from "@/types/types";
+import {
+  Contract,
+  Contractor,
+  DataTableProps,
+  MultiSelect,
+  Project,
+} from "@/types/types";
+import MultiSelectBar from "../input/MultiSelectBar";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/context/UserContext";
+import Reset from "../buttons/Reset";
+import CheckedButton from "../buttons/CheckedButton";
 
 function DataTable<TData, TValue>({
   columns,
@@ -44,9 +55,32 @@ function DataTable<TData, TValue>({
   const [exportedData, setExportedData] = useState<TData[] | IContent[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    project_id: false,
+    contractor_id: false,
+    contract_id: false,
+    stage_id: false,
+  });
+  const [rowSelection, setRowSelection] = useState({});
+
+  const [allProjects, setAllProjects] = useState<MultiSelect[] | undefined>([]);
+  const [allContractors, setAllContractors] = useState<
+    MultiSelect[] | undefined
+  >([]);
+  const [allContracts, setAllContracts] = useState<MultiSelect[] | undefined>(
+    []
+  );
+  const [allStages, setAllStages] = useState<MultiSelect[] | undefined>([]);
+
+  const [selectedProjects, setSelectedProjects] = useState<MultiSelect[]>([]);
+  const [selectedContractors, setSelectedContractors] = useState<MultiSelect[]>(
+    []
+  );
+  const [selectedContracts, setSelectedContracts] = useState<MultiSelect[]>([]);
+  const [selectedStages, setSelectedStages] = useState<MultiSelect[]>([]);
+
+  const supabase = createClient();
+  const { userData } = useAuth();
 
   const table = useReactTable({
     data,
@@ -74,6 +108,95 @@ function DataTable<TData, TValue>({
     },
   });
 
+  async function getData() {
+    if (!userData) {
+      return;
+    }
+
+    const [projects, contractors, contracts, stages] = await Promise.all([
+      supabase
+        .from("projects")
+        .select("id, name")
+        .eq("team_id", userData.team_id)
+        .throwOnError(),
+      supabase
+        .from("contractors")
+        .select("id, name")
+        .eq("team_id", userData.team_id)
+        .throwOnError(),
+      supabase
+        .from("contracts")
+        .select("id, contract_code")
+        .eq("team_id", userData.team_id)
+        .throwOnError(),
+      supabase
+        .from("stages")
+        .select("id, name")
+        .eq("team_id", userData.team_id)
+        .throwOnError(),
+    ]);
+
+    const newProjects: MultiSelect[] = [];
+    const newContractors: MultiSelect[] = [];
+    const newContracts: MultiSelect[] = [];
+    const newStages: MultiSelect[] = [];
+
+    projects.data.forEach((item) => {
+      newProjects.push({ label: item.name, value: item.id });
+    });
+    contractors.data.forEach((item) => {
+      newContractors.push({ label: item.name, value: item.id });
+    });
+    contracts.data.forEach((item) => {
+      newContracts.push({ label: item.contract_code, value: item.id });
+    });
+    stages.data.forEach((item) => {
+      newStages.push({ label: item.name, value: item.id });
+    });
+
+    setAllProjects(newProjects);
+    setAllContractors(newContractors);
+    setAllContracts(newContracts);
+    setAllStages(newStages);
+  }
+
+  useEffect(() => {
+    getData();
+  }, [userData]);
+
+  // WHEN CHECK MARK IS PRESSED, FILTER ROWS BY THE SELECTED ITEMS
+  const handleFilter = () => {
+    if (
+      !selectedProjects.length &&
+      !selectedContractors.length &&
+      !selectedContracts.length &&
+      !selectedStages.length
+    ) {
+      table.resetColumnFilters();
+    }
+
+    const projectIds = selectedProjects.map((p) => p.value);
+    const contractorIds = selectedContractors.map((p) => p.value);
+    const contractIds = selectedContracts.map((p) => p.value);
+    const stageIds = selectedStages.map((p) => p.value);
+
+    table.getColumn("project_id")?.setFilterValue(projectIds);
+    table.getColumn("contractor_id")?.setFilterValue(contractorIds);
+    table.getColumn("contract_id")?.setFilterValue(contractIds);
+    table.getColumn("stage_id")?.setFilterValue(stageIds);
+  };
+
+  // RESET ALL VALUES AND SHOW THE FULL DATA
+  function onReset() {
+    setSelectedProjects([]);
+    setSelectedContractors([]);
+    setSelectedContracts([]);
+    setSelectedStages([]);
+
+    table.resetColumnFilters();
+  }
+
+  // EXPORT FILTERED VALUES WHEN EXPORT IS SELECTED
   function getExportData() {
     const data: TData[] = [];
 
@@ -90,7 +213,40 @@ function DataTable<TData, TValue>({
 
   return (
     <div>
+      {/*  */}
+      <div className="flex lg:justify-end items-center flex-wrap gap-3 mb-5">
+        <MultiSelectBar
+          name={"projects"}
+          array={allProjects}
+          selectedArray={selectedProjects}
+          setSelectedArray={setSelectedProjects}
+        />
+        <MultiSelectBar
+          name={"contractors"}
+          array={allContractors}
+          selectedArray={selectedContractors}
+          setSelectedArray={setSelectedContractors}
+        />
+        <MultiSelectBar
+          name={"contracts"}
+          array={allContracts}
+          selectedArray={selectedContracts}
+          setSelectedArray={setSelectedContracts}
+        />
+        <MultiSelectBar
+          name={"stages"}
+          array={allStages}
+          selectedArray={selectedStages}
+          setSelectedArray={setSelectedStages}
+        />
+        <div className="flex items-center gap-2">
+          <CheckedButton clickedFn={handleFilter} />
+          <Reset clickedFn={onReset} />
+        </div>
+      </div>
       <div className="mb-5 flex items-end flex-wrap gap-x-4 gap-y-3">
+        {/* MULTIPLE SELECT OPTIONS */}
+
         {/* SEARCH ENGINE */}
         <input
           placeholder={`Filter by ${filterCategory.split("_").join(" ")}`}

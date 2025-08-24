@@ -52,10 +52,10 @@ import { format as formatAgo } from "timeago.js";
 import { Slider } from "@/components/ui/slider";
 import { useAuth } from "@/context/UserContext";
 import { useParams } from "next/navigation";
-import MultiSelectBar from "@/components/ui/input/MultiSelectBar";
 import { Button } from "@/components/ui/button";
 import ViewLabel from "@/components/ui/labels/ViewLabel";
 import { contractorStages } from "@/utils/stagesFilter";
+import MultiComboBox from "@/components/ui/input/MultiComboBox";
 
 function ContractorDisplay({
   allContractors,
@@ -420,7 +420,7 @@ function AssignStage({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           {/* ADD AND DELETE MULTIPLE ITEMS */}
-          <MultiSelectBar
+          <MultiComboBox
             array={list}
             selectedArray={stageList}
             setSelectedArray={setStageList}

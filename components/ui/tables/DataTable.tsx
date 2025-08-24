@@ -30,13 +30,7 @@ import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../button";
 import { downloadToExcel } from "@/utils/export";
 import { IContent } from "json-as-xlsx";
-import {
-  Contract,
-  Contractor,
-  DataTableProps,
-  MultiSelect,
-  Project,
-} from "@/types/types";
+import { DataTableProps, MultiSelect } from "@/types/types";
 import MultiSelectBar from "../input/MultiSelectBar";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/context/UserContext";
@@ -51,6 +45,7 @@ function DataTable<TData, TValue>({
   is_export,
   advanced,
   filterCategory,
+  showSelections,
 }: Readonly<DataTableProps<TData, TValue>>) {
   const [exportedData, setExportedData] = useState<TData[] | IContent[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -213,40 +208,48 @@ function DataTable<TData, TValue>({
 
   return (
     <div>
-      {/*  */}
-      <div className="flex lg:justify-end items-center flex-wrap gap-3 mb-5">
-        <MultiSelectBar
-          name={"projects"}
-          array={allProjects}
-          selectedArray={selectedProjects}
-          setSelectedArray={setSelectedProjects}
-        />
-        <MultiSelectBar
-          name={"contractors"}
-          array={allContractors}
-          selectedArray={selectedContractors}
-          setSelectedArray={setSelectedContractors}
-        />
-        <MultiSelectBar
-          name={"contracts"}
-          array={allContracts}
-          selectedArray={selectedContracts}
-          setSelectedArray={setSelectedContracts}
-        />
-        <MultiSelectBar
-          name={"stages"}
-          array={allStages}
-          selectedArray={selectedStages}
-          setSelectedArray={setSelectedStages}
-        />
-        <div className="flex items-center gap-2">
-          <CheckedButton clickedFn={handleFilter} />
-          <Reset clickedFn={onReset} />
+      {/* MULTIPLE SELECT OPTIONS */}
+      {showSelections ? (
+        <div className="flex lg:justify-end items-center flex-wrap gap-3 mb-5">
+          <MultiSelectBar
+            name={"projects"}
+            array={allProjects}
+            selectedArray={selectedProjects}
+            setSelectedArray={setSelectedProjects}
+          />
+          <MultiSelectBar
+            name={"contractors"}
+            array={allContractors}
+            selectedArray={selectedContractors}
+            setSelectedArray={setSelectedContractors}
+          />
+          <MultiSelectBar
+            name={"contracts"}
+            array={allContracts}
+            selectedArray={selectedContracts}
+            setSelectedArray={setSelectedContracts}
+          />
+          <MultiSelectBar
+            name={"stages"}
+            array={allStages}
+            selectedArray={selectedStages}
+            setSelectedArray={setSelectedStages}
+          />
+          <div className="flex items-center gap-2">
+            <CheckedButton
+              clickedFn={handleFilter}
+              disabledLogic={
+                !selectedProjects.length &&
+                !selectedContractors.length &&
+                !selectedContracts.length &&
+                !selectedStages.length
+              }
+            />
+            <Reset clickedFn={onReset} />
+          </div>
         </div>
-      </div>
+      ) : null}
       <div className="mb-5 flex items-end flex-wrap gap-x-4 gap-y-3">
-        {/* MULTIPLE SELECT OPTIONS */}
-
         {/* SEARCH ENGINE */}
         <input
           placeholder={`Filter by ${filterCategory.split("_").join(" ")}`}

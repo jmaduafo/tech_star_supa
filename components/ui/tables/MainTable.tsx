@@ -10,6 +10,7 @@ function MainTable<TData, TValue>({
   is_export,
   advanced,
   filterCategory,
+  showSelections
 }: Readonly<DataTableProps<TData, TValue>>) {
   return (
     <DataTable
@@ -20,6 +21,7 @@ function MainTable<TData, TValue>({
       is_export={is_export}
       advanced={advanced}
       filterCategory={filterCategory}
+      showSelections={showSelections}
     />
   );
 }

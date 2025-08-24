@@ -1,9 +1,8 @@
-import React from 'react'
+import MainPage from "@/components/pages/payments/MainPage";
+import React from "react";
 
 function page() {
-  return (
-    <div>page</div>
-  )
+  return <MainPage />;
 }
 
-export default page
+export default page;

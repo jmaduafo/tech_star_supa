@@ -1,6 +1,5 @@
 "use client";
-import Header1 from "@/components/fontsize/Header1";
-import Header6 from "@/components/fontsize/Header6";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { optionalS } from "@/utils/optionalS";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/UserContext";
 import { Contract, Payment, Stage } from "@/types/types";
@@ -19,6 +17,7 @@ import { toast } from "sonner";
 import { contractorStages } from "@/utils/stagesFilter";
 import ContractDisplay from "./ContractDisplay";
 import NonContractDisplay from "./NonContractDisplay";
+import MainTitle from "@/components/ui/labels/MainTitle";
 
 function MainPage() {
   const [contractData, setContractData] = useState<Contract[] | undefined>();
@@ -181,25 +180,18 @@ function MainPage() {
     contractData,
     setContractData,
     stagesData,
-    setStagesData
+    setStagesData,
   ]);
 
   return (
     <div>
-      <div className="">
-        <div className="flex items-start gap-5 mb-2 text-lightText">
-          {contractorName.length ? <Header1 text={contractorName} /> : null}
-          {contractData && nonContractData ? (
-            <Header6
-              text={`${
-                contractData.length + nonContractData.length
-              } result${optionalS(
-                contractData.length + nonContractData.length
-              )}`}
-            />
-          ) : null}
-        </div>
-      </div>
+      {contractData && nonContractData ? (
+        <MainTitle
+          title={contractorName}
+          data={[...contractData, ...nonContractData]}
+        />
+      ) : null}
+
       {/* BREADCRUMB DISPLAY */}
       <div className="mb-8">
         <Breadcrumb>

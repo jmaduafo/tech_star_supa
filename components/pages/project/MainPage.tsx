@@ -2,9 +2,6 @@
 import React, { useState, useEffect } from "react";
 import ProjectDisplay from "./ProjectDisplay";
 import { Project } from "@/types/types";
-import Header6 from "@/components/fontsize/Header6";
-import { optionalS } from "@/utils/optionalS";
-import Header1 from "@/components/fontsize/Header1";
 import { useAuth } from "@/context/UserContext";
 import AdvancedSearch from "@/components/ui/search/AdvancedSearch";
 import AddButton from "@/components/ui/buttons/AddButton";
@@ -19,6 +16,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
 import { Slider } from "@/components/ui/slider";
+import MainTitle from "@/components/ui/labels/MainTitle";
 
 function MainPage() {
   const [sort, setSort] = useState("");
@@ -112,16 +110,14 @@ function MainPage() {
         return;
       }
 
-      const { error } = await supabase
-        .from("projects")
-        .insert({
-          name,
-          team_id: userData?.team_id,
-          city,
-          country,
-          start_month: month,
-          start_year: year,
-        })
+      const { error } = await supabase.from("projects").insert({
+        name,
+        team_id: userData?.team_id,
+        city,
+        country,
+        start_month: month,
+        start_year: year,
+      });
 
       if (error) {
         toast("Something went wrong", {
@@ -213,16 +209,7 @@ function MainPage() {
 
   return (
     <div>
-      <div className="flex items-start gap-5 mb-8 text-lightText">
-        <Header1 text="All Projects" />
-        {filteredProjects ? (
-          <Header6
-            text={`${filteredProjects.length} result${optionalS(
-              filteredProjects.length
-            )}`}
-          />
-        ) : null}
-      </div>
+      <MainTitle title="All Projects" data={filteredProjects} />
       <div className="flex items-center gap-3">
         <div className="flex-1">
           <AdvancedSearch

@@ -15,9 +15,13 @@ function CheckedButton({
       onClick={clickedFn}
       disabled={disabledLogic}
       title="Filter"
-      className={`rounded-full ${disabledLogic ? "opacity-50" : "opacity-100"}`}
+      className={`rounded-full ${
+        disabledLogic
+          ? "opacity-50 cursor-not-allowed"
+          : "opacity-100 cursor-pointer hover:bg-lightText text-lightText hover:text-darkText duration-300"
+      }`}
     >
-      <CircleCheck strokeWidth={1} className="text-lightText w-6 h-6" />
+      <CircleCheck strokeWidth={1} className="w-6 h-6" />
     </button>
   );
 }

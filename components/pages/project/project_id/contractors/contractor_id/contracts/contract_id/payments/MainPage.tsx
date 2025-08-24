@@ -4,7 +4,6 @@ import { useAuth } from "@/context/UserContext";
 import { Contract, Payment } from "@/types/types";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import Header1 from "@/components/fontsize/Header1";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -16,6 +15,7 @@ import {
 import Banner from "@/components/ui/Banner";
 import { createClient } from "@/lib/supabase/client";
 import PaymentDisplay from "./PaymentDisplay";
+import MainTitle from "@/components/ui/labels/MainTitle";
 
 function MainPage() {
   const [data, setData] = useState<Payment[] | undefined>();
@@ -67,72 +67,66 @@ function MainPage() {
   }, []);
 
   useEffect(() => {
-      const channel = supabase
-        .channel("db-changes")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "contracts",
-          },
-          (payload) => getData()
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "contract_amounts",
-          },
-          (payload) => getData()
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "payments",
-          },
-          (payload) => getData()
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "payment_amounts",
-          },
-          (payload) => getData()
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "stages",
-          },
-          (payload) => getData()
-        )
-        .subscribe();
-  
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }, [
-      supabase,
-      data,
-      setData,
-      contractData,
-      setContractData
-    ]);
+    const channel = supabase
+      .channel("db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "contracts",
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "contract_amounts",
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "payments",
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "payment_amounts",
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "stages",
+        },
+        (payload) => getData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, data, setData, contractData, setContractData]);
 
   return (
     <>
       <div className="">
-        <div className="flex items-start gap-5 mb-2 text-lightText">
-          {contractData ? <Header1 text={contractData.contract_code} /> : null}
-        </div>
+        {contractData && data ? (
+          <MainTitle title={contractData?.contract_code} data={data} />
+        ) : null}
         <div className="mb-3">
           {contractData ? (
             <Banner

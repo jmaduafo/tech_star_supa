@@ -28,6 +28,7 @@ export interface DataTableProps<TData, TValue> {
   readonly team_name: string;
   readonly advanced?: boolean;
   readonly filterCategory: string;
+  readonly showSelections?: boolean;
 }
 
 export type ChartData = { name: string; value: number };

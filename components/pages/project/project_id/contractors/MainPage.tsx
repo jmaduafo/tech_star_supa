@@ -1,13 +1,10 @@
 "use client";
-import Header1 from "@/components/fontsize/Header1";
-import Header6 from "@/components/fontsize/Header6";
 import AddButton from "@/components/ui/buttons/AddButton";
 import Submit from "@/components/ui/buttons/Submit";
 import CustomInput from "@/components/ui/input/CustomInput";
 import SelectBar from "@/components/ui/input/SelectBar";
 import AdvancedSearch from "@/components/ui/search/AdvancedSearch";
 import { country_list } from "@/utils/dataTools";
-import { optionalS } from "@/utils/optionalS";
 import { SelectItem } from "@/components/ui/select";
 import Input from "@/components/ui/input/Input";
 import React, { useEffect, useState } from "react";
@@ -28,6 +25,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import MainTitle from "@/components/ui/labels/MainTitle";
 
 function MainPage() {
   const [filteredContractors, setFilteredContractors] = useState<
@@ -223,16 +221,8 @@ function MainPage() {
 
   return (
     <div>
-      <div className="flex items-start gap-5 mt-8 text-lightText">
-        <Header1 text="All Contractors" />
-        {filteredContractors ? (
-          <Header6
-            text={`${filteredContractors.length} result${optionalS(
-              filteredContractors.length
-            )}`}
-          />
-        ) : null}
-      </div>
+      <MainTitle title="All Contractors" data={filteredContractors} />
+
       {/* BREADCRUMB DISPLAY */}
       <div className="mb-8 mt-4">
         <Breadcrumb>

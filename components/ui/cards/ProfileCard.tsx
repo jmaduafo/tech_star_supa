@@ -20,7 +20,6 @@ import SelectBar from "../input/SelectBar";
 import { country_list, job_titles } from "@/utils/dataTools";
 import { SelectItem } from "../select";
 import Submit from "../buttons/Submit";
-// import { editUser } from "@/zod/actions";
 import { toast } from "sonner";
 import FilePicker from "../buttons/FilePicker";
 import ViewLabel from "../labels/ViewLabel";
@@ -32,8 +31,8 @@ type Card = {
   readonly user: User | undefined;
   readonly profileOpen: boolean;
   readonly setProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  readonly editProfileOpen?: boolean;
-  readonly setEditProfileOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  readonly editProfileOpen: boolean;
+  readonly setEditProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
   readonly hideEdit?: boolean;
 };
 
@@ -63,6 +62,8 @@ function ProfileCard({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const prevEditOpenRef = useRef<boolean | null>(null);
 
+  // WHEN EDIT PROFILE SHEET CLOSES, IMMEDIATELY OPEN PROFILE CARD
+  // AND VICE VERSA
   useEffect(() => {
     // If previous was true and now it's false, then open profile
     if (prevEditOpenRef.current && !editProfileOpen) {
@@ -126,7 +127,7 @@ function ProfileCard({
             .from("users")
             .upload(`/avatars/${user.id}/${newImage.name}`, newImage, {
               cacheControl: "3600",
-              upsert: false,
+              upsert: true,
             });
 
         if (downloadError) {
@@ -148,7 +149,7 @@ function ProfileCard({
         imageUrl = urlData.publicUrl;
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("users")
         .update({
           first_name,
@@ -170,11 +171,11 @@ function ProfileCard({
         return;
       }
 
-      console.log(data);
-
       toast("Success!", {
         description: "Your profile was updated successfully",
       });
+
+      setEditProfileOpen(false);
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,
@@ -183,6 +184,13 @@ function ProfileCard({
       setIsLoading(false);
     }
   };
+
+  const checkUserLocation = user?.location ? (
+    <div className="flex items-end gap-1">
+      <MapPin strokeWidth={1} className="w-4 h-4" />
+      <Header6 text={user.location} />
+    </div>
+  ) : null;
 
   return (
     <>
@@ -250,12 +258,9 @@ function ProfileCard({
                   <div className="">
                     <Skeleton className="h-4 w-[30%]" />
                   </div>
-                ) : user?.location ? (
-                  <div className="flex items-end gap-1">
-                    <MapPin strokeWidth={1} className="w-4 h-4" />
-                    <Header6 text={user.location} />
-                  </div>
-                ) : null}
+                ) : (
+                  checkUserLocation
+                )}
               </div>
               {user?.location ? <Header6 text="|" /> : null}
               <div>

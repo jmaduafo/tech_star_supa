@@ -19,7 +19,54 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/context/UserContext";
 
 function TopBar() {
-  const { userData } = useAuth()
+  const [user, setUser] = useState<User | undefined>();
+
+  const { userData } = useAuth();
+  const supabase = createClient();
+
+  const getUser = async () => {
+    try {
+      if (!userData) {
+        return;
+      }
+
+      const { data } = await supabase
+        .from("users")
+        .select()
+        .eq("id", userData.id)
+        .single()
+        .throwOnError();
+
+      setUser(data as User);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  // CHECKS FOR CHANGES IN USER PROFILE
+  useEffect(() => {
+    const channel = supabase
+      .channel("db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "users",
+          filter: `id=eq.${userData.id}`,
+        },
+        (payload) => getUser()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, user, setUser]);
 
   return (
     <div className="flex justify-between items-center">
@@ -27,8 +74,8 @@ function TopBar() {
         <p>LOGO</p>
       </div>
       <div className="flex gap-3">
-        <ProfileButton user={userData} />
-        <SettingButton user={userData} />
+        <ProfileButton user={user} />
+        <SettingButton user={user} />
       </div>
     </div>
   );

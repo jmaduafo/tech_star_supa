@@ -8,6 +8,14 @@ export default function UserRealtimeListener() {
   const { userData, setUserData } = useAuth(); // assume context exposes a setter
   const supabase = createClient();
 
+  // GETS USER DATA
+  const getUser = () => {
+    if (!userData) return;
+
+    setUserData(userData);
+  };
+
+  // LISTENS FOR CHANGES IN CURRENT USER DATA
   useEffect(() => {
     if (!userData) return;
 
@@ -23,7 +31,7 @@ export default function UserRealtimeListener() {
         },
         (payload) => {
           // payload.new = updated row
-          setUserData(payload.new);
+          getUser();
         }
       )
       .subscribe();
@@ -31,7 +39,7 @@ export default function UserRealtimeListener() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userData, supabase, setUserData]);
+  }, [userData, supabase, setUserData ]);
 
   return null; // no UI
 }

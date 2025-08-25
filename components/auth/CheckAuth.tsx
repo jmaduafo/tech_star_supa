@@ -16,8 +16,6 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
-  const [user, setUser] = useState<User | undefined>();
-
   const supabase = createClient();
 
   const pathname = usePathname();
@@ -25,7 +23,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
 
   const { userData } = useAuth();
 
-  // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS 
+  // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS
   // LOGGED IN OR NOT
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -55,56 +53,14 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     };
   }, [pathname, route, supabase]);
 
-
-  // GETS USER DATA
-  const getUser = () => {
-    if (!userData) return;
-
-    setUser(userData);
-  };
-
-
-  // LISTENS FOR CHANGES IN CURRENT USER DATA
-  useEffect(() => {
-    if (!userData) return;
-
-    const channel = supabase
-      .channel("users-updates")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "users",
-          filter: `id=eq.${userData.id}`,
-        },
-        (payload) => {
-          // payload.new = updated row
-          getUser();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, userData, supabase, setUser]);
-
-
   // PREVENTS SSR HYDRATION ERROR SO THAT CLIENT AND SERVER UI MATCH
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    getUser()
-  }, [userData])
-
-
   if (!isMounted) {
     return null; // or a static placeholder that doesn't depend on auth
   }
-
 
   // LOADING STATE
   if (!isMounted && loading && !session && pathname === "/") {
@@ -115,8 +71,8 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     <main
       style={{
         backgroundImage:
-          session && pathname !== "/" && user
-            ? `url(${images[user?.bg_image_index].image})`
+          session && pathname !== "/" && userData
+            ? `url(${images[userData?.bg_image_index].image})`
             : `url(${images[0].image})`,
       }}
       className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}

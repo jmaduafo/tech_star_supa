@@ -139,6 +139,8 @@ export type Amount = {
   amount: string;
   contract_id?: string | null;
   payment_id?: string | null;
+  contracts?: Contract;
+  payments?: Payment;
   created_at?: string;
   updated_at?: string | null;
 };

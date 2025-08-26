@@ -381,7 +381,7 @@ function DataTable<TData, TValue>({
               {/* NEXT */}
               <button
                 className={`${
-                  table.getCanNextPage() ? "block" : "opacity-50"
+                  table.getCanNextPage() ? "opacity-100" : "opacity-50"
                 } flex items-center gap-1 duration-300`}
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}

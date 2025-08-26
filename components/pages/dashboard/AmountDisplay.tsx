@@ -6,27 +6,33 @@ import SelectBar from "@/components/ui/input/SelectBar";
 import Header1 from "@/components/fontsize/Header1";
 import Header2 from "@/components/fontsize/Header2";
 import Header4 from "@/components/fontsize/Header4";
-// import { getQueriedItems } from "@/firebase/actions";
-import { Contractor, Project, User } from "@/types/types";
+import { Amount, MultiSelect, User } from "@/types/types";
 import NotAvailable from "@/components/ui/NotAvailable";
-// import { collection, query, where } from "firebase/firestore";
-// import { db } from "@/firebase/config";
 import { convertCurrency, totalSum } from "@/utils/currencies";
 import Loading from "@/components/ui/loading/Loading";
 import Reset from "@/components/ui/buttons/Reset";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import Header6 from "@/components/fontsize/Header6";
+import MultiSelectBar from "@/components/ui/input/MultiSelectBar";
+import { createClient } from "@/lib/supabase/client";
 
 function AmountDisplay({ user }: { readonly user: User | undefined }) {
-  const [projectId, setProjectId] = useState("");
-  const [contractorId, setContractorId] = useState("");
-  const [currencyCode, setCurrencyCode] = useState("");
+  const [allProjects, setAllProjects] = useState<MultiSelect[] | undefined>();
+  const [allContractors, setAllContractors] = useState<
+    MultiSelect[] | undefined
+  >();
+
+  const [selectedProjects, setSelectedProjects] = useState<MultiSelect[]>([]);
+  const [selectedContractors, setSelectedContractors] = useState<MultiSelect[]>(
+    []
+  );
+  const [selectedCurrency, setSelectedCurrency] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [allContracts, setAllContracts] = useState<Amount[] | undefined>();
+  const [allPayments, setAllPayments] = useState<Amount[] | undefined>();
 
-  const [allProjects, setAllProjects] = useState<Project[]>();
-  const [allContractors, setAllContractors] = useState<Contractor[]>();
+  const [loading, setLoading] = useState(false);
 
   const [allTotals, setAllTotals] = useState({
     noncontractPayments: 0,
@@ -34,105 +40,141 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     contracts: 0,
   });
 
+  const supabase = createClient();
+
   // GETS ALL PROJECT AND CONTRACTOR NAMES BASED ON THE USER'S TEAM ID
-  // async function allData() {
-  //   if (!user) {
-  //     return;
-  //   }
+  async function allData() {
+    try {
+      if (!user) {
+        return;
+      }
 
-  //   const [projects, contractors] = await Promise.all([
-  //     getQueriedItems(
-  //       query(collection(db, "projects"), where("team_id", "==", user?.team_id))
-  //     ),
-  //     getQueriedItems(
-  //       query(
-  //         collection(db, "contractors"),
-  //         where("team_id", "==", user?.team_id)
-  //       )
-  //     ),
-  //   ]);
+      const [projects, contractors, contracts, payments] = await Promise.all([
+        supabase
+          .from("projects")
+          .select("id, name")
+          .eq("team_id", user.team_id)
+          .throwOnError(),
+        supabase
+          .from("contractors")
+          .select("id, name")
+          .eq("team_id", user.team_id)
+          .throwOnError(),
+        supabase
+          .from("contract_amounts")
+          .select("*, contracts (*)")
+          .eq("contracts.team_id", user.team_id)
+          .throwOnError(),
+        supabase
+          .from("payment_amounts")
+          .select("*, payments (*) ")
+          .eq("payments.team_id", user.team_id)
+          .throwOnError(),
+      ]);
 
-  //   projects?.length && setAllProjects(projects as Project[]);
+      const newProjects: MultiSelect[] = [];
+      const newContractors: MultiSelect[] = [];
 
-  //   contractors?.length && setAllContractors(contractors as Contractor[]);
-  // }
+      projects.data.forEach((item) => {
+        newProjects.push({ label: item.name, value: item.id });
+      });
+
+      contractors.data.forEach((item) => {
+        newContractors.push({ label: item.name, value: item.id });
+      });
+
+      setAllProjects(newProjects);
+      setAllContractors(newContractors);
+
+      setAllContracts(contracts.data);
+      setAllPayments(payments.data);
+
+      console.log(contracts.data);
+      console.log(payments.data);
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  }
 
   useEffect(() => {
-    // allData();
-  }, [user?.id ?? "guest"]);
+    allData();
+  }, [user]);
 
   // RETRIEVES CALCULATIONS OF REVISED CONTRACTS & PAYMENTS WITHIN AND OUTSIDE CONTRACTS
-  // async function totalAmount() {
-  //   try {
-  //     setLoading(true);
 
-  //     // Gets the project id, contractor id, and currency code that user selected
-  //     const updatedSubmit = {
-  //       project: projectId,
-  //       contractor: contractorId,
-  //       currency: currencyCode,
-  //     };
+  async function totalAmount() {
+    setLoading(true);
 
-  //     // Sets the appropriate currency symbol according to the selected currency code
-  //     setCurrencySymbol(
-  //       currency_list.find((i) => i.code === currencyCode)?.symbol ?? ""
-  //     );
+    const contracts: Amount[] = [];
+    const payments: Amount[] = [];
 
-  //     const [contracts, withinContract, outsideContract] = await Promise.all([
-  //       // RETRIEVE ALL CONTRACTS TO GET THE TOTAL FIXED AMOUNT BASED ON THE SELECTED CURRENCY CODE
-  //       getQueriedItems(
-  //         query(
-  //           collection(db, "contracts"),
-  //           where("contractor_id", "==", updatedSubmit.contractor),
-  //           where("project_id", "==", updatedSubmit.project),
-  //           where("currency_code", "==", updatedSubmit.currency)
-  //         )
-  //       ),
-  //       // RETRIEVE ALL PAYMENTS WITHIN CONTRACTS BASED ON THE SELECTED CURRENCY CODE
-  //       getQueriedItems(
-  //         query(
-  //           collection(db, "payments"),
-  //           where("contractor_id", "==", updatedSubmit.contractor),
-  //           where("project_id", "==", updatedSubmit.project),
-  //           where("currency_code", "==", updatedSubmit.currency),
-  //           where("contract_code", "!=", null)
-  //         )
-  //       ),
-  //       // RETRIEVE ALL PAYMENTS OUTSIDE CONTRACTS BASED ON THE SELECTED CURRENCY CODE
-  //       getQueriedItems(
-  //         query(
-  //           collection(db, "payments"),
-  //           where("contractor_id", "==", updatedSubmit.contractor),
-  //           where("project_id", "==", updatedSubmit.project),
-  //           where("currency_code", "==", updatedSubmit.currency),
-  //           where("contract_code", "==", null)
-  //         )
-  //       ),
-  //     ]);
+    try {
+      if (!selectedCurrency.length || !allPayments || !allContracts) {
+        return;
+      }
 
-  //     // Uses a custom function from utils folder to calculate all the totals based on an array
-  //     // of numbers of just the amounts
-  //     setAllTotals((prevTotals) => ({
-  //       ...prevTotals,
-  //       noncontractPayments: totalSum(
-  //         outsideContract.map((i) => i.currency_amount)
-  //       ),
-  //       contractPayments: totalSum(
-  //         withinContract.map((i) => i.currency_amount)
-  //       ),
-  //       contracts: totalSum(contracts.map((i) => i.currency_amount)),
-  //     }));
-  //   } catch (err: any) {
-  //     console.log(err.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
+      const findSymbol = currency_list.find(
+        (item) => item.code === selectedCurrency
+      );
+
+      allContracts.forEach((item) => {
+        contracts.push(item);
+      });
+      
+      allPayments.forEach((item) => {
+        payments.push(item);
+      });
+
+      const projectIds = selectedProjects.map((item) => item.value);
+      const contractorIds = selectedContractors.map((item) => item.value);
+
+      const contractFilter = contracts.filter((item) => {
+        return item.contracts
+          ? projectIds.includes(item.contracts.project_id) ||
+              contractorIds.includes(item.contracts.contractor_id) ||
+              selectedCurrency.includes(item.code)
+          : [];
+      });
+      setCurrencySymbol(findSymbol ? findSymbol.symbol : "");
+
+      const paymentFilter = payments.filter((item) => {
+        return item.payments
+          ? projectIds.includes(item.payments.project_id) ||
+              contractorIds.includes(item.payments.contractor_id) ||
+              selectedCurrency.includes(item.code)
+          : [];
+      });
+
+      const withinPayment = paymentFilter
+        .filter((item) =>
+          item.payments ? item.payments.contract_id !== null : []
+        )
+        .map((item) => +item.amount);
+      const outsidePayment = paymentFilter
+        .filter((item) =>
+          item.payments ? item.payments.contract_id === null : []
+        )
+        .map((item) => +item.amount);
+      const contract = contractFilter.map((item) =>
+        item.amount !== "Unlimited" ? +item.amount : 0
+      );
+
+      setAllTotals({
+        contractPayments: totalSum(withinPayment),
+        noncontractPayments: totalSum(outsidePayment),
+        contracts: totalSum(contract),
+      });
+    } catch (err: any) {
+      console.log(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function reset() {
-    setContractorId("");
-    setProjectId("");
-    setCurrencyCode("");
+    setSelectedContractors([]);
+    setSelectedProjects([]);
+    setSelectedCurrency("");
     setCurrencySymbol("");
     setAllTotals({
       contractPayments: 0,
@@ -241,41 +283,21 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
   return (
     <div className="">
       <div className="flex gap-4">
+        <MultiSelectBar
+          name={"projects"}
+          array={allProjects}
+          selectedArray={selectedProjects}
+          setSelectedArray={setSelectedProjects}
+        />
+        <MultiSelectBar
+          name={"contractors"}
+          array={allContractors}
+          selectedArray={selectedContractors}
+          setSelectedArray={setSelectedContractors}
+        />
         <SelectBar
-          valueChange={setProjectId}
-          value={projectId}
-          placeholder="Select a project"
-          label="Projects"
-        >
-          {allProjects?.length
-            ? allProjects.map((item) => {
-                return (
-                  <SelectItem key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </SelectItem>
-                );
-              })
-            : null}
-        </SelectBar>
-        <SelectBar
-          valueChange={setContractorId}
-          value={contractorId}
-          placeholder="Select a contractor"
-          label="Contractors"
-        >
-          {allContractors?.length
-            ? allContractors.map((item) => {
-                return (
-                  <SelectItem key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </SelectItem>
-                );
-              })
-            : null}
-        </SelectBar>
-        <SelectBar
-          valueChange={setCurrencyCode}
-          value={currencyCode}
+          valueChange={setSelectedCurrency}
+          value={selectedCurrency}
           placeholder="Select a currency"
           label="Currencies"
         >
@@ -292,12 +314,14 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           })}
         </SelectBar>
         <div className="flex gap-1.5">
-          {/* <CheckedButton
+          <CheckedButton
             clickedFn={totalAmount}
             disabledLogic={
-              !contractorId.length || !projectId.length || !currencyCode.length
+              !selectedContractors.length &&
+              !selectedProjects.length &&
+              !selectedCurrency.length
             }
-          /> */}
+          />
           <Reset clickedFn={reset} />
         </div>
       </div>

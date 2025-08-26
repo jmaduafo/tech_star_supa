@@ -57,7 +57,7 @@ function TopBar() {
           event: "*",
           schema: "public",
           table: "users",
-          filter: `id=eq.${userData.id}`,
+          filter: `id=eq.${user?.id}`,
         },
         (payload) => getUser()
       )
@@ -66,7 +66,7 @@ function TopBar() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, user, setUser]);
+  }, [supabase, userData, user, setUser]);
 
   return (
     <div className="flex justify-between items-center">

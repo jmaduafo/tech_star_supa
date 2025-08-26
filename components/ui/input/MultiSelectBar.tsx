@@ -45,7 +45,7 @@ function MultiSelectBar({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between gap-4"
+          className="justify-between gap-4 rounded-xl bg-lightText/30 font-normal duration-300"
         >
           <span>Select {name}...</span>
           <ChevronsUpDown className="opacity-50" />

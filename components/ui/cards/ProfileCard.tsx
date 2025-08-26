@@ -15,7 +15,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "../avatar";
 import { MapPin, Pencil } from "lucide-react";
 import { Skeleton } from "../skeleton";
 import { getFullName, getInitials } from "@/utils/initials";
-import Input from "../input/CustomInput";
+import CustomInput from "../input/CustomInput";
+import Input from "../input/Input";
 import SelectBar from "../input/SelectBar";
 import { country_list, job_titles } from "@/utils/dataTools";
 import { SelectItem } from "../select";
@@ -347,37 +348,37 @@ function ProfileCard({
                 inputRef={fileInputRef}
               />
             </div>
-            <Input label="First name" htmlFor="first_name" className="mt-4">
-              <input
-                className="form"
-                type="text"
-                id="first_name"
-                name="first_name"
-                value={form.first_name}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    first_name: e.target.value,
-                  }))
-                }
-              />
-            </Input>
-            <Input label="Last name" htmlFor="last_name" className="mt-4">
-              <input
-                className="form"
-                type="text"
-                id="last_name"
-                name="last_name"
-                value={form.last_name}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    last_name: e.target.value,
-                  }))
-                }
-              />
-            </Input>
-            <Input label="Location" htmlFor="location" className="mt-4">
+            <Input
+              label="First name"
+              htmlFor="first_name"
+              className="mt-4"
+              type="text"
+              id="first_name"
+              name="first_name"
+              value={form.first_name}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  first_name: e.target.value,
+                }))
+              }
+            />
+            <Input
+              label="Last name"
+              htmlFor="last_name"
+              className="mt-4"
+              type="text"
+              id="last_name"
+              name="last_name"
+              value={form.last_name}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  last_name: e.target.value,
+                }))
+              }
+            />
+            <CustomInput label="Location" htmlFor="location" className="mt-4">
               <SelectBar
                 placeholder={"Select your location"}
                 label={"Location"}
@@ -399,8 +400,8 @@ function ProfileCard({
                   );
                 })}
               </SelectBar>
-            </Input>
-            <Input label="Job title" htmlFor="job_title" className="mt-4">
+            </CustomInput>
+            <CustomInput label="Job title" htmlFor="job_title" className="mt-4">
               <SelectBar
                 placeholder={"Select a job title"}
                 label={"Job title"}
@@ -421,7 +422,7 @@ function ProfileCard({
                   );
                 })}
               </SelectBar>
-            </Input>
+            </CustomInput>
             <div className="flex justify-end mt-6">
               <Submit loading={isLoading} disabledLogic={isLoading} />
             </div>

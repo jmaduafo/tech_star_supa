@@ -70,7 +70,6 @@ function PaymentDisplay() {
           ) : null}
         </div>
       </div>
-      <div className="mt-6"></div>
       <div className="mt-6">
         {!data ? (
           <div className="flex justify-center py-8">

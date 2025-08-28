@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { HiUser, HiMiniCog8Tooth } from "react-icons/hi2";
 import {
   Dialog,
@@ -9,10 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-// import { useAuth } from "@/context/AuthContext";
-// import AppearanceSettings from "./settings/appearance/AppearanceSettings";
-// import ProfileSettings from "./settings/profile/ProfileSettings";
-// import SecuritySettings from "./settings/security/SecuritySettings";
+import AppearanceSettings from "./settings/appearance/AppearanceSettings";
+import ProfileSettings from "./settings/profile/ProfileSettings";
+import SecuritySettings from "./settings/security/SecuritySettings";
 import { User } from "@/types/types";
 import ProfileCard from "../cards/ProfileCard";
 import { createClient } from "@/lib/supabase/client";
@@ -22,7 +21,7 @@ function TopBar() {
   const [user, setUser] = useState<User | undefined>();
 
   const { userData } = useAuth();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const getUser = async () => {
     try {
@@ -45,27 +44,30 @@ function TopBar() {
 
   useEffect(() => {
     getUser();
-  }, []);
+  }, [userData]);
 
   // CHECKS FOR CHANGES IN USER PROFILE
   useEffect(() => {
-    const channel = supabase
+    if (user) {
+      const channel = supabase
       .channel("db-changes")
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "UPDATE",
           schema: "public",
           table: "users",
-          filter: `id=eq.${user?.id}`,
+          filter: `id=eq.${user.id}`,
         },
-        (payload) => getUser()
+        (payload) => {
+          getUser()}
       )
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [supabase, userData, user, setUser]);
 
   return (
@@ -126,9 +128,9 @@ function SettingButton({ user }: { readonly user: User | undefined }) {
           </DialogDescription>
         </DialogHeader>
         <div className="w-full">
-          {/* <ProfileSettings user={user} />
+          <ProfileSettings user={user} />
           <AppearanceSettings user={user} />
-          <SecuritySettings user={user} /> */}
+          <SecuritySettings user={user} />
         </div>
       </DialogContent>
     </Dialog>

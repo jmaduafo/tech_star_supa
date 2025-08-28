@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Card from "@/components/ui/cards/MyCard";
 import AmountDisplay from "./AmountDisplay";
 import Greeting from "./Greeting";
@@ -16,7 +16,7 @@ function DashboardGrid() {
   const [user, setUser] = useState<User | undefined>();
 
   const { userData } = useAuth();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), [])
 
   const getUser = async () => {
     try {
@@ -68,9 +68,9 @@ function DashboardGrid() {
         <Greeting user={user} />
       </Card>
       {/* Amount Display */}
-      <div className="calc">
+      <Card className="calc">
         <AmountDisplay user={user} />
-      </div>
+      </Card>
       {/* Line chart */}
       <Card className="line">
         <LineChartDisplay user={user} />

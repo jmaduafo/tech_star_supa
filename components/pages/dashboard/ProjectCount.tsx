@@ -48,7 +48,7 @@ function ProjectCount({ user }: { readonly user: User | undefined }) {
             </div>
           ) : null}
           <div className="mt-auto">
-            <p className="text-center font-semibold text-[4vw] leading-[1]">
+            <p className="text-center font-semibold text-[4vw] leading-[1] mt-3">
               {count}
             </p>
             <Header6

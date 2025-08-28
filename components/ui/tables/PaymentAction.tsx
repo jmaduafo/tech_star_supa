@@ -54,7 +54,6 @@ import {
 import Loading from "../loading/Loading";
 import { toast } from "sonner";
 import { PaymentSchema } from "@/zod/validation";
-import { useParams } from "next/navigation";
 
 function PaymentAction({
   data,
@@ -286,8 +285,7 @@ const EditAction = ({
         .eq("team_id", userData.team_id)
         .single()
         .throwOnError();
-
-      console.log(contractData);
+        
       setContract(contractData as Contract);
     } catch (err: any) {
       console.error(err.message);
@@ -373,8 +371,6 @@ const EditAction = ({
         description: result.error.issues[0].message,
       });
 
-      console.log(result.error.issues[0].message);
-
       setIsLoading(false);
 
       return;
@@ -425,8 +421,6 @@ const EditAction = ({
         toast("Something went wrong", {
           description: amountError.message,
         });
-
-        console.error(amountError.message);
 
         return;
       }

@@ -1,6 +1,6 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import MainPage from "../pages/login_signup/MainPage";
 import AuthContainer from "./AuthContainer";
 import { images } from "@/utils/dataTools";
@@ -9,14 +9,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
 import Loader from "../ui/loading/Loader";
 import { useAuth } from "@/context/UserContext";
-import { User } from "@/types/types";
 
 function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
-  const supabase = createClient();
+  const [bgIndex, setBgIndex] = useState<number>(0);
+
+  const supabase = useMemo(() => createClient(), []);
 
   const pathname = usePathname();
   const route = useRouter();
@@ -53,6 +55,52 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     };
   }, [pathname, route, supabase]);
 
+  const getBgIndex = async () => {
+    try {
+      if (!userData) {
+        return;
+      }
+
+      const { data } = await supabase
+        .from("users")
+        .select("bg_image_index")
+        .eq("id", userData.id)
+        .single()
+        .throwOnError();
+
+      setBgIndex(data.bg_image_index);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getBgIndex();
+  }, [userData]);
+
+  // CHECKS FOR CHANGES IN USER PROFILE
+  useEffect(() => {
+    if (userData?.id) {
+      const channel = supabase
+        .channel("db-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "users",
+            filter: `id=eq.${userData.id}`,
+          },
+          (payload) => getBgIndex()
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [supabase, userData?.id, setBgIndex, bgIndex]);
+
   // PREVENTS SSR HYDRATION ERROR SO THAT CLIENT AND SERVER UI MATCH
   useEffect(() => {
     setIsMounted(true);
@@ -71,8 +119,8 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     <main
       style={{
         backgroundImage:
-          session && pathname !== "/" && userData
-            ? `url(${images[userData?.bg_image_index].image})`
+          session && pathname !== "/" && bgIndex
+            ? `url(${images[bgIndex].image})`
             : `url(${images[0].image})`,
       }}
       className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}

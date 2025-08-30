@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { fullDate, fullTime } from "@/utils/dateAndTime";
-import { Sunrise, Sunset, CloudSun, CloudMoon } from "lucide-react";
+import { Sunrise, Sunset, CloudSun, CloudMoon, Clock2 } from "lucide-react";
 
 function TimeDate({
   timeFontSize,
@@ -69,9 +69,18 @@ function TimeDate({
 
   return (
     <div>
-      <div className={`flex justify-center items-end gap-2 tracking-tighter`}>
+      <div
+        className={`flex justify-center items-center gap-2 tracking-tighter`}
+      >
         {/* TIME ICON */}
-        <div className="text-lightText duration-200">{timeIcon(time.hour)}</div>
+        <div className="text-lightText duration-200">
+          <Clock2
+            strokeWidth={1.5}
+            className={
+              timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6.5vw] h-[6.5vw]"
+            }
+          />
+        </div>
         {/* TIME DISPLAY */}
         <p
           className={`text-center leading-[1] font-semibold ${

@@ -11,6 +11,7 @@ import LineChartDisplay from "./LineChartDisplay";
 import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@/types/types";
+import Activities from "./Activities";
 
 function DashboardGrid() {
   const [user, setUser] = useState<User | undefined>();
@@ -73,7 +74,7 @@ function DashboardGrid() {
       </Card>
       {/* Line chart */}
       <Card className="line">
-        <LineChartDisplay user={user} />
+        <Activities user={user} />
       </Card>
       {/* Pie chart */}
       <Card className="pie">

@@ -32,10 +32,10 @@ export default async function ClientWrapper({
   return (
     <UserProvider value={{ user, userData: profile }}>
       <Suspense fallback={<Loader />}>
-        <CheckAuth>
-          {children}
-          <UserRealtimeListener />
-        </CheckAuth>
+          <CheckAuth>
+            {children}
+            <UserRealtimeListener />
+          </CheckAuth>
       </Suspense>
     </UserProvider>
   );

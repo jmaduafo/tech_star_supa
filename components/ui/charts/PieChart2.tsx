@@ -12,14 +12,15 @@ import { COLORS } from "@/utils/dataTools";
 
 function PieChart2({ data }: { readonly data: ChartData[] }) {
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
+    <ResponsiveContainer width="100%" height="80%">
+      <PieChart>   
         <Pie
           data={data}
           dataKey="value"
           nameKey="name"
           cx="50%"
           cy="50%"
+          label={data.length === 1 ? ({ name, value }) => `${name}: ${value}` : undefined}
           outerRadius={60}
         >
           {data.map((entry, index) => (
@@ -48,7 +49,7 @@ function PieChart2({ data }: { readonly data: ChartData[] }) {
             >
               {payload?.map((entry, index) => (
                 <li
-                  key={`item-${index}`}
+                  key={`item-${index + 1}`}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -59,7 +60,7 @@ function PieChart2({ data }: { readonly data: ChartData[] }) {
                     style={{
                       width: 7,
                       height: 7,
-                      borderRadius: "50%", // circle instead of square
+                      borderRadius: "20%", // circle instead of square
                       backgroundColor: entry.color,
                       marginRight: 5,
                     }}
@@ -70,7 +71,7 @@ function PieChart2({ data }: { readonly data: ChartData[] }) {
             </ul>
           )}
         />
-        <Tooltip
+        { data.length > 1 ? <Tooltip
           contentStyle={{
             backgroundColor: "#141414",
             borderRadius: "5px",
@@ -80,7 +81,7 @@ function PieChart2({ data }: { readonly data: ChartData[] }) {
             fontSize: "13px",
             color: "#ececec",
           }}
-        />
+        /> : null}
       </PieChart>
     </ResponsiveContainer>
   );

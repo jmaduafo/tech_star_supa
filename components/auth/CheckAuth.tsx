@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
 import Loader from "../ui/loading/Loader";
 import { useAuth } from "@/context/UserContext";
+import { useBackgroundImage } from "@/lib/queries/queries";
 
 function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -16,14 +17,14 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
-  const [bgIndex, setBgIndex] = useState<number>(0);
-
   const supabase = useMemo(() => createClient(), []);
 
   const pathname = usePathname();
   const route = useRouter();
 
   const { userData } = useAuth();
+
+  const { data: bgIndex } = useBackgroundImage(userData?.id)
 
   // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS
   // LOGGED IN OR NOT
@@ -54,52 +55,6 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
       subscription.subscription.unsubscribe();
     };
   }, [pathname, route, supabase]);
-
-  const getBgIndex = async () => {
-    try {
-      if (!userData) {
-        return;
-      }
-
-      const { data } = await supabase
-        .from("users")
-        .select("bg_image_index")
-        .eq("id", userData.id)
-        .single()
-        .throwOnError();
-
-      setBgIndex(data.bg_image_index);
-    } catch (err: any) {
-      console.log(err.message);
-    }
-  };
-
-  useEffect(() => {
-    getBgIndex();
-  }, [userData]);
-
-  // CHECKS FOR CHANGES IN USER PROFILE
-  useEffect(() => {
-    if (userData?.id) {
-      const channel = supabase
-        .channel("db-changes")
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "users",
-            filter: `id=eq.${userData.id}`,
-          },
-          (payload) => getBgIndex()
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [supabase, userData?.id, setBgIndex, bgIndex]);
 
   // PREVENTS SSR HYDRATION ERROR SO THAT CLIENT AND SERVER UI MATCH
   useEffect(() => {

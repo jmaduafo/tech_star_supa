@@ -75,6 +75,7 @@ export function useBackgroundImage(user_id?: string) {
           filter: `id=eq.${user_id}`,
         },
         () => {
+          query.refetch();
           // Invalidate cached query when a change happens
           queryClient.invalidateQueries({ queryKey: ["users", user_id] });
         }
@@ -85,6 +86,83 @@ export function useBackgroundImage(user_id?: string) {
       supabase.removeChannel(channel);
     };
   }, [user_id, queryClient]);
+
+  return query;
+}
+
+export function useTeamData(team_id?: string) {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ["teams", team_id],
+    queryFn: async () => {
+      if (!team_id) return null;
+
+      const [users, teams] = await Promise.all([
+        supabase
+          .from("users")
+          .select("*")
+          .eq("team_id", team_id)
+          .order("created_at", { ascending: true })
+          .throwOnError(),
+        supabase
+          .from("teams")
+          .select("team_name")
+          .eq("id", team_id)
+          .single()
+          .throwOnError(),
+      ]);
+
+      return {
+        team_data: users.data,
+        team_name: teams.data.team_name,
+      };
+    },
+    // fallback polling, but less frequent (every 1 min for example)
+    refetchOnWindowFocus: true,
+    refetchInterval: undefined,
+    enabled: !!team_id,
+  });
+
+  // Setup realtime subscription
+  useEffect(() => {
+    if (!team_id) return;
+
+    const channel = supabase
+      .channel("team-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "teams",
+          filter: `id=eq.${team_id}`,
+        },
+        () => {
+          query.refetch();
+          // Invalidate cached query when a change happens
+          queryClient.invalidateQueries({ queryKey: ["teams", team_id] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "users",
+        },
+        () => {
+          query.refetch();
+          // Invalidate cached query when a change happens
+          queryClient.invalidateQueries({ queryKey: ["teams", team_id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [team_id, queryClient]);
 
   return query;
 }

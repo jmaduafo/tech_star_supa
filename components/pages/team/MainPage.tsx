@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AddButton from "@/components/ui/buttons/AddButton";
 import DataTable from "@/components/ui/tables/DataTable";
 import { teamColumns } from "@/components/ui/tables/columns";
-import { User } from "@/types/types";
 import { useAuth } from "@/context/UserContext";
 import Loading from "@/components/ui/loading/Loading";
 import Input from "@/components/ui/input/Input";
@@ -15,15 +14,14 @@ import { toast } from "sonner";
 import { useTeamData } from "@/lib/queries/queries";
 import CustomInput from "@/components/ui/input/CustomInput";
 import MainTitle from "@/components/ui/labels/MainTitle";
+import { MemberSchema } from "@/zod/validation";
+import { isValidEmail } from "@/utils/validation";
+import { createClient } from "@/lib/supabase/client";
+import { getFullName } from "@/utils/initials";
 
 function MainPage() {
   const [open, setOpen] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
-
-  const { userData } = useAuth();
-
-  const { data } = useTeamData(userData?.team_id);
 
   const [form, setForm] = useState({
     first_name: "",
@@ -36,6 +34,123 @@ function MainPage() {
     job_title: "",
     hire_type: "",
   });
+
+  const { userData } = useAuth();
+  const { data } = useTeamData(userData?.team_id);
+  
+  const supabase = createClient();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    const values = {
+      first_name: form.first_name,
+      last_name: form.last_name,
+      email: form.email,
+      confirm: form.confirm,
+      password: form.password,
+      role: form.role,
+      location: form.location,
+      job_title: form.job_title,
+      hire_type: form.hire_type,
+    };
+
+    const result = MemberSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      setIsLoading(false);
+
+      return;
+    } else if (!isValidEmail(form.email)) {
+      toast("Something went wrong", {
+        description: "Please enter a valid email",
+      });
+
+      setIsLoading(false);
+
+      return;
+    } else if (form.confirm !== form.password) {
+      toast("Something went wrong", {
+        description: "Password and confirm password fields must match",
+      });
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    const {
+      first_name,
+      last_name,
+      email,
+      location,
+      role,
+      password,
+      hire_type,
+      job_title,
+    } = result.data;
+
+    try {
+      if (!userData) {
+        return;
+      }
+
+      // FIRST SIGN UP NEW MEMBER
+      const { data: signupData, error: signupError } =
+        await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+      if (signupError) {
+        toast("Something went wrong", {
+          description: signupError.message,
+        });
+
+        return;
+      }
+
+      // IF NO ERRORS OCCUR, THEN ADD NEW MEMBER TO THE USERS TABLE
+      const { error } = await supabase.from("users").insert({
+        id: signupData.user?.id,
+        first_name,
+        last_name,
+        full_name: getFullName(first_name, last_name),
+        location,
+        role,
+        hire_type,
+        job_title,
+        team_id: userData.team_id,
+      });
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      // NOTIFY ADMIN THAT THE NEW MEMBER WOULD NEED TO VERIFY THEIR ACCOUNT
+      // BEFORE LOGIN
+      toast("Success!", {
+        description:
+          "A new member was successfuly added to the team! An email will be sent to this member to veryify their email address before logging in.",
+      });
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -50,7 +165,7 @@ function MainPage() {
           setOpen={setOpen}
           open={open}
         >
-          <form>
+          <form onSubmit={handleSubmit}>
             {/* FIRST NAME */}
             <Input
               htmlFor={"first_name"}
@@ -156,7 +271,7 @@ function MainPage() {
                 value={form.role}
                 valueChange={(name) => setForm({ ...form, role: name })}
               >
-                {["Viewer", "Editor", "Admin"].map((item) => {
+                {["Viewer", "Admin"].map((item) => {
                   return (
                     <SelectItem value={item} key={item} className="capitalize">
                       {item}
@@ -175,13 +290,19 @@ function MainPage() {
                 value={form.hire_type}
                 valueChange={(name) => setForm({ ...form, hire_type: name })}
               >
-                {["Employee", "Contractor", "Independent"].map((item) => {
-                  return (
-                    <SelectItem value={item} key={item} className="capitalize">
-                      {item}
-                    </SelectItem>
-                  );
-                })}
+                {["Employee", "Contractor", "Independent", "Employer"].map(
+                  (item) => {
+                    return (
+                      <SelectItem
+                        value={item}
+                        key={item}
+                        className="capitalize"
+                      >
+                        {item}
+                      </SelectItem>
+                    );
+                  }
+                )}
               </SelectBar>
             </CustomInput>
             {/* SUBMIT BUTTON */}

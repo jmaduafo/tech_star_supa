@@ -21,17 +21,18 @@ export const CreateUserSchema = z.object({
     }),
 });
 
-export const CreateMemberSchema = z.object({
+export const MemberSchema = z.object({
   first_name: z.string().min(1, {
     message: "First name must be filled in",
   }),
   last_name: z.string().min(1, {
     message: "Last name must be filled in",
   }),
-  // email: z
-  //   .string()
-  //   .min(1, { message: "This field has to be filled." })
-  //   .email("This is not a valid email."),
+  email: z
+    .string()
+    .min(1, {
+      message: "Email must be filled in",
+    }),
   password: z
     .string()
     .min(6, {

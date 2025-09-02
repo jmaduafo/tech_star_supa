@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { User } from "@/types/types";
 import { isValidEmail, isValidPassword } from "@/utils/validation";
 import { deleteUser } from "@/lib/supabase/deleteUser";
+import { createClient } from "@/lib/supabase/client";
 
 function DeleteAccount({ user }: { readonly user: User | undefined }) {
   const [alertOpen, setAlertOpen] = useState(false);
@@ -36,6 +37,8 @@ function DeleteAccount({ user }: { readonly user: User | undefined }) {
     email: "",
     password: "",
   });
+
+  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,10 +86,20 @@ function DeleteAccount({ user }: { readonly user: User | undefined }) {
         return;
       }
 
+      const { error } = await supabase.from("users").delete().eq("id", user.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
       setSignInOpen(false);
       setAlertOpen(false);
 
-      router.push("/")
+      router.push("/");
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,

@@ -11,7 +11,9 @@ export function useUsers({
 }: {
   readonly user_id: string | undefined;
 }) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["users", user_id],
     queryFn: async () => {
       try {
@@ -21,6 +23,7 @@ export function useUsers({
           .from("users")
           .select("*")
           .eq("id", user_id)
+          .single()
           .throwOnError();
 
         return data;
@@ -28,9 +31,38 @@ export function useUsers({
         console.log(err.message);
       }
     },
-    refetchInterval: 5_000,
+    refetchOnWindowFocus: true,
+    refetchInterval: undefined,
     enabled: !!user_id,
   });
+
+  useEffect(() => {
+    if (!user_id) return;
+
+    const channel = supabase
+      .channel("user-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "users",
+          filter: `id=eq.${user_id}`,
+        },
+        () => {
+          query.refetch();
+          // Invalidate cached query when a change happens
+          queryClient.invalidateQueries({ queryKey: ["users", user_id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user_id, queryClient]);
+
+  return query;
 }
 
 export function useBackgroundImage(user_id?: string) {

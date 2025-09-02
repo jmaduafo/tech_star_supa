@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { HiUser, HiMiniCog8Tooth } from "react-icons/hi2";
 import {
   Dialog,
@@ -14,61 +14,13 @@ import ProfileSettings from "./settings/profile/ProfileSettings";
 import SecuritySettings from "./settings/security/SecuritySettings";
 import { User } from "@/types/types";
 import ProfileCard from "../cards/ProfileCard";
-import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/context/UserContext";
+import { useUsers } from "@/lib/queries/queries";
 
 function TopBar() {
-  const [user, setUser] = useState<User | undefined>();
-
   const { userData } = useAuth();
-  const supabase = useMemo(() => createClient(), []);
 
-  const getUser = async () => {
-    try {
-      if (!userData) {
-        return;
-      }
-
-      const { data } = await supabase
-        .from("users")
-        .select()
-        .eq("id", userData.id)
-        .single()
-        .throwOnError();
-
-      setUser(data as User);
-    } catch (err: any) {
-      console.log(err.message);
-    }
-  };
-
-  useEffect(() => {
-    getUser();
-  }, [userData]);
-
-  // CHECKS FOR CHANGES IN USER PROFILE
-  useEffect(() => {
-    if (user) {
-      const channel = supabase
-      .channel("db-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "users",
-          filter: `id=eq.${user.id}`,
-        },
-        (payload) => {
-          getUser()}
-      )
-      .subscribe();
-      
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [supabase, userData, user, setUser]);
+  const { data } = useUsers(userData?.id);
 
   return (
     <div className="flex justify-between items-center">
@@ -76,8 +28,8 @@ function TopBar() {
         <p>LOGO</p>
       </div>
       <div className="flex gap-3">
-        <ProfileButton user={user} />
-        <SettingButton user={user} />
+        <ProfileButton user={data} />
+        <SettingButton user={data} />
       </div>
     </div>
   );
@@ -110,8 +62,10 @@ function ProfileButton({ user }: { readonly user: User | undefined }) {
 }
 
 function SettingButton({ user }: { readonly user: User | undefined }) {
+  const [mainOpen, setMainOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={mainOpen} onOpenChange={setMainOpen}>
       <DialogTrigger asChild>
         <button
           className="bg-darkText rounded-full p-2 hover:opacity-70 duration-300"
@@ -128,7 +82,11 @@ function SettingButton({ user }: { readonly user: User | undefined }) {
           </DialogDescription>
         </DialogHeader>
         <div className="w-full">
-          <ProfileSettings user={user} />
+          <ProfileSettings
+            user={user}
+            open={mainOpen}
+            openChange={setMainOpen}
+          />
           <AppearanceSettings user={user} />
           <SecuritySettings user={user} />
         </div>

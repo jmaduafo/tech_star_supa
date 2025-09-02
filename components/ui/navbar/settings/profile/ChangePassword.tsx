@@ -11,11 +11,69 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { User } from "@/types/types";
+import SignInCard from "@/components/ui/cards/SignInCard";
+import { createClient } from "@/lib/supabase/client";
+import { isValidPassword } from "@/utils/validation";
 
-function ChangePassword({ user }: { readonly user: User | undefined }) {
-
+function ChangePassword({
+  user,
+  mainOpen,
+  mainOpenChange,
+}: {
+  readonly user: User | undefined;
+  readonly mainOpen: boolean;
+  readonly mainOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const [signInOpen, setSignInOpen] = useState(false);
   const [newPasswordOpen, setNewPasswordOpen] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+
+  const [newPassword, setNewPassword] = useState("");
+
+  const supabase = createClient();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    if (!isValidPassword(newPassword)) {
+      toast("Something went wrong", {
+        description: "Password must be at least 6 characters",
+      });
+    } else if (!newPassword.length) {
+      toast("Something went wrong", {
+        description: "Password field must not be left empty",
+      });
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: "Password was updated successfully",
+      });
+
+      setNewPasswordOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -29,45 +87,13 @@ function ChangePassword({ user }: { readonly user: User | undefined }) {
       </button>
       {/* SHOW THIS DIALOG INITIALLY AND APPOINT FOR USER TO ENTER 
             THEIR CURRENT PASSWORD AND SIGN IN BEFORE BEING ALLOWED TO UPDATE THEIR PASSWORD */}
-      <Dialog open={signInOpen} onOpenChange={setSignInOpen}>
-        <DialogContent className="sm:max-w-[425px] backdrop-blur-lg">
-          <DialogHeader>
-            <DialogTitle>Sign in</DialogTitle>
-            <DialogDescription>Log in to update password</DialogDescription>
-          </DialogHeader>
-          <form className="duration-300">
-            {/* <Input htmlFor={"user_email"} label={"Email"} className="">
-              <input
-                className="form"
-                id="user_email"
-                name="user_email"
-                defaultValue={signInState?.data?.email}
-              />
-            </Input>
-            <Input
-              htmlFor={"user_password"}
-              label={"Password"}
-              className="mt-3"
-            >
-              <input
-                className="form"
-                id="user_password"
-                name="user_password"
-                type="password"
-                defaultValue={signInState?.data?.password}
-              />
-            </Input>
-            <div className="flex justify-end mt-4">
-              <Submit
-                loading={signInLoading}
-                width_height="w-[85px] h-[40px]"
-                width="w-[40px]"
-                arrow_width_height="w-6 h-6"
-              />
-            </div> */}
-          </form>
-        </DialogContent>
-      </Dialog>
+      <SignInCard
+        open={signInOpen}
+        setOpen={setSignInOpen}
+        newOpen={newPasswordOpen}
+        setNewOpen={setNewPasswordOpen}
+        description={"update password"}
+      />
       <Dialog open={newPasswordOpen} onOpenChange={setNewPasswordOpen}>
         <DialogContent className="sm:max-w-[425px] backdrop-blur-lg">
           <DialogHeader>
@@ -76,28 +102,19 @@ function ChangePassword({ user }: { readonly user: User | undefined }) {
               Insert a new password and update the changes
             </DialogDescription>
           </DialogHeader>
-          <form className="duration-300">
-            {/* <Input
+          <form onSubmit={handleSubmit} className="duration-300">
+            <Input
               htmlFor={"password"}
-              label={"Enter new password"}
-              className="mt-3"
-            >
-              <input
-                className="form"
-                id="password"
-                name="password"
-                type="password"
-                defaultValue={passwordState?.data?.password}
-              />
-            </Input>
+              label={"Password"}
+              id="password"
+              name="password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
             <div className="flex justify-end mt-4">
-              <Submit
-                loading={passwordLoading}
-                width_height="w-[85px] h-[40px]"
-                width="w-[40px]"
-                arrow_width_height="w-6 h-6"
-              />
-            </div> */}
+              <Submit loading={loading} />
+            </div>
           </form>
         </DialogContent>
       </Dialog>

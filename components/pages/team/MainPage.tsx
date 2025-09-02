@@ -67,7 +67,7 @@ function MainPage() {
       setIsLoading(false);
 
       return;
-    } else if (!isValidEmail(form.email)) {
+    } else if (!isValidEmail(form.email)) { // CHECKS IF EMAIL IS VALID
       toast("Something went wrong", {
         description: "Please enter a valid email",
       });
@@ -75,7 +75,7 @@ function MainPage() {
       setIsLoading(false);
 
       return;
-    } else if (form.confirm !== form.password) {
+    } else if (form.confirm !== form.password) { // CHECKS IF PASSWORD AND CONFIRM PASSWORD MATCH EXACTLY
       toast("Something went wrong", {
         description: "Password and confirm password fields must match",
       });

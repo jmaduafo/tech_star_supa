@@ -4,16 +4,21 @@ import ChangeEmail from "./ChangeEmail";
 import ChangePassword from "./ChangePassword";
 import { User } from "@/types/types";
 
-function ProfileSettings({ user }: { readonly user: User | undefined }) {
-
+function ProfileSettings({
+  user,
+  open,
+  openChange,
+}: {
+  readonly user: User | undefined;
+  readonly open: boolean;
+  readonly openChange: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   return (
     <section className="mb-6">
       <Header6 text="Profile settings" className="text-darkText mb-4" />
       {/* UPDATE NAME, EMAIL, OR USERNAME */}
-      <ChangeEmail
-        user={user}
-      />
-      <ChangePassword user={user} />
+      <ChangeEmail user={user} mainOpen={open} mainOpenChange={openChange}/>
+      <ChangePassword user={user} mainOpen={open} mainOpenChange={openChange}/>
     </section>
   );
 }

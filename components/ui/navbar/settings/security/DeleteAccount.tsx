@@ -1,5 +1,5 @@
 "use client";
-import React, { useActionState, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,13 +21,80 @@ import Input from "@/components/ui/input/Input";
 import Submit from "@/components/ui/buttons/Submit";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { User } from "@/types/types";
+import { isValidEmail, isValidPassword } from "@/utils/validation";
+import { deleteUser } from "@/lib/supabase/deleteUser";
 
-function DeleteAccount() {
-  
+function DeleteAccount({ user }: { readonly user: User | undefined }) {
   const [alertOpen, setAlertOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
 
   const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    if (!isValidEmail(form.email)) {
+      toast("Something went wrong", {
+        description: "Email is in an invalid format",
+      });
+
+      setLoading(false);
+
+      return;
+    } else if (!isValidPassword(form.password)) {
+      toast("Something went wrong", {
+        description: "Password should be at least 6 characters or more",
+      });
+
+      setLoading(false);
+
+      return;
+    } else if (!form.email.length || !form.password.length) {
+      toast("Something went wrong", {
+        description: "All fields must not be left empty",
+      });
+
+      setLoading(false);
+
+      return;
+    }
+
+    try {
+      if (!user) {
+        return;
+      }
+
+      const result = await deleteUser(user?.id);
+
+      if (!result.success) {
+        toast("Something went wrong", {
+          description: result.message,
+        });
+
+        return;
+      }
+
+      setSignInOpen(false);
+      setAlertOpen(false);
+
+      router.push("/")
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -73,32 +140,30 @@ function DeleteAccount() {
               to delete your account.
             </DialogDescription>
           </DialogHeader>
-          <form>
-            {/* <Input htmlFor={"email"} label={"Email"}>
-              <input
-                className="form"
-                id="email"
-                name="email"
-                defaultValue={state?.data?.email}
-              />
-            </Input>
-            <Input htmlFor={"password"} label={"Password"} className="mt-3">
-              <input
-                className="form"
-                type="password"
-                id="password"
-                name="password"
-                defaultValue={state?.data?.password}
-              />
-            </Input>
+          <form onSubmit={handleSubmit}>
+            <Input
+              htmlFor={"email"}
+              label={"Email"}
+              className=""
+              id="email"
+              name="email"
+              type="text"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            <Input
+              htmlFor={"password"}
+              label={"Password *"}
+              className="mt-3"
+              id="password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
             <div className="flex justify-end mt-4">
-              <Submit
-                loading={isLoading}
-                width_height="w-[85px] h-[40px]"
-                width="w-[40px]"
-                arrow_width_height="w-6 h-6"
-              />
-            </div> */}
+              <Submit loading={loading} />
+            </div>
           </form>
         </DialogContent>
       </Dialog>

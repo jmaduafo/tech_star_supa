@@ -84,7 +84,7 @@ function SignInCard({
       <DialogContent className="sm:max-w-[425px] backdrop-blur-lg bg-darkText">
         <DialogHeader>
           <DialogTitle>Sign in</DialogTitle>
-          <DialogDescription>Log in to {description}</DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="duration-300">
           <Input

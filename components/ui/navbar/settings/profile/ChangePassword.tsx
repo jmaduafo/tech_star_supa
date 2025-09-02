@@ -92,7 +92,7 @@ function ChangePassword({
         setOpen={setSignInOpen}
         newOpen={newPasswordOpen}
         setNewOpen={setNewPasswordOpen}
-        description={"update password"}
+        description={"Login to update password"}
       />
       <Dialog open={newPasswordOpen} onOpenChange={setNewPasswordOpen}>
         <DialogContent className="sm:max-w-[425px] backdrop-blur-lg">

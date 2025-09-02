@@ -12,7 +12,7 @@ function SecuritySettings({ user }: { readonly user: User | undefined }) {
       <Header6 text="Security settings" className="text-darkText mb-4" />
       <div className="text-[14px] text-dark75 flex flex-col w-full">
         <Logout/>
-        <DeleteAccount/>
+        <DeleteAccount user={user}/>
       </div>
     </section>
   );

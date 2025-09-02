@@ -93,7 +93,7 @@ function ChangeEmail({
         setOpen={setSignInOpen}
         newOpen={newEmailOpen}
         setNewOpen={setNewEmailOpen}
-        description={"update email"}
+        description={"Login in to update email"}
       />
       <Dialog open={newEmailOpen} onOpenChange={setNewEmailOpen}>
         <DialogContent className="sm:max-w-[425px] backdrop-blur-lg">

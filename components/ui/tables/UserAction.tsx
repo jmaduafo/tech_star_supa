@@ -1,5 +1,5 @@
 "use client";
-import React, { useActionState, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,75 +11,178 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { User } from "@/types/types";
 import { MoreHorizontal } from "lucide-react";
-// import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import ProfileCard from "../cards/ProfileCard";
-// import { editMember } from "@/zod/actions";
-import Input from "../input/CustomInput";
 import SelectBar from "../input/SelectBar";
 import { SelectItem } from "../select";
 import Submit from "../buttons/Submit";
+import { useAuth } from "@/context/UserContext";
+import CustomInput from "../input/CustomInput";
+import { job_titles } from "@/utils/dataTools";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../alert-dialog";
+import { EditMemberSchema } from "@/zod/validation";
+import { createClient } from "@/lib/supabase/client";
+import { deleteUser } from "@/lib/supabase/deleteUser";
+import Loading from "../loading/Loading";
 
 type Dialog = {
   readonly data: User | undefined;
 };
 
 function UserAction({ data }: Dialog) {
-
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewEditSheetOpen, setViewEditSheetOpen] = useState(false);
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // const [state, action, isLoading] = useActionState(
-  //   (prevState: any) =>
-  //     editMember(prevState, {
-  //       id: data?.id as string,
-  //       role: user.role,
-  //       hire_type: user.hire_type,
-  //     }),
-  //   {
-  //     message: "",
-  //     success: false,
-  //   }
-  // );
+  const [isLoading, setIsLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // const [user, setUser] = useState({
-  //   role: "",
-  //   hire_type: "",
-  // });
+  const { userData } = useAuth();
+  const supabase = createClient();
 
-  // useEffect(() => {
-  //   if (data) {
-  //     setUser({
-  //       role: data?.role ?? "",
-  //       hire_type: data?.hire_type ?? "",
-  //     });
-  //   }
-  // }, [data?.id ?? "guest"]);
+  const [form, setForm] = useState({
+    full_name: "",
+    email: "",
+    location: "",
+    role: "",
+    job_title: "",
+    hire_type: "",
+  });
 
-  // useEffect(() => {
-  //   if (!state?.success && state?.message.length) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Uh oh! Something went wrong",
-  //       description: state?.message,
-  //     });
-  //   } else if (state?.success) {
-  //     toast({
-  //       title:
-  //         "Team member was updated successfully!",
-  //     });
+  useEffect(() => {
+    if (data) {
+      setForm({
+        full_name: data.full_name ?? "",
+        email: data.email ?? "",
+        location: data.location ?? "",
+        role: data.role ?? "",
+        job_title: data.job_title ?? "",
+        hire_type: data.hire_type ?? "",
+      });
+    }
+  }, [data]);
 
-  //     setEditDialogOpen(false)
-  //   }
-  // }, [state]);
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  // console.log(user);
+    setIsLoading(true);
+
+    const values = {
+      role: form.role,
+      job_title: form.job_title,
+      hire_type: form.hire_type,
+    };
+
+    const result = EditMemberSchema.safeParse(values);
+
+    if (!result.success) {
+      toast("Something went wrong", {
+        description: result.error.issues[0].message,
+      });
+
+      setIsLoading(false);
+
+      return;
+    }
+
+    const { role, hire_type, job_title } = result.data;
+
+    try {
+      if (!data) {
+        return;
+      }
+
+      // IF NO ERRORS OCCUR, THEN ADD NEW MEMBER TO THE USERS TABLE
+      const { error } = await supabase
+        .from("users")
+        .update({
+          role,
+          hire_type,
+          job_title,
+        })
+        .eq("id", data.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      // NOTIFY ADMIN THAT THE NEW MEMBER WOULD NEED TO VERIFY THEIR ACCOUNT
+      // BEFORE LOGIN
+      toast("Success!", {
+        description: `Member ${form.full_name} was successfuly updated`,
+      });
+
+      setEditDialogOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteMember = async () => {
+    setDeleteLoading(true);
+
+    try {
+      if (!data) {
+        return;
+      }
+
+      const result = await deleteUser(data.id);
+
+      if (!result.success) {
+        toast("Something went wrong", {
+          description: result.message,
+        });
+
+        return;
+      }
+
+      const { error } = await supabase.from("users").delete().eq("id", data.id);
+
+      if (error) {
+        toast("Something went wrong", {
+          description: error.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: `Team member ${form.full_name} was deleted successfully`,
+      });
+
+      setDeleteDialogOpen(false);
+    } catch (err: any) {
+      toast("Something went wrong", {
+        description: err.message,
+      });
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -92,28 +195,32 @@ function UserAction({ data }: Dialog) {
           <DropdownMenuItem
             onClick={() => {
               setViewDialogOpen(true);
-              setEditDialogOpen(false);
             }}
           >
             View profile
           </DropdownMenuItem>
-          {/* {userData?.role === "admin" || userData?.role === "editor" ? (
+          {userData?.role === "admin" ? (
             <>
-              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
                   setEditDialogOpen(true);
-                  setViewDialogOpen(false);
                 }}
               >
                 Edit member
               </DropdownMenuItem>{" "}
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteDialogOpen(true);
+                }}
+              >
+                Delete member
+              </DropdownMenuItem>{" "}
             </>
-          ) : null} */}
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
       {/* DISPLAY TEAM MEMBER'S INFORMATION */}
-      {/* <ProfileCard
+      <ProfileCard
         user={data}
         profileOpen={viewDialogOpen}
         setProfileOpen={setViewDialogOpen}
@@ -121,7 +228,8 @@ function UserAction({ data }: Dialog) {
         setEditProfileOpen={setViewEditSheetOpen}
         // ONLY HIDE EDIT BUTTON IF THE PROFILE IS NOT THE USER'S
         hideEdit={userData?.id !== data?.id}
-      /> */}
+      />
+
       {/* EDIT MEMBER INFORMATION ITEM */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent
@@ -131,43 +239,74 @@ function UserAction({ data }: Dialog) {
           <DialogHeader>
             <DialogTitle>Edit member</DialogTitle>
           </DialogHeader>
-          <form>
-            <Input htmlFor={"full_name"} label={"Full name"}>
+          <form onSubmit={handleEdit}>
+            {/* FIRST NAME */}
+            <CustomInput htmlFor={"full_name"} label={"Full name *"}>
               <input
                 className="disabledForm"
                 type="text"
                 id="full_name"
                 name="full_name"
                 disabled
-                value={data?.full_name}
+                value={form.full_name}
               />
-            </Input>
-            <Input htmlFor={"email"} label={"Email"} className="mt-4">
+            </CustomInput>
+            {/* EMAIL */}
+            <CustomInput htmlFor={"email"} label={"Email *"} className="mt-4">
               <input
                 className="disabledForm"
                 type="text"
                 id="email"
                 name="email"
                 disabled
-                value={data?.email}
+                value={form.email}
               />
-            </Input>
+            </CustomInput>
+            {/* LOCATION */}
+            <CustomInput
+              htmlFor={"location"}
+              label={"Location *"}
+              className="mt-4"
+            >
+              <input
+                className="disabledForm"
+                type="text"
+                id="location"
+                name="location"
+                disabled
+                value={form.location}
+              />
+            </CustomInput>
+            {/* JOB TITLE */}
+            <CustomInput label="Occupation *" htmlFor="" className="mt-5">
+              <SelectBar
+                name="job_title"
+                placeholder={"Select a job title *"}
+                label={"Job title"}
+                className="mt-1.5"
+                value={form.job_title}
+                valueChange={(name) => setForm({ ...form, job_title: name })}
+              >
+                {job_titles.map((item) => {
+                  return (
+                    <SelectItem value={item} key={item}>
+                      {item}
+                    </SelectItem>
+                  );
+                })}
+              </SelectBar>
+            </CustomInput>
             {/* ROLES */}
-            {/* <Input label="Role" htmlFor="" className="mt-5">
+            <CustomInput label="Role *" htmlFor="" className="mt-5">
               <SelectBar
                 name="role"
                 placeholder={"Select a role *"}
-                label={"Roles *"}
+                label={"Roles"}
                 className="mt-1.5"
-                value={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                valueChange={(text) =>
-                  setUser((prev) => ({
-                    ...prev,
-                    role: text,
-                  }))
-                }
+                value={form.role}
+                valueChange={(name) => setForm({ ...form, role: name })}
               >
-                {["Viewer", "Editor", "Admin"].map((item) => {
+                {["viewer", "admin"].map((item) => {
                   return (
                     <SelectItem value={item} key={item} className="capitalize">
                       {item}
@@ -175,52 +314,58 @@ function UserAction({ data }: Dialog) {
                   );
                 })}
               </SelectBar>
-            </Input> */}
+            </CustomInput>
             {/* HIRE TYPE */}
-            {/* <Input htmlFor={"hire_type"} label={"Hire type"} className="mt-5">
+            <CustomInput htmlFor={""} label={"Hire type *"} className="mt-5">
               <SelectBar
                 name="hire_type"
                 placeholder={"Select a hire type *"}
-                label={"Hire type *"}
+                label={"Hire type"}
                 className="mt-1.5"
-                value={
-                  user.hire_type.charAt(0).toUpperCase() +
-                  user.hire_type.slice(1)
-                }
-                valueChange={(text) =>
-                  setUser((prev) => ({
-                    ...prev,
-                    hire_type: text,
-                  }))
-                }
+                value={form.hire_type}
+                valueChange={(name) => setForm({ ...form, hire_type: name })}
               >
-                {["Employee", "Contractor", "Independent"].map((item) => {
-                  return (
-                    <SelectItem value={item} key={item} className="capitalize">
-                      {item}
-                    </SelectItem>
-                  );
-                })}
+                {["employee", "contractor", "independent", "employer"].map(
+                  (item) => {
+                    return (
+                      <SelectItem
+                        value={item}
+                        key={item}
+                        className="capitalize"
+                      >
+                        {item}
+                      </SelectItem>
+                    );
+                  }
+                )}
               </SelectBar>
-            </Input> */}
-            {/* <div className="flex justify-end mt-6">
-              <Submit
-                loading={isLoading}
-                width_height="w-[85px] h-[40px]"
-                width="w-[40px]"
-                arrow_width_height="w-6 h-6"
-                disabledLogic={
-                  isLoading ||
-                  !user.hire_type.length ||
-                  !user.role.length ||
-                  (user.hire_type === data?.hire_type &&
-                  user.role === data?.role)
-                }
-              />
-            </div> */}
+            </CustomInput>
+            {/* SUBMIT BUTTON */}
+            <div className="flex justify-end mt-6">
+              <Submit loading={isLoading} disabledLogic={isLoading} />
+            </div>
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* DELETE MEMBER INFORMATION ITEM */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this
+              member and remove their data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteMember}>
+              {deleteLoading ? <Loading /> : "Continue"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

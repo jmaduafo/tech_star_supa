@@ -780,6 +780,7 @@ export const job_titles = [
   "Scene of Crime Officer",
   "Secretary",
   "Seismic Interpreter",
+  "Self Employed",
   "Site Engineer",
   "Site Manager",
   "Social Researcher",

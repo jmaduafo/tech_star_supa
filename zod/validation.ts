@@ -78,6 +78,9 @@ export const EditUserSchema = z.object({
 export const EditMemberSchema = z.object({
   role: z.enum(["viewer", "admin", "editor"]),
   hire_type: z.enum(["employee", "contractor", "independent"]),
+  job_title: z.string().min(1, {
+    message: "Job title must be entered",
+  }),
 });
 
 export const NamesValidation = z.object({

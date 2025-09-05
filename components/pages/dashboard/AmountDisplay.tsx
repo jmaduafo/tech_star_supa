@@ -88,9 +88,6 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
 
       setAllContracts(contracts.data);
       setAllPayments(payments.data);
-
-      console.log(contracts.data);
-      console.log(payments.data);
     } catch (err: any) {
       console.error(err.message);
     }
@@ -135,6 +132,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
               selectedCurrency.includes(item.code)
           : [];
       });
+
       setCurrencySymbol(findSymbol ? findSymbol.symbol : "");
 
       const paymentFilter = payments.filter((item) => {
@@ -145,16 +143,19 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           : [];
       });
 
+      // 
       const withinPayment = paymentFilter
         .filter((item) =>
           item.payments ? item.payments.contract_id !== null : []
         )
         .map((item) => +item.amount);
+
       const outsidePayment = paymentFilter
         .filter((item) =>
           item.payments ? item.payments.contract_id === null : []
         )
         .map((item) => +item.amount);
+
       const contract = contractFilter.map((item) =>
         item.amount !== "Unlimited" ? +item.amount : 0
       );

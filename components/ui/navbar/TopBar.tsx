@@ -19,8 +19,7 @@ import { useUsers } from "@/lib/queries/queries";
 
 function TopBar() {
   const { userData } = useAuth();
-
-  const { data } = useUsers(userData?.id);
+  const { data: user  } = useUsers(userData?.id)
 
   return (
     <div className="flex justify-between items-center">
@@ -28,8 +27,8 @@ function TopBar() {
         <p>LOGO</p>
       </div>
       <div className="flex gap-3">
-        <ProfileButton user={data} />
-        <SettingButton user={data} />
+        <ProfileButton user={user} />
+        <SettingButton user={user} />
       </div>
     </div>
   );

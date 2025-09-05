@@ -6,36 +6,32 @@ import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
 
-export function useUsers({
-  user_id,
-}: {
-  readonly user_id: string | undefined;
-}) {
+export function useUsers(user_id?: string) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["users", user_id],
+    queryKey: ["user-profile", user_id],
     queryFn: async () => {
-      try {
-        if (!user_id) return;
+      if (!user_id) return null;
 
-        const { data } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", user_id)
-          .single()
-          .throwOnError();
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user_id)
+        .single();
 
-        return data;
-      } catch (err: any) {
-        console.log(err.message);
+      if (error) {
+        console.error("Supabase error:", error.message);
+        throw error;
       }
+
+      return data;
     },
+    enabled: !!user_id,         // retry once on failure
     refetchOnWindowFocus: true,
-    refetchInterval: undefined,
-    enabled: !!user_id,
   });
 
+  // 🔄 Subscribe to realtime updates
   useEffect(() => {
     if (!user_id) return;
 
@@ -50,9 +46,9 @@ export function useUsers({
           filter: `id=eq.${user_id}`,
         },
         () => {
-          query.refetch();
-          // Invalidate cached query when a change happens
-          queryClient.invalidateQueries({ queryKey: ["users", user_id] });
+          query.refetch()
+          // invalidate query so it refetches fresh
+          queryClient.invalidateQueries({ queryKey: ["user-profile", user_id] });
         }
       )
       .subscribe();
@@ -60,7 +56,7 @@ export function useUsers({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user_id, queryClient]);
+  }, [user_id, queryClient, query]);
 
   return query;
 }
@@ -69,7 +65,7 @@ export function useBackgroundImage(user_id?: string) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["users", user_id],
+    queryKey: ["user-background", user_id],
     queryFn: async () => {
       if (!user_id) return null;
 
@@ -88,7 +84,6 @@ export function useBackgroundImage(user_id?: string) {
     },
     // fallback polling, but less frequent (every 1 min for example)
     refetchOnWindowFocus: true,
-    refetchInterval: undefined,
     enabled: !!user_id,
   });
 
@@ -108,8 +103,7 @@ export function useBackgroundImage(user_id?: string) {
         },
         () => {
           query.refetch();
-          // Invalidate cached query when a change happens
-          queryClient.invalidateQueries({ queryKey: ["users", user_id] });
+          queryClient.invalidateQueries({ queryKey: ["user-background", user_id] });
         }
       )
       .subscribe();
@@ -117,7 +111,7 @@ export function useBackgroundImage(user_id?: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user_id, queryClient]);
+  }, [user_id, queryClient, query]);
 
   return query;
 }

@@ -75,7 +75,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
       style={{
         backgroundImage:
           session && pathname !== "/" && bgIndex
-            ? `url(${images[bgIndex].image})`
+            ? `url(${images[bgIndex]?.image})`
             : `url(${images[0].image})`,
       }}
       className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}

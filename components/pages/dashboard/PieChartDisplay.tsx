@@ -28,8 +28,7 @@ function PieChartDisplay({ user }: { readonly user: User | undefined }) {
     data.forEach((item) => {
       chart.push({ name: item.name, value: item.contractors?.length ?? 0 });
     });
-
-    console.log(chart);
+    
     setData(chart);
   };
 

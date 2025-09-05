@@ -8,7 +8,6 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis,
 } from "recharts";
 
 function LineChart2({ data }: { readonly data: ChartData[] }) {
@@ -16,7 +15,7 @@ function LineChart2({ data }: { readonly data: ChartData[] }) {
     <ResponsiveContainer width="100%" height="80%">
       <LineChart
         data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        accessibilityLayer
       >
         <CartesianGrid vertical={false} stroke="#ececec20" />
         <XAxis
@@ -25,6 +24,7 @@ function LineChart2({ data }: { readonly data: ChartData[] }) {
           axisLine={false}
           tickMargin={8}
           minTickGap={32}
+          tick={{ fill: '#ececec90' }}
           tickFormatter={(value) => {
             const date = new Date(value);
             return date.toLocaleDateString("en-US", {
@@ -35,7 +35,7 @@ function LineChart2({ data }: { readonly data: ChartData[] }) {
           }}
         />
         {/* <Legend /> */}
-        <Line type="monotone" dataKey="value" stroke="#ececec" />
+        <Line type="monotone" dataKey="value" stroke="#ececec"/>
         {data.length > 1 ? (
           <Tooltip
             contentStyle={{
@@ -54,6 +54,7 @@ function LineChart2({ data }: { readonly data: ChartData[] }) {
                 year: "numeric",
               });
             }}
+            
           />
         ) : null}
       </LineChart>

@@ -18,8 +18,23 @@ function LineChart2({ data }: { readonly data: ChartData[] }) {
         data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
-        <XAxis dataKey="name" />
-        <Legend />
+        <CartesianGrid vertical={false} stroke="#ececec20" />
+        <XAxis
+          dataKey="name"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          minTickGap={32}
+          tickFormatter={(value) => {
+            const date = new Date(value);
+            return date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            });
+          }}
+        />
+        {/* <Legend /> */}
         <Line type="monotone" dataKey="value" stroke="#ececec" />
         {data.length > 1 ? (
           <Tooltip
@@ -31,6 +46,13 @@ function LineChart2({ data }: { readonly data: ChartData[] }) {
             itemStyle={{
               fontSize: "13px",
               color: "#ececec",
+            }}
+            labelFormatter={(value) => {
+              return new Date(value).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
             }}
           />
         ) : null}

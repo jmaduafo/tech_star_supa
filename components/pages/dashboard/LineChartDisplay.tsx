@@ -98,18 +98,21 @@ function LineChartDisplay() {
 
   return (
     <div className="h-full">
-      {filteredData ? (
-        <div className="flex justify-end">
-          <TextButton href="/charts" text="See more" iconDirection="right" />
+      <div className="flex gap-10 justify-between items-start">
+        <div>
+          <Header3 text="At a Glance" />
+          <Header6
+            className="opacity-80"
+            text={`All payments made within the ${
+              range.length ? range : "..."
+            }`}
+          />
         </div>
-      ) : null}
-      {/* "flex gap-10 justify-between items-start" */}
-      <div className="">
-        <Header3 text="At a Glance" />
-        <Header6
-          className="opacity-80"
-          text={`All payments made within the ${range.length ? range : "..."}`}
-        />
+        {filteredData ? (
+          <div className="">
+            <TextButton href="/charts" text="See more" iconDirection="right" />
+          </div>
+        ) : null}
       </div>
       <div className="">
         <div className="grid grid-cols-2 md:flex md:justify-between gap-2 mt-2 md:max-w-[65%]">

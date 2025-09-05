@@ -49,6 +49,10 @@ function ChangeEmail({
     }
 
     try {
+      if (!user) {
+        return
+      }
+
       const { error } = await supabase.auth.updateUser({
         email: newEmail,
       });
@@ -61,6 +65,21 @@ function ChangeEmail({
         return;
       }
 
+      const { error: emailError } = await supabase
+        .from("users")
+        .update({
+          email: newEmail,
+        })
+        .eq("id", user.id);
+
+      if (emailError) {
+        toast("Something went wrong", {
+          description: emailError.message,
+        });
+
+        return;
+      }
+      
       toast("Success!", {
         description: "Email was updated successfully",
       });
@@ -80,7 +99,6 @@ function ChangeEmail({
       <button
         onClick={() => {
           setSignInOpen(true);
-          mainOpenChange(false)
         }}
         className={`w-full text-[14px] text-left outline-none border-b border-b-dark10 py-4 text-dark75 hover:text-darkText duration-300`}
       >

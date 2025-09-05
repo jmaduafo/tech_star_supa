@@ -81,7 +81,7 @@ function SignInCard({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px] backdrop-blur-lg bg-darkText">
+      <DialogContent className="sm:max-w-[425px] backdrop-blur-lg">
         <DialogHeader>
           <DialogTitle>Sign in</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

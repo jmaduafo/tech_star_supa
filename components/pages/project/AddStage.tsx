@@ -20,7 +20,7 @@ import { Project } from "@/types/types";
 function AddStage({
   open,
   setOpen,
-  project
+  project,
 }: {
   readonly project: Project | undefined;
   readonly open: boolean;
@@ -81,6 +81,23 @@ function AddStage({
         return;
       }
 
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Created new stage for project ${project.name}`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "stage",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
+        });
+
+        return;
+      }
+
       toast("Success!", {
         description: "Stage added successfully",
       });
@@ -121,11 +138,7 @@ function AddStage({
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
-          <CustomInput
-            htmlFor={"desc"}
-            label={"Description"}
-            className="mt-3"
-          >
+          <CustomInput htmlFor={"desc"} label={"Description"} className="mt-3">
             <input
               type={"text"}
               name={"desc"}
@@ -137,7 +150,9 @@ function AddStage({
             />
           </CustomInput>
           <div className="">
-            <p className="text-right text-sm text-darkText/70">{form.desc.length} / 80</p>
+            <p className="text-right text-sm text-darkText/70">
+              {form.desc.length} / 80
+            </p>
           </div>
           {/* SUBMIT BUTTON */}
           <div className="flex justify-end mt-6">

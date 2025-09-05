@@ -168,7 +168,7 @@ function MainPage() {
       result.data;
 
     try {
-      if (!userData || !project_id) {
+      if (!userData || !project_id || !projectName.length) {
         return;
       }
 
@@ -190,6 +190,23 @@ function MainPage() {
         });
 
         console.log(error.message);
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Created contractor ${name} for project ${projectName}`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "contractor",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
+        });
 
         return;
       }

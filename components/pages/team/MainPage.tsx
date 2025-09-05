@@ -37,7 +37,7 @@ function MainPage() {
 
   const { userData } = useAuth();
   const { data } = useTeamData(userData?.team_id);
-  
+
   const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +67,8 @@ function MainPage() {
       setIsLoading(false);
 
       return;
-    } else if (!isValidEmail(form.email)) { // CHECKS IF EMAIL IS VALID
+    } else if (!isValidEmail(form.email)) {
+      // CHECKS IF EMAIL IS VALID
       toast("Something went wrong", {
         description: "Please enter a valid email",
       });
@@ -75,7 +76,8 @@ function MainPage() {
       setIsLoading(false);
 
       return;
-    } else if (form.confirm !== form.password) { // CHECKS IF PASSWORD AND CONFIRM PASSWORD MATCH EXACTLY
+    } else if (form.confirm !== form.password) {
+      // CHECKS IF PASSWORD AND CONFIRM PASSWORD MATCH EXACTLY
       toast("Something went wrong", {
         description: "Password and confirm password fields must match",
       });
@@ -132,6 +134,23 @@ function MainPage() {
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: "Created a new team member",
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "team",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;

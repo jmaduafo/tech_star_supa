@@ -67,6 +67,7 @@ function NonContractDisplay({
   const { project_id, contractor_id } = useParams();
 
   const supabase = createClient();
+  const { userData } = useAuth();
 
   function handleAddCurrency() {
     if (
@@ -122,7 +123,7 @@ function NonContractDisplay({
         description: result.error.issues[0].message,
       });
 
-      console.log(result.error.issues[0].message)
+      console.log(result.error.issues[0].message);
 
       setIsLoading(false);
 
@@ -141,11 +142,11 @@ function NonContractDisplay({
     } = result.data;
 
     try {
-      if (!user || !project_id || !contractor_id) {
+      if (!user || !project_id || !contractor_id || !data) {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: paymentData, error } = await supabase
         .from("payments")
         .insert({
           date,
@@ -174,7 +175,7 @@ function NonContractDisplay({
       const { error: amountError } = await supabase
         .from("payment_amounts")
         .insert({
-          payment_id: data.id,
+          payment_id: paymentData.id,
           symbol: currency[0].symbol,
           name: currency[0].name,
           code: currency[0].code,
@@ -184,6 +185,31 @@ function NonContractDisplay({
       if (amountError) {
         toast("Something went wrong", {
           description: amountError.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Created new stand alone payment ${
+            data[0].contractors
+              ? "for contractor " + data[0].contractors.name
+              : ""
+          } under project ${
+            data[0].projects
+              ? data[0].projects.name
+              : ""
+          }`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "payment",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -207,9 +233,9 @@ function NonContractDisplay({
         is_paid: true,
       });
 
-      setBankInputs([])
-      setCurrencyInputs([])
-      setPaymentDate(undefined)
+      setBankInputs([]);
+      setCurrencyInputs([]);
+      setPaymentDate(undefined);
     } catch (err: any) {
       toast("Something went wrong", {
         description: err.message,

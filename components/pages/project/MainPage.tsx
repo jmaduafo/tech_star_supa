@@ -129,6 +129,27 @@ function MainPage() {
         return;
       }
 
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Added a new project ${name}`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "project",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
+        });
+
+        return;
+      }
+
+      toast("Success!", {
+        description: "A new project was created successfully",
+      });
+
       setForm({
         name: "",
         city: "",

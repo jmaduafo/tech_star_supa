@@ -5,7 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/UserContext";
@@ -233,6 +233,8 @@ const DeleteRow = ({
 
   const supabase = createClient();
 
+  const { userData } = useAuth()
+
   const deleteRow = async () => {
     setDeleteLoading(true);
 
@@ -249,6 +251,23 @@ const DeleteRow = ({
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Deleted stage ${stage.name} `,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "stage",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -354,13 +373,30 @@ const EditRow = ({
           name,
           description,
           is_completed,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", stage.id);
 
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Updated stage ${stage.name} `,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "stage",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;

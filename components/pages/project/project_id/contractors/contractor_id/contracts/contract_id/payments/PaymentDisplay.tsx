@@ -190,6 +190,27 @@ function PaymentDisplay({
         return;
       }
 
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Added a new payment for contract ${
+            contract.contract_code
+          } ${
+            contract.projects ? "under project" + contract.projects.name : ""
+          }`.trim(),
+          user_id: user.id,
+          team_id: user.team_id,
+          activity_type: "payment",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
+        });
+
+        return;
+      }
+
       toast("Success!", {
         description: `Payment for contract ${contract.contract_code} was added successfully`,
       });

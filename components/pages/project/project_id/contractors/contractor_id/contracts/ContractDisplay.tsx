@@ -168,11 +168,11 @@ function ContractDisplay({
     } = result.data;
 
     try {
-      if (!userData || !project_id || !contractor_id) {
+      if (!userData || !project_id || !contractor_id || !data) {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: contractData, error } = await supabase
         .from("contracts")
         .insert({
           date,
@@ -202,7 +202,7 @@ function ContractDisplay({
       currency.forEach((item) => {
         amountsArray.push({
           ...item,
-          contract_id: data.id,
+          contract_id: contractData.id,
         });
       });
 
@@ -213,6 +213,31 @@ function ContractDisplay({
       if (amountError) {
         toast("Something went wrong", {
           description: amountError.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Created new contract ${
+            data[0].contractors
+              ? "for contractor " + data[0].contractors.name
+              : ""
+          } under project ${
+            data[0].projects
+              ? data[0].projects.name
+              : ""
+          }`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "contract",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -300,7 +325,11 @@ function ContractDisplay({
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={contractDate ? new Date(contractDate + "T00:00:00") : undefined}
+                  selected={
+                    contractDate
+                      ? new Date(contractDate + "T00:00:00")
+                      : undefined
+                  }
                   onDayClick={(date: Date) => {
                     setContractDate(date);
                   }}

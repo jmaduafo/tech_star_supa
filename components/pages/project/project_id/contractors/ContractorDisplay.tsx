@@ -283,6 +283,7 @@ function AssignStage({
   const [isLoading, setIsLoading] = useState(false);
 
   const supabase = createClient();
+  const { userData } = useAuth()
 
   const getData = async () => {
     try {
@@ -380,6 +381,23 @@ function AssignStage({
       if (insertError) {
         toast("Something went wrong", {
           description: insertError.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Updated stages for contractor ${contractor.name}`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "stage",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -597,6 +615,7 @@ function Actions({
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const supabase = createClient();
+  const { userData } = useAuth()
 
   // EDIT CONTRACTOR FUNCTIONALITY
   const editContractor = async (e: React.FormEvent) => {
@@ -655,6 +674,23 @@ function Actions({
         return;
       }
 
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Updated contractor ${contractor.name}`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "contractor",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
+        });
+
+        return;
+      }
+
       toast("Success!", {
         description: "Contractor updated successfully",
       });
@@ -681,13 +717,30 @@ function Actions({
       }
 
       const { error } = await supabase
-        .from("projects")
+        .from("contractors")
         .delete()
         .eq("id", contractor.id);
 
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Deleted contractor ${contractor.name}`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "contractor",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;

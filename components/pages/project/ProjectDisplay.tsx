@@ -251,6 +251,7 @@ const DeleteProject = ({
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const { userData } = useAuth()
 
   const supabase = createClient();
 
@@ -270,6 +271,23 @@ const DeleteProject = ({
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Deleted project ${project.name} `,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "project",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -351,6 +369,8 @@ const EditProject = ({
 
   const [editLoading, setEditLoading] = useState(false);
 
+  const { userData } = useAuth()
+
   useEffect(() => {
     if (project) {
       setProjectInfo({
@@ -400,7 +420,7 @@ const EditProject = ({
         return;
       }
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("projects")
         .update({
           name,
@@ -424,13 +444,23 @@ const EditProject = ({
         return;
       }
 
-      if (!allProjects) {
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Updated project ${project.name} `,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "project",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
+        });
+
         return;
       }
-
-      if (data) {
-        handleEdit(project.id, data);
-      }
+      
 
       toast("Success!", {
         description: "Project updated successfully",
@@ -447,13 +477,6 @@ const EditProject = ({
       setEditLoading(false);
     }
   };
-
-  function handleEdit(id: string, newData: Project) {
-    setAllProjects((prev) => {
-      if (!prev) return prev; // nothing to update
-      return prev.map((item) => (item.id === id ? newData : item));
-    });
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -1,122 +1,104 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Header3 from "@/components/fontsize/Header3";
-import Paragraph from "@/components/fontsize/Paragraph";
 import TextButton from "@/components/ui/buttons/TextButton";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
-import { Chart, Project, User } from "@/types/types";
+import { Amount, Chart, ChartData, Project } from "@/types/types";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import Reset from "@/components/ui/buttons/Reset";
-// import { db } from "@/firebase/config";
-// import { query, collection, where, orderBy } from "firebase/firestore";
-// import { getQueriedItems } from "@/firebase/actions";
-// import { filterByDateRange, formatChartDate } from "@/utils/dateAndTime";
 import { ChartConfig } from "@/components/ui/chart";
 import LineChart from "../../ui/charts/LineChart";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { currency_list } from "@/utils/dataTools";
+import Header6 from "@/components/fontsize/Header6";
+import { useAuth } from "@/context/UserContext";
+import { createClient } from "@/lib/supabase/client";
+import { getUniqueObjects } from "@/utils/chartHelpers";
+import LineChart2 from "@/components/ui/charts/LineChart2";
 
-function LineChartDisplay({ user }: { readonly user: User | undefined }) {
-  const [chartData, setChartData] = useState<Chart[] | undefined>();
-  const [filteredData, setFilteredData] = useState<Chart[] | undefined>();
+function LineChartDisplay() {
+  const [filteredData, setFilteredData] = useState<ChartData[] | undefined>();
   const [projectData, setProjectData] = useState<Project[] | undefined>();
+  const [currencyList, setCurrencyList] = useState<Amount[] | undefined>();
+  const [paymentData, setPaymentData] = useState<ChartData[] | undefined>();
 
   const [projectId, setProjectId] = useState("");
-  const [range, setRange] = useState("");
+  const [range, setRange] = useState("last 1 year");
   const [currencyCode, setCurrencyCode] = useState("");
 
-  let chartConfig = {
-    amount: {
-      label: currency_list.find((i) => i.code === currencyCode)?.symbol,
-    },
-  } satisfies ChartConfig;
+  const { userData } = useAuth();
+  const supabase = createClient();
 
-  // async function getProjects() {
-  //   try {
-  //     if (!user) {
-  //       return;
-  //     }
+  const getData = async () => {
+    try {
+      if (!userData) {
+        return;
+      }
 
-  //     const projectq = query(
-  //       collection(db, "projects"),
-  //       where("team_id", "==", user?.team_id)
-  //     );
+      const [projects, currencies] = await Promise.all([
+        supabase
+          .from("projects")
+          .select("id, name")
+          .eq("team_id", userData.team_id)
+          .order("created_at", { ascending: true })
+          .throwOnError(),
+        supabase
+          .from("payment_amounts")
+          .select(
+            "id, name, amount, code, symbol, payments ( id, date, team_id )"
+          )
+          .eq("payments.team_id", userData.team_id)
+          .throwOnError(),
+      ]);
 
-  //     const allProjects = await getQueriedItems(projectq);
+      setProjectData(projects.data as Project[]);
+      setProjectId(projects.data[0].id);
 
-  //     setProjectData(allProjects as Project[]);
-  //   } catch (err: any) {
-  //     console.log(err.message);
-  //   }
-  // }
+      const chart: ChartData[] = [];
 
-  // async function getPayments() {
-  //   try {
-  //     if (!user) {
-  //       return;
-  //     }
+      currencies.data.forEach((item) => {
+        const payment = Array.isArray(item.payments)
+          ? item.payments[0]
+          : item.payments;
 
-  //     const paymentq = query(
-  //       collection(db, "payments"),
-  //       where("team_id", "==", user?.team_id),
-  //       orderBy("date", "asc")
-  //     );
+        chart.push({ name: payment.date, value: item.amount });
+      });
 
-  //     const allPayments = await getQueriedItems(paymentq);
+      setPaymentData(
+        chart.toSorted((a, b) => {
+          const dateA = new Date(a.name);
+          const dateB = new Date(b.name);
+          return dateA.getTime() - dateB.getTime(); // Descending order
+        })
+      );
 
-  //     const arr: Chart[] = [];
-  //     allPayments.forEach((doc) => {
-  //       arr.push({
-  //         id: doc?.id,
-  //         project_id: doc?.project_id,
-  //         date: formatChartDate(doc?.date),
-  //         amount: doc?.currency_amount,
-  //         currency_code: doc?.currency_code,
-  //       });
-  //     });
+      setFilteredData(
+        chart.toSorted((a, b) => {
+          const dateA = new Date(a.name);
+          const dateB = new Date(b.name);
+          return dateA.getTime() - dateB.getTime(); // Descending order
+        })
+      );
 
-  //     setChartData(arr);
-  //   } catch (err: any) {
-  //     console.log(err.message);
-  //   }
-  // }
+      setCurrencyList(
+        getUniqueObjects(currencies.data, "code") as unknown as Amount[]
+      );
+      setCurrencyCode(getUniqueObjects(currencies.data, "code")[0].code);
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  };
 
-  // // ON FILTER CLICK, FILTER PAYMENTS BY THE APPROPRIATE DATE RANGE AND PROJECT ID
-  // function filterPayments() {
-  //   // FILTER ORIGINAL DATA WHERE THE PROJECT ID AND PROJECT CURRENCY CODE IS EQUAL TO
-  //   // THE SELECTED PROJECT ID AND CURRENCY CODE TO GET
-  //   // AN ARRAY OF PAYMENTS MADE FOR THE SELECTED PROJECT
-  //   const payments = chartData?.filter(
-  //     (item) =>
-  //       item?.project_id === projectId && item?.currency_code === currencyCode
-  //   );
+  useEffect(() => {
+    getData();
+  }, []);
 
-  //   if (!payments?.length) {
-  //     setFilteredData([]);
-  //   }
-
-  //   // IF THERE ARE PROJECTS FOUND, ADD THE ARRAY WITHIN THE SELECTED DATE RANGE
-  //   // TO THE NEW FILTER ARRAY
-  //   setFilteredData(
-  //     filterByDateRange(payments, range)
-  //   );
-  // }
-
-  // useEffect(() => {
-  //   getProjects();
-  //   getPayments();
-  // }, [user?.id ?? "guest"]);
-
-  function reset() {
-    setProjectId("");
-    setRange("");
-    setCurrencyCode("");
-  }
+  const filterPayments = () => {};
 
   return (
     <div className="h-full">
-      {chartData ? (
+      {filteredData ? (
         <div className="flex justify-end">
           <TextButton href="/charts" text="See more" iconDirection="right" />
         </div>
@@ -124,13 +106,13 @@ function LineChartDisplay({ user }: { readonly user: User | undefined }) {
       {/* "flex gap-10 justify-between items-start" */}
       <div className="">
         <Header3 text="At a Glance" />
-        <Paragraph
+        <Header6
           className="opacity-80"
           text={`All payments made within the ${range.length ? range : "..."}`}
         />
       </div>
       <div className="">
-        <div className="grid grid-cols-2 md:flex md:justify-between gap-2 mt-2">
+        <div className="grid grid-cols-2 md:flex md:justify-between gap-2 mt-2 md:max-w-[65%]">
           <SelectBar
             valueChange={setProjectId}
             className=""
@@ -155,7 +137,7 @@ function LineChartDisplay({ user }: { readonly user: User | undefined }) {
             placeholder="Select a range"
             label="Project"
           >
-            {["Last 7 days", "Last 1 month", "Last 3 months"].map((item) => {
+            {["Last week", "Last 1 month", "Last 1 year"].map((item) => {
               return (
                 <SelectItem value={item.toLowerCase()} key={item}>
                   {item}
@@ -170,29 +152,30 @@ function LineChartDisplay({ user }: { readonly user: User | undefined }) {
             placeholder="Select a currency"
             label="Currency"
           >
-            {currency_list.map((item) => {
-              return (
-                <SelectItem value={item.code} key={item.name}>
-                  {item.name}
-                </SelectItem>
-              );
-            })}
+            {currencyList
+              ? currencyList.map((item) => {
+                  return (
+                    <SelectItem value={item.code} key={item.id}>
+                      {item.name}
+                    </SelectItem>
+                  );
+                })
+              : null}
           </SelectBar>
           <div className="flex gap-1.5">
-            {/* <CheckedButton
-                  clickedFn={filterPayments}
-                  disabledLogic={
-                    !projectId.length || !range.length || !currencyCode.length
-                  }
-                /> */}
-            <Reset clickedFn={reset} />
+            <CheckedButton
+              clickedFn={filterPayments}
+              disabledLogic={
+                !projectId.length || !range.length || !currencyCode.length
+              }
+            />
           </div>
         </div>
       </div>
-      <div className="h-[80%] w-full">
+      <div className="h-[40vh] w-full">
         {filteredData?.length ? (
-          <div className="mb-4">
-            <LineChart chartConfig={chartConfig} chartData={filteredData} />
+          <div className="mt-8 w-full h-full">
+            <LineChart2 data={filteredData} />
           </div>
         ) : (
           <div className="h-full flex justify-center items-center">

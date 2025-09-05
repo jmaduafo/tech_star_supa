@@ -169,25 +169,25 @@ export type Contract = {
 export type Payment = {
   id: string;
   date: string;
-  project_id: string;
-  contractor_id: string;
-  contract_id: string | null;
-  stage_id: string;
-  team_id: string;
-  projects: Project;
-  contractors: Contractor;
-  stages: Stage;
-  contracts: Contract | null;
-  description: string;
-  comment: string | null;
-  bank_name: string;
-  payment_amounts: Amount[];
-  is_contract: boolean;
-  contract_code: string | null;
-  is_completed: boolean;
-  is_paid: boolean;
-  created_at: string;
-  updated_at: string | null;
+  project_id?: string;
+  contractor_id?: string;
+  contract_id?: string | null;
+  stage_id?: string;
+  team_id?: string;
+  projects?: Project;
+  contractors?: Contractor;
+  stages?: Stage;
+  contracts?: Contract | null;
+  description?: string;
+  comment?: string | null;
+  bank_name?: string;
+  payment_amounts?: Amount[];
+  is_contract?: boolean;
+  contract_code?: string | null;
+  is_completed?: boolean;
+  is_paid?: boolean;
+  created_at?: string;
+  updated_at?: string | null;
 };
 
 export type Chart = {

@@ -44,7 +44,7 @@ function PaymentDisplay() {
   }, []);
 
   return (
-    <section className="w-full py-4">
+    <section className="w-full">
       <div className="flex justify-between items-start">
         <div className="flex items-start gap-5">
           {/* LATEST HEADING WITH PAYMENTS COUNT */}

@@ -136,7 +136,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
       setCurrencySymbol(findSymbol ? findSymbol.symbol : "");
 
       const paymentFilter = payments.filter((item) => {
-        return item.payments
+        return item.payments && item.payments.project_id && item.payments.contractor_id
           ? projectIds.includes(item.payments.project_id) ||
               contractorIds.includes(item.payments.contractor_id) ||
               selectedCurrency.includes(item.code)

@@ -270,8 +270,8 @@ const EditAction = ({
 
   const getContract = async () => {
     try {
-      if (!userData || !data || !data.contract_id ) {
-        return
+      if (!userData || !data || !data.contract_id) {
+        return;
       }
 
       const { data: contractData } = await supabase
@@ -285,7 +285,7 @@ const EditAction = ({
         .eq("team_id", userData.team_id)
         .single()
         .throwOnError();
-        
+
       setContract(contractData as Contract);
     } catch (err: any) {
       console.error(err.message);
@@ -314,7 +314,7 @@ const EditAction = ({
     setCurrencyInputs(data ? data.payment_amounts : []);
     setBankInputs(data ? [data.bank_name] : []);
 
-    getContract()
+    getContract();
   }, [data]);
 
   function handleAddCurrency() {
@@ -420,6 +420,27 @@ const EditAction = ({
       if (amountError) {
         toast("Something went wrong", {
           description: amountError.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `${
+            is_contract && contract
+              ? "Payment under contract" + contract.contract_code
+              : "Stand-alone payment"
+          } was updated`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "payment",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -888,6 +909,8 @@ const DeleteAction = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
+  const { userData } = useAuth();
+
   const supabase = createClient();
 
   const handleSubmit = async () => {
@@ -906,6 +929,27 @@ const DeleteAction = ({
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `${
+            data.contracts
+              ? "Payment under contract" + data.contracts.contract_code
+              : "Stand alone payment"
+          } was deleted`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "payment",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;

@@ -426,7 +426,7 @@ const EditAction = ({
         return;
       }
 
-    //   DELETE ALL PREVIOUS AMOUNT DATA
+      //   DELETE ALL PREVIOUS AMOUNT DATA
       const { error: deleteError } = await supabase
         .from("contract_amounts")
         .delete()
@@ -440,11 +440,11 @@ const EditAction = ({
         return;
       }
 
-      const newAmounts: Amount[] = []
+      const newAmounts: Amount[] = [];
 
-      currency.forEach(item => {
-        newAmounts.push({... item, contract_id: data.id})
-      })
+      currency.forEach((item) => {
+        newAmounts.push({ ...item, contract_id: data.id });
+      });
 
       // INSERT NEW AMOUNTS DATA CONTAINING CONTRACT_ID
       const { error: amountError } = await supabase
@@ -454,6 +454,23 @@ const EditAction = ({
       if (amountError) {
         toast("Something went wrong", {
           description: amountError.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Contract ${code} was updated`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "contract",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -513,7 +530,11 @@ const EditAction = ({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={contractDate ? new Date(contractDate + "T00:00:00") : undefined}
+                selected={
+                  contractDate
+                    ? new Date(contractDate + "T00:00:00")
+                    : undefined
+                }
                 onDayClick={(date: Date) => {
                   setContractDate(date);
                 }}
@@ -727,6 +748,7 @@ const DeleteAction = ({
   readonly data: Contract | undefined;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { userData } = useAuth();
 
   const supabase = createClient();
 
@@ -746,6 +768,23 @@ const DeleteAction = ({
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Contract ${data.contract_code} was deleted`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "contract",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;

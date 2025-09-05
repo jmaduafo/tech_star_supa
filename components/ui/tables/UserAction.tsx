@@ -102,7 +102,7 @@ function UserAction({ data }: Dialog) {
     const { role, hire_type, job_title } = result.data;
 
     try {
-      if (!data) {
+      if (!data || !userData || data.team_id !== userData.team_id) {
         return;
       }
 
@@ -113,12 +113,30 @@ function UserAction({ data }: Dialog) {
           role,
           hire_type,
           job_title,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", data.id);
 
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Team member ${form.full_name} was updated`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "team",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;
@@ -165,6 +183,23 @@ function UserAction({ data }: Dialog) {
       if (error) {
         toast("Something went wrong", {
           description: error.message,
+        });
+
+        return;
+      }
+
+      const { error: activityError } = await supabase
+        .from("activities")
+        .insert({
+          description: `Team member ${data.full_name} was deleted`,
+          user_id: userData.id,
+          team_id: userData.team_id,
+          activity_type: "team",
+        });
+
+      if (activityError) {
+        toast("Something went wrong", {
+          description: activityError.message,
         });
 
         return;

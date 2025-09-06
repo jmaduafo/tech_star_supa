@@ -7,7 +7,6 @@ import Greeting from "./Greeting";
 import ContractorCount from "./ContractorCount";
 import ProjectCount from "./ProjectCount";
 import PieChartDisplay from "./PieChartDisplay";
-import LineChartDisplay from "./LineChartDisplay";
 import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@/types/types";

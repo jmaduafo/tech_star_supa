@@ -4,7 +4,7 @@ import Header3 from "@/components/fontsize/Header3";
 import TextButton from "@/components/ui/buttons/TextButton";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
-import { Amount, ChartData, LineData, Project } from "@/types/types";
+import { Amount, LineData, Project } from "@/types/types";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import NotAvailable from "@/components/ui/NotAvailable";
 import Header6 from "@/components/fontsize/Header6";
@@ -12,7 +12,7 @@ import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import { chartFormatTotal, getUniqueObjects } from "@/utils/chartHelpers";
 import LineChart2 from "@/components/ui/charts/LineChart2";
-import { sortDate } from "@/utils/sortFilter";
+import { dateRangeFilter, sortDate } from "@/utils/sortFilter";
 
 function LineChartDisplay() {
   const [filteredData, setFilteredData] = useState<LineData[] | undefined>();
@@ -43,9 +43,10 @@ function LineChartDisplay() {
         supabase
           .from("payments")
           .select(
-            "id, date, team_id, payment_amounts (id, name, amount, code, symbol), projects ( id, name)"
+            "id, date, team_id, is_paid, payment_amounts (id, name, amount, code, symbol), projects ( id, name)"
           )
           .eq("team_id", userData.team_id)
+          .is("is_paid", true)
           .throwOnError(),
       ]);
 
@@ -79,17 +80,23 @@ function LineChartDisplay() {
       setCurrencyList(uniqueCurrency);
       setCurrencyCode(uniqueCurrency[0].code);
 
-      // SORT CHART BY DATE (NAME KEY IS THE DATE)
+      // SORT CHART BY DATE IN ASCENDING ORDER (NAME KEY IS THE DATE)
       const sortedChart = sortDate(chart, "name", true);
-      // FILTER BY THE FIRST PROJECT AND THE FIRST CODE IN LIST
+      // FILTER BY THE FIRST PROJECT AND THE FIRST CODE LISTED
       const filterChart = sortedChart.filter(
         (item) =>
           item.project_id === projects.data[0].id &&
-          item.code === uniqueCurrency[0].code
+          item.code === uniqueCurrency[0].code &&
+          dateRangeFilter(item.name, range)
       );
 
-      // ACCUMULATE TOTAL AMOUNTS BY THE DATE
+      // KEEP THIS AS PURE DATA FOR FILTERING PURPOSES
       setPaymentData(sortedChart);
+
+      // ACCUMULATE TOTAL AMOUNTS BASED ON THE DATE
+      // EXAMPLE: AUG 12, 2021 => 309.45; AUG 12, 2021 => 405.00; AUG 19, 2021 => 203.76
+      // OUTPUT: AUG 12, 2021 => 714.45; AUG 19, 2021 => 203.76
+      // name => date; value => amount
       setFilteredData(chartFormatTotal(filterChart, "name", "value"));
     } catch (err: any) {
       console.error(err.message);
@@ -103,8 +110,12 @@ function LineChartDisplay() {
   const filterPayments = () => {
     if (paymentData) {
       const filterChart = paymentData.filter(
-        (item) => item.project_id === projectId && item.code === currencyCode
+        (item) =>
+          item.project_id === projectId &&
+          item.code === currencyCode &&
+          dateRangeFilter(item.name, range)
       );
+
       setFilteredData(chartFormatTotal(filterChart, "name", "value"));
     }
   };
@@ -138,7 +149,7 @@ function LineChartDisplay() {
             className=""
             value={projectId}
             placeholder="Select a project"
-            label="Project"
+            label="Projects"
           >
             {projectData?.length
               ? projectData?.map((item) => {
@@ -155,7 +166,7 @@ function LineChartDisplay() {
             className=""
             value={range}
             placeholder="Select a range"
-            label="Project"
+            label="Ranges"
           >
             {["Last week", "Last 1 month", "Last 1 year"].map((item) => {
               return (
@@ -170,7 +181,7 @@ function LineChartDisplay() {
             className=""
             value={currencyCode}
             placeholder="Select a currency"
-            label="Currency"
+            label="Currencies"
           >
             {currencyList
               ? currencyList.map((item) => {

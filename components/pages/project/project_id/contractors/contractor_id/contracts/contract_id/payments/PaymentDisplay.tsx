@@ -196,7 +196,7 @@ function PaymentDisplay({
           description: `Added a new payment for contract ${
             contract.contract_code
           } ${
-            contract.projects ? "under project" + contract.projects.name : ""
+            contract.projects ? "under project " + contract.projects.name : ""
           }`.trim(),
           user_id: user.id,
           team_id: user.team_id,

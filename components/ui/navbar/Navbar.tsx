@@ -6,7 +6,7 @@ function Navbar() {
   return (
     <header className="">
       <TopBar />
-      <div className="mt-2 bg-light25 py-1 px-1 mx-auto w-fit rounded-full backdrop-blur-[100px]">
+      <div className="mt-2 bg-light35 py-1 px-1 mx-auto w-fit rounded-full backdrop-blur-[100px]">
         <BottomBar />
       </div>
     </header>

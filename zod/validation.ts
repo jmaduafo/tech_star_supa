@@ -180,13 +180,9 @@ export const ContractSchema = z.object({
   desc: z
     .string()
     .min(1, { message: "You must enter a contract description." }),
-  date: z
-    .date({
-      message: "Please select a date",
-    })
-    .min(new Date("1960-01-01"), {
-      message: "The date cannot be earlier than 1960",
-    }),
+  date: z.string().nonempty({
+    message: "Please select a date",
+  }),
   bank_names: z.string().array().nonempty({
     message: "There must be at least one bank entered.",
   }),

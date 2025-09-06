@@ -45,7 +45,7 @@ function NonContractDisplay({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [paymentDate, setPaymentDate] = useState<Date | undefined>(undefined);
+  const [paymentDate, setPaymentDate] = useState<string | undefined>(undefined);
 
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
   const [bankInputs, setBankInputs] = useState<string[]>([]);
@@ -197,11 +197,7 @@ function NonContractDisplay({
             data[0].contractors
               ? "for contractor " + data[0].contractors.name
               : ""
-          } under project ${
-            data[0].projects
-              ? data[0].projects.name
-              : ""
-          }`,
+          } under project ${data[0].projects ? data[0].projects.name : ""}`,
           user_id: userData.id,
           team_id: userData.team_id,
           activity_type: "payment",
@@ -211,6 +207,8 @@ function NonContractDisplay({
         toast("Something went wrong", {
           description: activityError.message,
         });
+
+        console.log(activityError.message)
 
         return;
       }
@@ -298,9 +296,9 @@ function NonContractDisplay({
                     mode="single"
                     selected={paymentDate ? new Date(paymentDate) : undefined}
                     onDayClick={(date: Date) => {
-                      setPaymentDate(date);
+                      const normalized = format(date, "yyyy-MM-dd");
+                      setPaymentDate(normalized);
                     }}
-                    disabled={(date: Date) => date < new Date("1960-01-01")}
                     captionLayout="dropdown"
                   />
                 </PopoverContent>

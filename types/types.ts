@@ -77,6 +77,16 @@ export type Currencies = {
   created_at: string;
 };
 
+export type Activity = {
+  id: string;
+  user_id?: string;
+  description?: string;
+  team_id?: string;
+  activity_type?: string;
+  users: User;
+  created_at: string;
+};
+
 export type Project = {
   id: string;
   name: string;

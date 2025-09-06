@@ -46,7 +46,7 @@ function ContractDisplay({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [contractDate, setContractDate] = useState<Date | undefined>(undefined);
+  const [contractDate, setContractDate] = useState<string | undefined>(undefined);
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
   const [bankInputs, setBankInputs] = useState<string[]>([]);
 
@@ -225,11 +225,7 @@ function ContractDisplay({
             data[0].contractors
               ? "for contractor " + data[0].contractors.name
               : ""
-          } under project ${
-            data[0].projects
-              ? data[0].projects.name
-              : ""
-          }`,
+          } under project ${data[0].projects ? data[0].projects.name : ""}`,
           user_id: userData.id,
           team_id: userData.team_id,
           activity_type: "contract",
@@ -325,15 +321,11 @@ function ContractDisplay({
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={
-                    contractDate
-                      ? new Date(contractDate + "T00:00:00")
-                      : undefined
-                  }
+                  selected={contractDate ? new Date(contractDate) : undefined}
                   onDayClick={(date: Date) => {
-                    setContractDate(date);
+                    const normalized = format(date, "yyyy-MM-dd");
+                    setContractDate(normalized);
                   }}
-                  disabled={(date: Date) => date < new Date("1960-01-01")}
                   captionLayout="dropdown"
                 />
               </PopoverContent>

@@ -4,7 +4,7 @@ import Header3 from "@/components/fontsize/Header3";
 import TextButton from "@/components/ui/buttons/TextButton";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
-import { Amount, ChartData, Project } from "@/types/types";
+import { Amount, ChartData, LineData, Project } from "@/types/types";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import NotAvailable from "@/components/ui/NotAvailable";
 import Header6 from "@/components/fontsize/Header6";
@@ -15,10 +15,10 @@ import LineChart2 from "@/components/ui/charts/LineChart2";
 import { sortDate } from "@/utils/sortFilter";
 
 function LineChartDisplay() {
-  const [filteredData, setFilteredData] = useState<ChartData[] | undefined>();
+  const [filteredData, setFilteredData] = useState<LineData[] | undefined>();
   const [projectData, setProjectData] = useState<Project[] | undefined>();
   const [currencyList, setCurrencyList] = useState<Amount[] | undefined>();
-  const [paymentData, setPaymentData] = useState<ChartData[] | undefined>();
+  const [paymentData, setPaymentData] = useState<LineData[] | undefined>();
 
   const [projectId, setProjectId] = useState("");
   const [range, setRange] = useState("last 1 year");
@@ -33,7 +33,7 @@ function LineChartDisplay() {
         return;
       }
 
-      const [projects, currencies] = await Promise.all([
+      const [projects, payments] = await Promise.all([
         supabase
           .from("projects")
           .select("id, name")
@@ -41,34 +41,56 @@ function LineChartDisplay() {
           .order("created_at", { ascending: true })
           .throwOnError(),
         supabase
-          .from("payment_amounts")
+          .from("payments")
           .select(
-            "id, name, amount, code, symbol, payments ( id, date, team_id )"
+            "id, date, team_id, payment_amounts (id, name, amount, code, symbol), projects ( id, name)"
           )
-          .eq("payments.team_id", userData.team_id)
+          .eq("team_id", userData.team_id)
           .throwOnError(),
       ]);
 
       setProjectData(projects.data as Project[]);
       setProjectId(projects.data[0].id);
 
-      const chart: ChartData[] = [];
+      const paymentAmounts: Amount[] = [];
+      const chart: LineData[] = [];
 
-      currencies.data.forEach((item) => {
-        const payment = Array.isArray(item.payments)
-          ? item.payments[0]
-          : item.payments;
+      payments.data.forEach((item) => {
+        const payment = Array.isArray(item.payment_amounts)
+          ? item.payment_amounts[0]
+          : item.payment_amounts;
 
-        chart.push({ name: payment.date, value: +item.amount });
+        const project = Array.isArray(item.projects)
+          ? item.projects[0]
+          : item.projects;
+
+        chart.push({
+          name: item.date,
+          value: +payment.amount,
+          project_id: project.id,
+          code: payment.code,
+        });
+
+        paymentAmounts.push({ ...payment });
       });
 
-      setPaymentData(chartFormatTotal(sortDate(chart, "name", true), "name", "value"));
-      setFilteredData(chartFormatTotal(sortDate(chart, "name", true), "name", "value"));
+      const uniqueCurrency = getUniqueObjects(paymentAmounts, "code");
 
-      setCurrencyList(
-        getUniqueObjects(currencies.data, "code") as unknown as Amount[]
+      setCurrencyList(uniqueCurrency);
+      setCurrencyCode(uniqueCurrency[0].code);
+
+      // SORT CHART BY DATE (NAME KEY IS THE DATE)
+      const sortedChart = sortDate(chart, "name", true);
+      // FILTER BY THE FIRST PROJECT AND THE FIRST CODE IN LIST
+      const filterChart = sortedChart.filter(
+        (item) =>
+          item.project_id === projects.data[0].id &&
+          item.code === uniqueCurrency[0].code
       );
-      setCurrencyCode(getUniqueObjects(currencies.data, "code")[0].code);
+
+      // ACCUMULATE TOTAL AMOUNTS BY THE DATE
+      setPaymentData(sortedChart);
+      setFilteredData(chartFormatTotal(filterChart, "name", "value"));
     } catch (err: any) {
       console.error(err.message);
     }
@@ -78,7 +100,14 @@ function LineChartDisplay() {
     getData();
   }, []);
 
-  const filterPayments = () => {};
+  const filterPayments = () => {
+    if (paymentData) {
+      const filterChart = paymentData.filter(
+        (item) => item.project_id === projectId && item.code === currencyCode
+      );
+      setFilteredData(chartFormatTotal(filterChart, "name", "value"));
+    }
+  };
 
   return (
     <div className="h-[45vh] flex flex-col">
@@ -167,7 +196,7 @@ function LineChartDisplay() {
       <div className="w-full flex-1">
         {filteredData?.length && currencyCode.length ? (
           <div className="mt-8 w-full h-full">
-            <LineChart2 data={filteredData} code={currencyCode}/>
+            <LineChart2 data={filteredData} code={currencyCode} />
           </div>
         ) : (
           <div className="h-full flex justify-center items-center">

@@ -36,13 +36,25 @@ export const chartFormatCount = (array: any[], key: string | number) => {
   return chartData;
 };
 
-export function getUniqueObjects(arr: any[], key?: string | number) {
+export function getUniqueObjects(
+  arr: any[],
+  key?: string | number,
+) {
   const unique = new Set();
   return arr.filter((obj) => {
-    const keyValue = key ? obj[key] : JSON.stringify(obj);
+    let keyValue;
+
+    if (key) {
+      keyValue = obj[key];
+
+    } else {
+      keyValue = JSON.stringify(obj);
+    }
+
     if (unique.has(keyValue)) {
       return false;
     }
+
     unique.add(keyValue);
     return true;
   });
@@ -53,23 +65,17 @@ export function chartFormatTotal(
   name: string | number,
   value: string
 ) {
-  const data: any = {};
+  const data: any[] = [];
 
   arr.forEach((item) => {
-    const nameKey = item[name];
-    const valueKey = item[value];
+    const index = data.findIndex((fi) => fi[name] === item[name]);
 
-    if (data[nameKey]) {
-      data[nameKey] += valueKey;
+    if (index !== -1) {
+      data[index][value] += item[value];
     } else {
-      data[nameKey] = valueKey;
+      data.push({ ...item, name: item[name], value: item[value] });
     }
   });
 
-  const chart = Object.keys(data).map(item => ({
-    name: item,
-    value: data[item]
-  }))
-
-  return chart
+  return data;
 }

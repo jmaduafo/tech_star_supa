@@ -15,7 +15,7 @@ function CheckedButton({
       onClick={clickedFn}
       disabled={disabledLogic}
       title="Filter"
-      className={`rounded-full ${
+      className={`rounded-full w-6 h-6 ${
         disabledLogic
           ? "opacity-50 cursor-not-allowed"
           : "opacity-100 cursor-pointer hover:bg-lightText text-lightText hover:text-darkText duration-300"

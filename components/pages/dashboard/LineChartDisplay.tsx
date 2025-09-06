@@ -4,18 +4,15 @@ import Header3 from "@/components/fontsize/Header3";
 import TextButton from "@/components/ui/buttons/TextButton";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
-import { Amount, Chart, ChartData, Project } from "@/types/types";
+import { Amount, ChartData, Project } from "@/types/types";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
-import Reset from "@/components/ui/buttons/Reset";
-import { ChartConfig } from "@/components/ui/chart";
-import LineChart from "../../ui/charts/LineChart";
 import NotAvailable from "@/components/ui/NotAvailable";
-import { currency_list } from "@/utils/dataTools";
 import Header6 from "@/components/fontsize/Header6";
 import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
-import { getUniqueObjects } from "@/utils/chartHelpers";
+import { chartFormatTotal, getUniqueObjects } from "@/utils/chartHelpers";
 import LineChart2 from "@/components/ui/charts/LineChart2";
+import { sortDate } from "@/utils/sortFilter";
 
 function LineChartDisplay() {
   const [filteredData, setFilteredData] = useState<ChartData[] | undefined>();
@@ -62,24 +59,11 @@ function LineChartDisplay() {
           ? item.payments[0]
           : item.payments;
 
-        chart.push({ name: payment.date, value: item.amount });
+        chart.push({ name: payment.date, value: +item.amount });
       });
 
-      setPaymentData(
-        chart.toSorted((a, b) => {
-          const dateA = new Date(a.name);
-          const dateB = new Date(b.name);
-          return dateA.getTime() - dateB.getTime(); // Descending order
-        })
-      );
-
-      setFilteredData(
-        chart.toSorted((a, b) => {
-          const dateA = new Date(a.name);
-          const dateB = new Date(b.name);
-          return dateA.getTime() - dateB.getTime(); // Descending order
-        })
-      );
+      setPaymentData(chartFormatTotal(sortDate(chart, "name", true), "name", "value"));
+      setFilteredData(chartFormatTotal(sortDate(chart, "name", true), "name", "value"));
 
       setCurrencyList(
         getUniqueObjects(currencies.data, "code") as unknown as Amount[]
@@ -97,25 +81,29 @@ function LineChartDisplay() {
   const filterPayments = () => {};
 
   return (
-    <div className="h-full">
-      <div className="flex gap-10 justify-between items-start">
-        <div>
-          <Header3 text="At a Glance" />
-          <Header6
-            className="opacity-80"
-            text={`All payments made within the ${
-              range.length ? range : "..."
-            }`}
-          />
-        </div>
-        {filteredData ? (
-          <div className="">
-            <TextButton href="/charts" text="See more" iconDirection="right" />
+    <div className="h-[45vh] flex flex-col">
+      <div className="mb-4">
+        <div className="flex gap-10 justify-between items-start">
+          <div>
+            <Header3 text="At a Glance" />
+            <Header6
+              className="opacity-80"
+              text={`All payments made within the ${
+                range.length ? range : "..."
+              }`}
+            />
           </div>
-        ) : null}
-      </div>
-      <div className="">
-        <div className="grid grid-cols-2 md:flex md:justify-between gap-2 mt-2 md:max-w-[65%]">
+          {filteredData ? (
+            <div className="">
+              <TextButton
+                href="/charts"
+                text="See more"
+                iconDirection="right"
+              />
+            </div>
+          ) : null}
+        </div>
+        <div className="grid grid-cols-2 md:flex md:justify-between items-center gap-2 mt-2 md:max-w-[65%]">
           <SelectBar
             valueChange={setProjectId}
             className=""
@@ -175,10 +163,11 @@ function LineChartDisplay() {
           </div>
         </div>
       </div>
-      <div className="h-[40vh] w-full">
-        {filteredData?.length ? (
+
+      <div className="w-full flex-1">
+        {filteredData?.length && currencyCode.length ? (
           <div className="mt-8 w-full h-full">
-            <LineChart2 data={filteredData} />
+            <LineChart2 data={filteredData} code={currencyCode}/>
           </div>
         ) : (
           <div className="h-full flex justify-center items-center">

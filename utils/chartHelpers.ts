@@ -20,25 +20,25 @@ export const mostFrequent = (array: string[] | number[]) => {
   return maxKey;
 };
 
-// RETURNS APPROPRIATE FORMAT FOR CHART GRAPHING 
+// RETURNS APPROPRIATE FORMAT FOR CHART GRAPHING
 // => [{name: "Reas", value" 18}, {name: "Opal", value: 90}, ...]
-export const chartFormat = (array: any[], key: string | number) => {
+export const chartFormatCount = (array: any[], key: string | number) => {
   let count = array.reduce<Record<string, number>>((acc, curr) => {
     acc[curr[key]] = (acc[curr[key]] || 0) + 1;
     return acc;
   }, {});
 
-
-  const chartData: ChartData[] = Object.entries(count).map(
-    ([name, value]) => ({ name, value })
-  );
+  const chartData: ChartData[] = Object.entries(count).map(([name, value]) => ({
+    name,
+    value,
+  }));
 
   return chartData;
 };
 
 export function getUniqueObjects(arr: any[], key?: string | number) {
   const unique = new Set();
-  return arr.filter(obj => {
+  return arr.filter((obj) => {
     const keyValue = key ? obj[key] : JSON.stringify(obj);
     if (unique.has(keyValue)) {
       return false;
@@ -46,4 +46,30 @@ export function getUniqueObjects(arr: any[], key?: string | number) {
     unique.add(keyValue);
     return true;
   });
+}
+
+export function chartFormatTotal(
+  arr: any[],
+  name: string | number,
+  value: string
+) {
+  const data: any = {};
+
+  arr.forEach((item) => {
+    const nameKey = item[name];
+    const valueKey = item[value];
+
+    if (data[nameKey]) {
+      data[nameKey] += valueKey;
+    } else {
+      data[nameKey] = valueKey;
+    }
+  });
+
+  const chart = Object.keys(data).map(item => ({
+    name: item,
+    value: data[item]
+  }))
+
+  return chart
 }

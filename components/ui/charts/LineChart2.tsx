@@ -1,4 +1,5 @@
 import { ChartData } from "@/types/types";
+import { formatCurrency } from "@/utils/currencies";
 import React from "react";
 import {
   CartesianGrid,
@@ -10,7 +11,7 @@ import {
   XAxis,
 } from "recharts";
 
-function LineChart2({ data }: { readonly data: ChartData[] }) {
+function LineChart2({ data, code }: { readonly data: ChartData[]; readonly code: string }) {
   return (
     <ResponsiveContainer width="100%" height="80%">
       <LineChart
@@ -54,7 +55,7 @@ function LineChart2({ data }: { readonly data: ChartData[] }) {
                 year: "numeric",
               });
             }}
-            
+            formatter={(value) => `${formatCurrency(+value, code)}`}
           />
         ) : null}
       </LineChart>

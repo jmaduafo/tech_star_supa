@@ -34,7 +34,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { cn } from "@/lib/utils";
 import { SelectItem } from "../select";
 import { Switch } from "../switch";
-import Separator from "../Separator";
+import Separator from "../MySeparator";
 import Input from "../input/Input";
 import Submit from "../buttons/Submit";
 import ArrayInput from "../input/ArrayInput";
@@ -57,6 +57,7 @@ import Loading from "../loading/Loading";
 import { ContractSchema } from "@/zod/validation";
 
 function ContractAction({ data }: { readonly data: Contract | undefined }) {
+  const [dropDownOpen, setDropDownOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -92,24 +93,39 @@ function ContractAction({ data }: { readonly data: Contract | undefined }) {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
         <DropdownMenuTrigger className="flex justify-end items-center">
           <Ellipsis />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="" align="start">
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => setViewOpen(true)}>
+            <DropdownMenuItem
+              onClick={() => {
+                setViewOpen(true);
+                setDropDownOpen(false);
+              }}
+            >
               View details
             </DropdownMenuItem>
             {userData?.role === "admin" &&
             userData?.team_id === data?.team_id ? (
-              <DropdownMenuItem onClick={() => setEditOpen(true)}>
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditOpen(true);
+                  setDropDownOpen(false);
+                }}
+              >
                 Edit
               </DropdownMenuItem>
             ) : null}
             {userData?.role === "admin" &&
             userData?.team_id === data?.team_id ? (
-              <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteOpen(true);
+                  setDropDownOpen(false);
+                }}
+              >
                 Delete
               </DropdownMenuItem>
             ) : null}

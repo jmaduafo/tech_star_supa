@@ -26,7 +26,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CustomInput from "@/components/ui/input/CustomInput";
-import Separator from "@/components/ui/Separator";
+import Separator from "@/components/ui/MySeparator";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/UserContext";

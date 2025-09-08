@@ -16,20 +16,27 @@ import { User } from "@/types/types";
 import ProfileCard from "../cards/ProfileCard";
 import { useAuth } from "@/context/UserContext";
 import { useUsers } from "@/lib/queries/queries";
+import { SidebarTrigger } from "../sidebar";
 
 function TopBar() {
   const { userData } = useAuth();
-  const { data: user  } = useUsers(userData?.id)
+  const [isMenu, setIsMenu] = useState(false);
+
+  const { data: user } = useUsers(userData?.id);
 
   return (
-    <div className="flex justify-between items-center">
-      <div>
-        <p>LOGO</p>
+    <div className="">
+      <div className="flex items-center gap-3">
+        <p className={`${isMenu ? "visible" : "invisible"}`}>Menu</p>
+        <SidebarTrigger
+          onMouseEnter={() => setIsMenu(true)}
+          onMouseLeave={() => setIsMenu(false)}
+        />
       </div>
-      <div className="flex gap-3">
+      {/* <div className="flex gap-3">
         <ProfileButton user={user} />
         <SettingButton user={user} />
-      </div>
+      </div> */}
     </div>
   );
 }

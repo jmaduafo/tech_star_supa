@@ -1,14 +1,13 @@
 import React from "react";
 import TopBar from "./TopBar";
-import BottomBar from "./BottomBar";
 
 function Navbar() {
   return (
-    <header className="">
+    <header className="stick top-0 p-2">
       <TopBar />
-      <div className="mt-2 bg-light35 py-1 px-1 mx-auto w-fit rounded-full backdrop-blur-[100px]">
+      {/* <div className="mt-2 bg-light35 py-1 px-1 mx-auto w-fit rounded-full backdrop-blur-[100px]">
         <BottomBar />
-      </div>
+      </div> */}
     </header>
   );
 }

@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Separator from "@/components/ui/Separator";
+import Separator from "@/components/ui/MySeparator";
 import { Switch } from "@/components/ui/switch";
 import { paymentColumns } from "@/components/ui/tables/columns";
 import DataTable from "@/components/ui/tables/DataTable";
@@ -240,6 +240,7 @@ function PaymentDisplay({
       setIsLoading(false);
     }
   };
+  
   return (
     <section>
       <div className="flex items-end justify-between">

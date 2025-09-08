@@ -32,7 +32,7 @@ import { currency_list } from "@/utils/dataTools";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { cn } from "@/lib/utils";
 import { SelectItem } from "../select";
-import Separator from "../Separator";
+import Separator from "../MySeparator";
 import { Switch } from "../switch";
 import Input from "../input/Input";
 import { Calendar } from "../calendar";
@@ -62,6 +62,7 @@ function PaymentAction({
   readonly data: Payment | undefined;
   readonly is_contract?: boolean;
 }) {
+  const [dropDownOpen, setDropDownOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -97,24 +98,39 @@ function PaymentAction({
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
         <DropdownMenuTrigger className="flex justify-end items-center">
           <Ellipsis />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="" align="start">
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => setViewOpen(true)}>
+            <DropdownMenuItem
+              onClick={() => {
+                setViewOpen(true);
+                setDropDownOpen(false);
+              }}
+            >
               View details
             </DropdownMenuItem>
             {userData?.role === "admin" &&
             userData?.team_id === data?.team_id ? (
-              <DropdownMenuItem onClick={() => setEditOpen(true)}>
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditOpen(true);
+                  setDropDownOpen(false);
+                }}
+              >
                 Edit
               </DropdownMenuItem>
             ) : null}
             {userData?.role === "admin" &&
             userData?.team_id === data?.team_id ? (
-              <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteOpen(true);
+                  setDropDownOpen(false);
+                }}
+              >
                 Delete
               </DropdownMenuItem>
             ) : null}
@@ -182,7 +198,7 @@ const ViewAction = ({
             {/* AMOUNT */}
             <ViewLabel label={"Payment amount"} custom>
               <div>
-                {data.payment_amounts.map((item) => {
+                {data.payment_amounts?.map((item) => {
                   return (
                     <p key={item.id}>
                       {item.code} {formatCurrency(+item.amount, item.code)}
@@ -198,7 +214,12 @@ const ViewAction = ({
               {data.is_completed ? checkIsPaid : <Banner text="pending" />}
             </ViewLabel>
             {/* CREATED AT */}
-            <ViewLabel label={"Created"} content={formatAgo(data.created_at)} />
+            {data?.created_at ? (
+              <ViewLabel
+                label={"Created"}
+                content={formatAgo(data.created_at)}
+              />
+            ) : null}
             {/* UPDATED AT */}
             {data.updated_at ? (
               <ViewLabel
@@ -246,9 +267,7 @@ const EditAction = ({
   const [paymentDate, setPaymentDate] = useState<string | undefined>(undefined);
 
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
-  const [bankInputs, setBankInputs] = useState<string[]>(
-    data ? [data.bank_name] : []
-  );
+  const [bankInputs, setBankInputs] = useState<string[]>([]);
 
   const [form, setForm] = useState({
     desc: "",
@@ -296,8 +315,8 @@ const EditAction = ({
   // INPUTS REFLECTS APPROPRIATELY AFTER THE DATA CHANGES
   useEffect(() => {
     setForm({
-      desc: data ? data.description : "",
-      stage_id: data ? data.stage_id : "",
+      desc: data?.description ?? "",
+      stage_id: data?.stage_id ?? "",
       comment: data?.comment ?? "",
       bank_name: data?.bank_name ?? "",
       amounts: {
@@ -306,13 +325,13 @@ const EditAction = ({
         amount: "",
         name: "",
       },
-      is_completed: data ? data.is_completed : false,
-      is_paid: data ? data.is_paid : true,
+      is_completed: data?.is_completed ?? false,
+      is_paid: data?.is_paid ?? true,
     });
 
     setPaymentDate(data ? data.date : undefined);
-    setCurrencyInputs(data ? data.payment_amounts : []);
-    setBankInputs(data ? [data.bank_name] : []);
+    setCurrencyInputs(data?.payment_amounts ?? []);
+    setBankInputs(data?.bank_name ? [data.bank_name] : []);
 
     getContract();
   }, [data]);

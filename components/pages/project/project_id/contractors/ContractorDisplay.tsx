@@ -147,6 +147,7 @@ function DropDown({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [viewContractorOpen, setViewContractorOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [stagesList, setStagesList] = useState<MultiSelect[] | undefined>();
 
@@ -192,7 +193,7 @@ function DropDown({
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <button>
             <EllipsisVertical className="w-5 h-5" />
@@ -205,6 +206,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setAssignOpen(true);
+                    setDropdownOpen(false)
                   }}
                 >
                   Assign stages
@@ -218,6 +220,7 @@ function DropDown({
             <DropdownMenuItem
               onClick={() => {
                 setViewContractorOpen(true);
+                setDropdownOpen(false)
               }}
             >
               View
@@ -227,6 +230,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setEditOpen(true);
+                    setDropdownOpen(false)
                   }}
                 >
                   Edit
@@ -234,6 +238,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setDeleteOpen(true);
+                    setDropdownOpen(false)                    
                   }}
                 >
                   Delete

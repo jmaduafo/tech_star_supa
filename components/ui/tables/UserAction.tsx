@@ -42,6 +42,8 @@ type Dialog = {
 };
 
 function UserAction({ data }: Dialog) {
+  const [dropDownOpen, setDropDownOpen] = useState(false);
+
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewEditSheetOpen, setViewEditSheetOpen] = useState(false);
 
@@ -221,7 +223,7 @@ function UserAction({ data }: Dialog) {
 
   return (
     <div>
-      <DropdownMenu>
+      <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
         <DropdownMenuTrigger className="flex justify-end items-center">
           <MoreHorizontal />
         </DropdownMenuTrigger>
@@ -230,6 +232,7 @@ function UserAction({ data }: Dialog) {
           <DropdownMenuItem
             onClick={() => {
               setViewDialogOpen(true);
+              setDropDownOpen(false);
             }}
           >
             View profile
@@ -239,6 +242,7 @@ function UserAction({ data }: Dialog) {
               <DropdownMenuItem
                 onClick={() => {
                   setEditDialogOpen(true);
+                  setDropDownOpen(false);
                 }}
               >
                 Edit member
@@ -246,6 +250,7 @@ function UserAction({ data }: Dialog) {
               <DropdownMenuItem
                 onClick={() => {
                   setDeleteDialogOpen(true);
+                  setDropDownOpen(false);
                 }}
               >
                 Delete member

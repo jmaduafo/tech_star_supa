@@ -283,7 +283,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
 
   return (
     <div className="">
-      <div className="flex gap-4">
+      <div className="flex items-center gap-4">
         <MultiSelectBar
           name={"projects"}
           array={allProjects}

@@ -298,14 +298,14 @@ export const paymentColumns: ColumnDef<Payment>[] = [
 
       return (
         <div className="text-right">
-          {data?.payment_amounts[0]?.amount &&
+          {data?.payment_amounts && data?.payment_amounts[0]?.amount &&
           data?.payment_amounts[0]?.amount !== "Unlimited"
             ? formatCurrency(
                 +data?.payment_amounts[0]?.amount,
                 data?.payment_amounts[0]?.code
               )
-            : `${data?.payment_amounts[0]?.symbol} Unlimited`}
-          {data?.payment_amounts?.length > 1 ? ", ..." : ""}
+            : `${data?.payment_amounts && data?.payment_amounts[0]?.symbol} Unlimited`}
+          {data?.payment_amounts && data?.payment_amounts?.length > 1 ? ", ..." : ""}
         </div>
       );
     },

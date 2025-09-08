@@ -170,6 +170,7 @@ function DropDown({
               <DropdownMenuItem
                 onClick={() => {
                   setAddStageOpen(true);
+                  setDropDownOpen(false)
                 }}
               >
                 Add stage
@@ -178,6 +179,7 @@ function DropDown({
             <DropdownMenuItem
               onClick={() => {
                 setViewStageOpen(true);
+                setDropDownOpen(false)
               }}
             >
               View stages
@@ -190,6 +192,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setEditOpen(true);
+                    setDropDownOpen(false)
                   }}
                 >
                   Edit
@@ -197,6 +200,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setDeleteOpen(true);
+                    setDropDownOpen(false)
                   }}
                 >
                   Delete

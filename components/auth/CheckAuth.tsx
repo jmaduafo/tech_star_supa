@@ -10,6 +10,8 @@ import { Session } from "@supabase/supabase-js";
 import Loader from "../ui/loading/Loader";
 import { useAuth } from "@/context/UserContext";
 import { useBackgroundImage } from "@/lib/queries/queries";
+import { SidebarProvider } from "../ui/sidebar";
+import AppSidebar from "../ui/sidebar/AppSidebar";
 
 function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -24,7 +26,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
 
   const { userData } = useAuth();
 
-  const { data: bgIndex } = useBackgroundImage(userData?.id)
+  const { data: bgIndex } = useBackgroundImage(userData?.id);
 
   // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS
   // LOGGED IN OR NOT
@@ -71,22 +73,33 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   }
 
   return (
-    <main
-      style={{
-        backgroundImage:
-          session && pathname !== "/" && bgIndex
-            ? `url(${images[bgIndex]?.image})`
-            : `url(${images[0].image})`,
-      }}
-      className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
-    >
+    <>
       {session && pathname !== "/" ? (
-        <AuthContainer>{children}</AuthContainer>
+        <SidebarProvider>
+          <AppSidebar />
+          <main
+            style={{
+              backgroundImage: bgIndex
+                ? `url(${images[bgIndex]?.image})`
+                : `url(${images[0].image})`,
+            }}
+            className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
+          >
+            <AuthContainer>{children}</AuthContainer>
+          </main>
+        </SidebarProvider>
       ) : (
-        <MainPage />
+        <main
+          style={{
+            backgroundImage: `url(${images[0].image})`,
+          }}
+          className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
+        >
+          <MainPage />
+        </main>
       )}
       <Toaster />
-    </main>
+    </>
   );
 }
 

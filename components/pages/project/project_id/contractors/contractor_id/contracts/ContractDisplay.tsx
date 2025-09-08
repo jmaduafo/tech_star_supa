@@ -24,7 +24,7 @@ import { format } from "date-fns";
 import Input from "@/components/ui/input/Input";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import Separator from "@/components/ui/Separator";
+import Separator from "@/components/ui/MySeparator";
 import { cn } from "@/lib/utils";
 import CustomInput from "@/components/ui/input/CustomInput";
 import { Calendar } from "@/components/ui/calendar";

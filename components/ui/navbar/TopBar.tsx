@@ -25,18 +25,18 @@ function TopBar() {
   const { data: user } = useUsers(userData?.id);
 
   return (
-    <div className="">
+    <div className="flex justify-between">
       <div className="flex items-center gap-3">
-        <p className={`${isMenu ? "visible" : "invisible"}`}>Menu</p>
         <SidebarTrigger
           onMouseEnter={() => setIsMenu(true)}
           onMouseLeave={() => setIsMenu(false)}
         />
+        <p className={`${isMenu ? "visible" : "invisible"}`}>Menu</p>
       </div>
-      {/* <div className="flex gap-3">
-        <ProfileButton user={user} />
+      <div className="flex gap-3">
+        {/* <ProfileButton user={user} /> */}
         <SettingButton user={user} />
-      </div> */}
+      </div>
     </div>
   );
 }

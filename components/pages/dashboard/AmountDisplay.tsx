@@ -1,31 +1,31 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { currency_list } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import SelectBar from "@/components/ui/input/SelectBar";
 import Header1 from "@/components/fontsize/Header1";
 import Header2 from "@/components/fontsize/Header2";
 import Header4 from "@/components/fontsize/Header4";
-import { Amount, MultiSelect, User } from "@/types/types";
+import { Amount, MultiSelect, Project, User } from "@/types/types";
 import NotAvailable from "@/components/ui/NotAvailable";
-import { convertCurrency, totalSum } from "@/utils/currencies";
+import {
+  convertCurrency,
+  getPercentChange,
+  totalSum,
+} from "@/utils/currencies";
 import Loading from "@/components/ui/loading/Loading";
 import Reset from "@/components/ui/buttons/Reset";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import Header6 from "@/components/fontsize/Header6";
-import MultiSelectBar from "@/components/ui/input/MultiSelectBar";
 import { createClient } from "@/lib/supabase/client";
+import Card from "@/components/ui/cards/MyCard";
+import Header5 from "@/components/fontsize/Header5";
+import PercentBanner from "@/components/ui/banners/PercentBanner";
 
 function AmountDisplay({ user }: { readonly user: User | undefined }) {
-  const [allProjects, setAllProjects] = useState<MultiSelect[] | undefined>();
-  const [allContractors, setAllContractors] = useState<
-    MultiSelect[] | undefined
-  >();
+  const [allProjects, setAllProjects] = useState<Project[] | undefined>();
 
-  const [selectedProjects, setSelectedProjects] = useState<MultiSelect[]>([]);
-  const [selectedContractors, setSelectedContractors] = useState<MultiSelect[]>(
-    []
-  );
+  const [selectedProject, setSelectedProject] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState("");
 
@@ -83,8 +83,8 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
         newContractors.push({ label: item.name, value: item.id });
       });
 
-      setAllProjects(newProjects);
-      setAllContractors(newContractors);
+      // setAllProjects(newProjects);
+      // setAllContractors(newContractors);
 
       setAllContracts(contracts.data);
       setAllPayments(payments.data);
@@ -114,57 +114,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
         (item) => item.code === selectedCurrency
       );
 
-      allContracts.forEach((item) => {
-        contracts.push(item);
-      });
-      
-      allPayments.forEach((item) => {
-        payments.push(item);
-      });
 
-      const projectIds = selectedProjects.map((item) => item.value);
-      const contractorIds = selectedContractors.map((item) => item.value);
-
-      const contractFilter = contracts.filter((item) => {
-        return item.contracts
-          ? projectIds.includes(item.contracts.project_id) ||
-              contractorIds.includes(item.contracts.contractor_id) ||
-              selectedCurrency.includes(item.code)
-          : [];
-      });
-
-      setCurrencySymbol(findSymbol ? findSymbol.symbol : "");
-
-      const paymentFilter = payments.filter((item) => {
-        return item.payments && item.payments.project_id && item.payments.contractor_id
-          ? projectIds.includes(item.payments.project_id) ||
-              contractorIds.includes(item.payments.contractor_id) ||
-              selectedCurrency.includes(item.code)
-          : [];
-      });
-
-      // 
-      const withinPayment = paymentFilter
-        .filter((item) =>
-          item.payments ? item.payments.contract_id !== null : []
-        )
-        .map((item) => +item.amount);
-
-      const outsidePayment = paymentFilter
-        .filter((item) =>
-          item.payments ? item.payments.contract_id === null : []
-        )
-        .map((item) => +item.amount);
-
-      const contract = contractFilter.map((item) =>
-        item.amount !== "Unlimited" ? +item.amount : 0
-      );
-
-      setAllTotals({
-        contractPayments: totalSum(withinPayment),
-        noncontractPayments: totalSum(outsidePayment),
-        contracts: totalSum(contract),
-      });
     } catch (err: any) {
       console.log(err.message);
     } finally {
@@ -173,8 +123,6 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
   }
 
   function reset() {
-    setSelectedContractors([]);
-    setSelectedProjects([]);
     setSelectedCurrency("");
     setCurrencySymbol("");
     setAllTotals({
@@ -281,21 +229,50 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
       </div>
     );
 
+  const kpi = [
+    {
+      title: "Payment size",
+      currentAmount: 34,
+      previousAmount: 76,
+    },
+    {
+      title: "Average contracts",
+      currentAmount: 98,
+      previousAmount: 76,
+    },
+    {
+      title: "Total amount paid",
+      currentAmount: 290,
+      previousAmount: 290,
+    },
+    {
+      title: "Average ",
+      currentAmount: 281,
+      previousAmount: 299,
+    },
+  ];
+
   return (
-    <div className="">
+    <div>
       <div className="flex items-center gap-4">
-        <MultiSelectBar
-          name={"projects"}
-          array={allProjects}
-          selectedArray={selectedProjects}
-          setSelectedArray={setSelectedProjects}
-        />
-        <MultiSelectBar
-          name={"contractors"}
-          array={allContractors}
-          selectedArray={selectedContractors}
-          setSelectedArray={setSelectedContractors}
-        />
+        <SelectBar
+          valueChange={setSelectedProject}
+          value={selectedProject}
+          placeholder="Select a project"
+          label="Projects"
+        >
+          {currency_list.map((item) => {
+            return (
+              <SelectItem
+                className="cursor-pointer"
+                key={item?.name}
+                value={item?.code}
+              >
+                {item.name}
+              </SelectItem>
+            );
+          })}
+        </SelectBar>
         <SelectBar
           valueChange={setSelectedCurrency}
           value={selectedCurrency}
@@ -318,22 +295,36 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           <CheckedButton
             clickedFn={totalAmount}
             disabledLogic={
-              !selectedContractors.length &&
-              !selectedProjects.length &&
               !selectedCurrency.length
             }
           />
-          <Reset clickedFn={reset} />
+          {/* <Reset clickedFn={reset} /> */}
         </div>
       </div>
-      {/* IF NOT LOADING, THEN DISPLAY "amountView" above*/}
-      {loading ? (
-        <div className="mt-6 flex justify-center">
-          <Loading />
-        </div>
-      ) : (
-        amountView
-      )}
+      <div className="grid grid-cols-4 gap-4 mt-2">
+        {kpi.map((item) => {
+          return (
+            <Fragment key={item.title}>
+              <Card>
+                <Header6 text={item.title} className="capitalize" />
+                <div className="flex justify-end items-start gap-2 mt-5">
+                  <Header2 text={`${item.currentAmount}`} />
+                  <PercentBanner
+                    type={
+                      getPercentChange(item.currentAmount, item.previousAmount)
+                        .type
+                    }
+                    percent={
+                      getPercentChange(item.currentAmount, item.previousAmount)
+                        .percent
+                    }
+                  />
+                </div>
+              </Card>
+            </Fragment>
+          );
+        })}
+      </div>
     </div>
   );
 }

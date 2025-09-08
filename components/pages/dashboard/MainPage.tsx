@@ -8,7 +8,7 @@ function MainPage() {
   return (
     <>
       <DashboardGrid />
-      <Card className="mt-8">
+      <Card className="mt-4">
         <LineChartDisplay />
       </Card>
       <div className="mt-8">

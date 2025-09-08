@@ -3,22 +3,25 @@ export const images = [
     image: "/images/background1.jpg",
   },
   {
-    image: "/images/background2.jpg",
-  },
-  {
     image: "/images/background3.jpg",
   },
   {
     image: "/images/background4.jpg",
   },
   {
-    image: "/images/background5.jpg",
-  },
-  {
     image: "/images/background6.jpg",
   },
   {
-    image: "/images/background8.jpg",
+    image: "/images/background9.jpg",
+  },
+  {
+    image: "/images/background10.jpg",
+  },
+  {
+    image: "/images/background11.jpg",
+  },
+  {
+    image: "/images/background12.jpg",
   },
 ];
 

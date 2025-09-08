@@ -68,9 +68,9 @@ function DashboardGrid() {
         <Greeting user={user} />
       </Card>
       {/* Amount Display */}
-      <Card className="calc">
+      <div className="calc">
         <AmountDisplay user={user} />
-      </Card>
+      </div>
       {/* Line chart */}
       <Card className="line">
         <Activities user={user} />

@@ -99,3 +99,24 @@ export function upsertCurrencies(
 
   return result;
 }
+
+export function getPercentChange(current: number, prev: number) {
+  const change = ((current - prev) / prev) * 100
+
+  if (change < 0) {
+    return {
+      percent: change.toFixed(1),
+      type: "decrease"
+    }
+  } else if (change > 0) {
+    return {
+      percent: change.toFixed(1),
+      type: "increase"
+    }
+  }
+
+  return {
+      percent: change.toFixed(1),
+      type: "no change"
+    }
+}

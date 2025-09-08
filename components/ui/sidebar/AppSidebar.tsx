@@ -13,6 +13,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -31,6 +33,12 @@ import { useUsers } from "@/lib/queries/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 import { getInitials } from "@/utils/initials";
 import Paragraph from "@/components/fontsize/Paragraph";
+import { ChevronDown } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../collapsible";
 
 function AppSidebar() {
   const items = [
@@ -51,17 +59,17 @@ function AppSidebar() {
     {
       title: "Tables",
       url: "",
-      icon: <HugeiconsIcon icon={TableIcon} size={24} strokeWidth={1} />,
+      icon: <HugeiconsIcon icon={TableIcon} size={16} strokeWidth={1} />,
       dropdown: [
         {
           title: "Payments",
           url: "/tables/payments",
-          icon: <HugeiconsIcon icon={TableIcon} size={24} strokeWidth={1} />,
+          icon: <HugeiconsIcon icon={Money01Icon} size={16} strokeWidth={1} />,
         },
         {
           title: "Contracts",
           url: "/tables/contracts",
-          icon: <HugeiconsIcon icon={TableIcon} size={24} strokeWidth={1} />,
+          icon: <HugeiconsIcon icon={TableIcon} size={16} strokeWidth={1} />,
         },
       ],
     },
@@ -98,34 +106,74 @@ function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    onClick={() => setOpen(false)}
-                    className={`hover:bg-lightText duration-300`}
+              {items.map((item) =>
+                item.dropdown ? (
+                  <Collapsible
+                    key={item.title}
+                    defaultOpen
+                    className="group/collapsible"
                   >
-                    <Link href={item.url}>
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <span className="flex items-center justify-between px-2 py-1">
+                          <span className="flex items-center gap-2">
+                            {item.icon}
+                            {item.title}
+                          </span>
+                          <ChevronDown size={16} strokeWidth={1}/>
+                        </span>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          <SidebarMenuSubItem>
+                            {item.dropdown.map((drop) => (
+                              <SidebarMenuButton
+                                asChild
+                                onClick={() => setOpen(false)}
+                                className={`hover:bg-lightText duration-300`}
+                                key={drop.title}
+                              >
+                                <Link href={drop.url}>
+                                  <span>{drop.icon}</span>
+                                  <span>{drop.title}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            ))}
+                          </SidebarMenuSubItem>
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                ) : (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      onClick={() => setOpen(false)}
+                      className={`hover:bg-lightText duration-300`}
+                    >
+                      <Link href={item.url}>
+                        {item.icon}
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         {user ? (
-          <SidebarMenuItem className={`hover:bg-lightText bg-lightText/60 rounded-md duration-300 py-2 px-1`}>
+          <SidebarMenuItem
+            className={`hover:bg-lightText bg-lightText/60 rounded-md duration-300 py-2 px-1`}
+          >
             <SidebarMenuButton
               onClick={() => {
                 setProfileOpen(true);
                 setEditProfileOpen(false);
                 setOpen(false);
               }}
-            
             >
               <div className="flex items-center gap-2.5">
                 <Avatar className="w-8 h-8">
@@ -137,7 +185,7 @@ function AppSidebar() {
                 </Avatar>
                 <div>
                   <Paragraph text={user.full_name} />
-                  <Paragraph text="Free" className="text-darkText/60 -mt-1"/>
+                  <Paragraph text="Free" className="text-darkText/60 -mt-1" />
                 </div>
               </div>
             </SidebarMenuButton>

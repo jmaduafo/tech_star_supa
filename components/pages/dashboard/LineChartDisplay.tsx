@@ -128,9 +128,9 @@ function LineChartDisplay() {
             <Header3 text="At a Glance" />
             <Header6
               className="opacity-80"
-              text={`All payments made within the ${
-                range.length ? range : "..."
-              }`}
+              text={`All payments made for project ${
+                projectData?.find((item) => item.id === projectId)?.name ?? "-"
+              } within the ${range.length ? range : "..."}`}
             />
           </div>
           {filteredData ? (

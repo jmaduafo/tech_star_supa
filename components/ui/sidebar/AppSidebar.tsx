@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -22,6 +25,12 @@ import {
   UserGroup03Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
+import ProfileCard from "../cards/ProfileCard";
+import { useAuth } from "@/context/UserContext";
+import { useUsers } from "@/lib/queries/queries";
+import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
+import { getInitials } from "@/utils/initials";
+import Paragraph from "@/components/fontsize/Paragraph";
 
 function AppSidebar() {
   const items = [
@@ -72,7 +81,12 @@ function AppSidebar() {
     },
   ];
 
-  const { setOpen } = useSidebar()
+  const { setOpen } = useSidebar();
+  const { userData } = useAuth();
+  const { data: user } = useUsers(userData?.id);
+
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
   return (
     <Sidebar>
@@ -102,7 +116,43 @@ function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+        {user ? (
+          <SidebarMenuItem className={`hover:bg-lightText bg-lightText/60 rounded-md duration-300 py-2 px-1`}>
+            <SidebarMenuButton
+              onClick={() => {
+                setProfileOpen(true);
+                setEditProfileOpen(false);
+                setOpen(false);
+              }}
+            
+            >
+              <div className="flex items-center gap-2.5">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage
+                    src={user.image_url ?? ""}
+                    alt={user.first_name + " profile"}
+                  />
+                  <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <Paragraph text={user.full_name} />
+                  <Paragraph text="Free" className="text-darkText/60 -mt-1"/>
+                </div>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ) : (
+          <SidebarMenuSkeleton className="h-6 w-full" />
+        )}
+        <ProfileCard
+          user={user}
+          profileOpen={profileOpen}
+          setProfileOpen={setProfileOpen}
+          editProfileOpen={editProfileOpen}
+          setEditProfileOpen={setEditProfileOpen}
+        />
+      </SidebarFooter>
     </Sidebar>
   );
 }

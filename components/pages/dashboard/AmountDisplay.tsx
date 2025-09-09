@@ -3,11 +3,8 @@ import React, { useState, useEffect, Fragment } from "react";
 import { currency_list } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import SelectBar from "@/components/ui/input/SelectBar";
-import Header1 from "@/components/fontsize/Header1";
 import Header2 from "@/components/fontsize/Header2";
-import Header4 from "@/components/fontsize/Header4";
-import { Amount, MultiSelect, Project, User } from "@/types/types";
-import NotAvailable from "@/components/ui/NotAvailable";
+import { Amount, Payment, Project, User, Versus } from "@/types/types";
 import {
   convertCurrency,
   getPercentChange,
@@ -21,16 +18,19 @@ import { createClient } from "@/lib/supabase/client";
 import Card from "@/components/ui/cards/MyCard";
 import Header5 from "@/components/fontsize/Header5";
 import PercentBanner from "@/components/ui/banners/PercentBanner";
+import { pastTime, versusLast } from "@/utils/dateAndTime";
+import { format } from "date-fns";
+import { getUniqueObjects } from "@/utils/chartHelpers";
 
 function AmountDisplay({ user }: { readonly user: User | undefined }) {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
+  const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState("");
 
-  const [allContracts, setAllContracts] = useState<Amount[] | undefined>();
-  const [allPayments, setAllPayments] = useState<Amount[] | undefined>();
+  const [kpi, setKpi] = useState<Versus[]>([]);
 
   const [loading, setLoading] = useState(false);
 
@@ -49,45 +49,58 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
         return;
       }
 
-      const [projects, contractors, contracts, payments] = await Promise.all([
+      const [projects, contracts, payments] = await Promise.all([
         supabase
           .from("projects")
-          .select("id, name")
-          .eq("team_id", user.team_id)
-          .throwOnError(),
-        supabase
-          .from("contractors")
-          .select("id, name")
+          .select(
+            "id, name, payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts ( id, date, contract_amounts ( * )), contractors (id, name, payments ( id, date, is_paid, is_completed ))"
+          )
           .eq("team_id", user.team_id)
           .throwOnError(),
         supabase
           .from("contract_amounts")
-          .select("*, contracts (*)")
+          .select("*, contracts ( id, is_completed, team_id)")
           .eq("contracts.team_id", user.team_id)
+          // .rangeGte("contracts.date", format(pastTime("Last 1 year"), "PP"))
           .throwOnError(),
         supabase
           .from("payment_amounts")
-          .select("*, payments (*) ")
+          .select("*, payments ( id, is_completed, is_paid, team_id)")
           .eq("payments.team_id", user.team_id)
+          // .rangeGte("contracts.date", format(pastTime("Last 1 year"), "PP"))
           .throwOnError(),
       ]);
 
-      const newProjects: MultiSelect[] = [];
-      const newContractors: MultiSelect[] = [];
+      const allCurrencies: Amount[] = [];
 
-      projects.data.forEach((item) => {
-        newProjects.push({ label: item.name, value: item.id });
+      contracts.data.forEach((item) => {
+        allCurrencies.push({
+          code: item.code,
+          symbol: item.symbol,
+          name: item.name,
+          amount: item.amount,
+        });
       });
 
-      contractors.data.forEach((item) => {
-        newContractors.push({ label: item.name, value: item.id });
+      payments.data.forEach((item) => {
+        allCurrencies.push({
+          code: item.code,
+          symbol: item.symbol,
+          name: item.name,
+          amount: item.amount,
+        });
       });
 
-      // setAllProjects(newProjects);
-      // setAllContractors(newContractors);
+      setAllProjects(projects.data as unknown as Project[]);
 
-      setAllContracts(contracts.data);
-      setAllPayments(payments.data);
+      const uniqueCurrency = getUniqueObjects(allCurrencies, "code");
+      setCurrenciesList(uniqueCurrency);
+
+      setSelectedProject(projects.data[0].id);
+      setSelectedCurrency(uniqueCurrency[0].code);
+      setCurrencySymbol(uniqueCurrency[0].symbol);
+
+      console.log(projects.data);
     } catch (err: any) {
       console.error(err.message);
     }
@@ -96,31 +109,6 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
   useEffect(() => {
     allData();
   }, [user]);
-
-  // RETRIEVES CALCULATIONS OF REVISED CONTRACTS & PAYMENTS WITHIN AND OUTSIDE CONTRACTS
-
-  async function totalAmount() {
-    setLoading(true);
-
-    const contracts: Amount[] = [];
-    const payments: Amount[] = [];
-
-    try {
-      if (!selectedCurrency.length || !allPayments || !allContracts) {
-        return;
-      }
-
-      const findSymbol = currency_list.find(
-        (item) => item.code === selectedCurrency
-      );
-
-
-    } catch (err: any) {
-      console.log(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function reset() {
     setSelectedCurrency("");
@@ -132,123 +120,83 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     });
   }
 
-  // The condition to either show the amount display or the "No payments available"
-  const amountView =
-    allTotals?.contracts ||
-    allTotals?.contractPayments ||
-    allTotals?.noncontractPayments ? (
-      <div className="mt-6 flex justify-between items-end">
-        <div className="flex flex-col items-center">
-          <div className="flex items-start gap-3">
-            <Header1
-              text={convertCurrency(
-                allTotals.contractPayments + allTotals.noncontractPayments
-              )}
-              className="font-semibold"
-            />
-            {currencySymbol.length ? <Header4 text={currencySymbol} /> : null}
-          </div>
-          <Header6 text="Total Payment Made" />
-        </div>
-        <div className="flex gap-10">
-          <div className="flex flex-col items-center">
-            <div className="flex items-start gap-3">
-              <Header2
-                text={convertCurrency(allTotals.contracts)}
-                className="font-medium"
-              />
-              {currencySymbol.length ? <Header4 text={currencySymbol} /> : null}
-            </div>
-            <p className="text-[14.5px]">Total Revised Contracts</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="flex items-start gap-3">
-              <Header2
-                text={convertCurrency(allTotals.contractPayments)}
-                className="font-medium"
-              />
-              {currencySymbol.length ? <Header4 text={currencySymbol} /> : null}
-            </div>
-            <p className="text-[14.5px]">Total Within Contract</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="flex items-start gap-3">
-              <Header2
-                text={convertCurrency(allTotals.noncontractPayments)}
-                className="font-medium"
-              />
-              {currencySymbol.length ? <Header4 text={currencySymbol} /> : null}
-            </div>
-            <p className="text-[14.5px]">Total Outside Contract</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="flex items-start gap-3">
-              <Header2
-                text={`${
-                  allTotals.contracts -
-                    (allTotals.noncontractPayments +
-                      allTotals.contractPayments) <
-                  0
-                    ? "-"
-                    : ""
-                }${convertCurrency(
-                  allTotals.contracts -
-                    (allTotals.noncontractPayments + allTotals.contractPayments)
-                )}`}
-                className={`${
-                  allTotals.contracts -
-                    (allTotals.noncontractPayments +
-                      allTotals.contractPayments) <
-                  0
-                    ? "text-red-500"
-                    : "text-lightText"
-                } font-medium`}
-              />
-              {currencySymbol.length ? (
-                <Header4
-                  text={currencySymbol}
-                  className={`${
-                    allTotals.contracts -
-                      (allTotals.noncontractPayments +
-                        allTotals.contractPayments) <
-                    0
-                      ? "text-red-500"
-                      : "text-lightText"
-                  }`}
-                />
-              ) : null}
-            </div>
-            <p className="text-[14.5px]">Total Balance</p>
-          </div>
-        </div>
-      </div>
-    ) : (
-      <div className="py-8 flex justify-center items-center">
-        <NotAvailable text="No payments available" />
-        <p></p>
-      </div>
+  function currencyChange(curr: string) {
+    const currency = currency_list.find((item) => item.code === curr);
+    setCurrencySymbol(currency ? currency.symbol : "");
+  }
+
+  function totalAmountPaid(project_id: string, code: string) {
+    if (!allProjects) {
+      return;
+    }
+
+    const payments = allProjects.find(
+      (item) => item.id === project_id
+    )?.payments;
+
+    const filter = payments?.filter(
+      (item) => item.payment_amounts && item.payment_amounts[0]?.code === code
     );
 
-  const kpi = [
-    {
-      title: "Payment size",
-      currentAmount: 34,
-      previousAmount: 76,
-    },
-    {
-      title: "Average contracts",
-      currentAmount: 98,
-      previousAmount: 76,
-    },
+    const prevAmounts: number[] = [];
+    const currentAmounts: number[] = [];
+
+    filter?.forEach((item) => {
+      if (item?.payment_amounts) {
+        versusLast(item?.date, "year").prev &&
+          prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
+        versusLast(item?.date, "year").current &&
+          currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      }
+    });
+
+    return {
+      previousAmount: totalSum(prevAmounts),
+      currentAmount: totalSum(currentAmounts),
+    };
+  }
+
+  function totalPayments(project_id: string) {
+    if (!allProjects) {
+      return;
+    }
+
+    const payments = allProjects.find(
+      (item) => item.id === project_id
+    )?.payments;
+
+    const filter = payments?.filter((item) => item.is_paid === true);
+
+    let previousAmount = 0;
+    let currentAmount = 0;
+
+    filter?.forEach((item) => {
+      versusLast(item?.date, "year").prev && previousAmount ++
+      versusLast(item?.date, "year").current && currentAmount ++
+    });
+
+    return {
+      previousAmount,
+      currentAmount,
+    };
+  }
+
+  const cardTitle = [
     {
       title: "Total amount paid",
-      currentAmount: 290,
-      previousAmount: 290,
+      symbol: currencySymbol,
     },
     {
-      title: "Average ",
-      currentAmount: 281,
-      previousAmount: 299,
+      title: "Payments made",
+      symbol: null,
+    },
+    {
+      title: "Average contract size",
+      symbol: null,
+    },
+    {
+      title: "Average contractors paid",
+      symbol: currencySymbol,
     },
   ];
 
@@ -261,63 +209,60 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           placeholder="Select a project"
           label="Projects"
         >
-          {currency_list.map((item) => {
-            return (
-              <SelectItem
-                className="cursor-pointer"
-                key={item?.name}
-                value={item?.code}
-              >
-                {item.name}
-              </SelectItem>
-            );
-          })}
+          {allProjects
+            ? allProjects.map((item) => {
+                return (
+                  <SelectItem
+                    className="cursor-pointer"
+                    key={item.id}
+                    value={item.id}
+                  >
+                    {item.name}
+                  </SelectItem>
+                );
+              })
+            : null}
         </SelectBar>
         <SelectBar
-          valueChange={setSelectedCurrency}
+          valueChange={(name) => currencyChange(name)}
           value={selectedCurrency}
           placeholder="Select a currency"
           label="Currencies"
         >
-          {currency_list.map((item) => {
-            return (
-              <SelectItem
-                className="cursor-pointer"
-                key={item?.name}
-                value={item?.code}
-              >
-                {item.name}
-              </SelectItem>
-            );
-          })}
+          {currenciesList
+            ? currenciesList.map((item) => {
+                return (
+                  <SelectItem
+                    className="cursor-pointer"
+                    key={item.name}
+                    value={item.code}
+                  >
+                    {item.name}
+                  </SelectItem>
+                );
+              })
+            : null}
         </SelectBar>
         <div className="flex gap-1.5">
           <CheckedButton
-            clickedFn={totalAmount}
-            disabledLogic={
-              !selectedCurrency.length
-            }
+            clickedFn={() => {
+              totalAmountPaid(selectedProject, selectedCurrency);
+            }}
+            disabledLogic={!selectedCurrency.length || !selectedProject.length}
           />
-          {/* <Reset clickedFn={reset} /> */}
         </div>
       </div>
       <div className="grid grid-cols-4 gap-4 mt-2">
-        {kpi.map((item) => {
+        {cardTitle.map((item) => {
           return (
             <Fragment key={item.title}>
               <Card>
                 <Header6 text={item.title} className="capitalize" />
-                <div className="flex justify-end items-start gap-2 mt-5">
-                  <Header2 text={`${item.currentAmount}`} />
+                <div className="flex justify-end items-start gap-2 mt-8">
+                  <Header2 text={`${98}`} />
                   <PercentBanner
-                    type={
-                      getPercentChange(item.currentAmount, item.previousAmount)
-                        .type
-                    }
-                    percent={
-                      getPercentChange(item.currentAmount, item.previousAmount)
-                        .percent
-                    }
+                    type={getPercentChange(567, 390).type}
+                    percent={getPercentChange(567, 390).percent}
                   />
                 </div>
               </Card>

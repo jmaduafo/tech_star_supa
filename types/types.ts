@@ -44,6 +44,11 @@ export type Item = {
   team_id?: string;
 };
 
+export type Versus = {
+  previousAmount: number;
+  currentAmount: number;
+};
+
 // When a new user logs in for the first time, they are put into a brand new team
 // and are automatically set as an admin. They are the only ones that can add, edit,
 // and remove users as well as assign the role of admin
@@ -90,15 +95,17 @@ export type Activity = {
 export type Project = {
   id: string;
   name: string;
-  team_id: string;
+  team_id?: string;
   city?: string | null;
-  country: string;
-  start_month: string;
-  start_year: number;
-  relevance: number;
-  is_completed: boolean;
-  created_at: string;
-  updated_at: string | null;
+  country?: string;
+  start_month?: string;
+  start_year?: number;
+  relevance?: number;
+  payments?: Payment[];
+  contracts?: Contract[];
+  is_completed?: boolean;
+  created_at?: string;
+  updated_at?: string | null;
 };
 
 export type Stage = {

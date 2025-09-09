@@ -62,7 +62,7 @@ function DashboardGrid() {
     }, [supabase, user, setUser]);
 
   return (
-    <div className="dashGrid h-[75vh] gap-4">
+    <div className="dashGrid h-auto gap-4">
       {/* Greeting */}
       <Card className="greeting">
         <Greeting user={user} />

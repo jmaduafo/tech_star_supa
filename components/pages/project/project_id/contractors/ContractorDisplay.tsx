@@ -64,16 +64,16 @@ function ContractorDisplay({
 }) {
   const notAvailable =
     allContractors && allContractors.length === 0 ? (
-      <NotAvailable text="No contractors created yet" />
+      <NotAvailable text="No contractors listed" />
     ) : null;
 
   return (
     <section className="">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
         {!allContractors
-          ? [0, 1, 2, 3, 4, 5].map((each, i) => {
+          ? Array.from({ length: 6 }).map((_, i) => {
               return (
-                <Fragment key={`${each}_${i}`}>
+                <Fragment key={`skeleton_${i + 1}`}>
                   <Skeleton className="h-[25vh] rounded-[3vw] bg-lightText/25 backdrop-blur-2xl" />
                 </Fragment>
               );

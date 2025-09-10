@@ -343,7 +343,6 @@ function MainPage() {
             is_payment={false}
             team_name={data.team_name}
             advanced
-            is_export
             filterCategory={"full_name"}
           />
         )}

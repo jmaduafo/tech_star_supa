@@ -26,8 +26,8 @@ export function fullDate() {
 
   // Ex: Thu., Feb. 6, 2025
   date +=
-    days[now.getDay()] +
-    ", " +
+    days[now.getDay()].substring(0, 3) +
+    "., " +
     months[now.getMonth()].substring(0, 3) +
     ". " +
     now.getDate() +

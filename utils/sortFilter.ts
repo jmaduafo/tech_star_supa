@@ -11,6 +11,32 @@ export function sortDate(arr: any[], key: string, asc: boolean) {
   return data
 }
 
+export function sortByNumOrBool(arr: any[], key: string, order: "asc" | "desc") {
+  const data = arr.toSorted((a, b) => {
+
+    return order === "asc"
+      ? a[key] - b[key]
+      : b[key] - a[key];
+  });
+
+  console.log(data)
+
+  return data
+}
+
+export function sortByString(arr: any[], key: string, order: "asc" | "desc") {
+  const data = arr.toSorted((a, b) => {
+
+    return order === "asc"
+      ? a[key].localeCompare(b[key])
+      : b[key].localeCompare(a[key]);
+  });
+
+  console.log(data)
+
+  return data
+}
+
 export function dateRangeFilter(item: string, range: string) {
   let days = 0
 

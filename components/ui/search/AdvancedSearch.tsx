@@ -29,8 +29,8 @@ function AdvancedSearch({
   const sortArray = [
     {
       // IF THE PROJECT IS ACTIVE OR NOT
-      title: "Activity",
-      search: "activity",
+      title: "Status",
+      search: "status",
       sortStyle: null,
       type: null,
     },

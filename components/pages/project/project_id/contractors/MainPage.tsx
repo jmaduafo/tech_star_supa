@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { ContractorSchema } from "@/zod/validation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,6 +26,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import MainTitle from "@/components/ui/labels/MainTitle";
+import { sortByNumOrBool, sortByString } from "@/utils/sortFilter";
 
 function MainPage() {
   const [filteredContractors, setFilteredContractors] = useState<
@@ -45,6 +46,8 @@ function MainPage() {
   const { userData } = useAuth();
   const supabase = createClient();
   const { project_id } = useParams();
+
+  const searchParams = useSearchParams();
 
   // RETRIEVE CONTRACTOR DATA
   const getData = async () => {
@@ -105,6 +108,59 @@ function MainPage() {
     getProjectName();
     getData();
   }, [project_id]);
+
+  function filterContractors() {
+    try {      
+      const sort = searchParams.get("sort");
+      const type = searchParams.get("type") as "asc" | "desc";
+      const query = searchParams.get("query");
+
+      if (!allContractors || allContractors.length === 0) {
+        return;
+      }
+
+      if (!sort && !query) {
+        setFilteredContractors(allContractors);
+      }
+
+      // QUERY
+      query &&
+        setFilteredContractors(
+          allContractors.filter(
+            (item) =>
+              item.name?.toLowerCase().includes(query.toLowerCase()) ||
+              item.country?.toLowerCase().includes(query.toLowerCase()) ||
+              item.city?.toLowerCase().includes(query.toLowerCase())
+          )
+        );
+
+      // SORT
+
+      if (sort === "relevance") {
+        setFilteredContractors(
+          (prev) => prev && sortByNumOrBool(prev, "relevance", "desc")
+        );
+      } else if (sort === "status") {
+        setFilteredContractors(
+          (prev) => prev && sortByNumOrBool(prev, "is_available", "desc")
+        );
+      }
+
+      console.log(sort);
+      if (sort === "name") {
+        setFilteredContractors(
+          (prev) =>
+            prev && sortByString(prev, "name", type)
+        );
+      }
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  }
+
+  useEffect(() => {
+    filterContractors();
+  }, [searchParams]);
 
   // REATIME UPDATES WHEN THERE ARE CHANGES TO CONTRACTORS TABLE
   useEffect(() => {

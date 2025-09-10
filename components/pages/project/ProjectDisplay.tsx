@@ -380,11 +380,11 @@ const EditProject = ({
       setProjectInfo({
         name: project?.name,
         city: project?.city ?? "",
-        country: project?.country,
-        month: project?.start_month,
-        year: project?.start_year,
-        relevance: [project?.relevance],
-        is_completed: project?.is_completed,
+        country: project?.country ?? "",
+        month: project?.start_month ?? "",
+        year: project?.start_year ?? 1900,
+        relevance: project?.relevance ? [project?.relevance] : [2.5],
+        is_completed: project?.is_completed ?? false,
       });
     }
   }, [project]);

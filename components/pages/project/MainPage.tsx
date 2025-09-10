@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
 import { Slider } from "@/components/ui/slider";
 import MainTitle from "@/components/ui/labels/MainTitle";
+import { sortByNumOrBool, sortByString } from "@/utils/sortFilter";
 
 function MainPage() {
   const [sort, setSort] = useState("");
@@ -172,17 +173,13 @@ function MainPage() {
 
   function filterProjects() {
     try {
-      setFilteredProjects(undefined);
-
       const sort = searchParams.get("sort");
-      const type = searchParams.get("type");
+      const type = searchParams.get("type") as "asc" | "desc";
       const query = searchParams.get("query");
 
       if (!allProjects || allProjects.length === 0) {
         return;
       }
-
-      setFilteredProjects(allProjects);
 
       if (!sort && !query && !type) {
         setFilteredProjects(allProjects);
@@ -200,6 +197,19 @@ function MainPage() {
         );
 
       // SORT
+      if (sort === "relevance") {
+        setFilteredProjects(
+          (prev) => prev && sortByNumOrBool(prev, "relevance", "desc")
+        );
+      } else if (sort === "status") {
+        setFilteredProjects(
+          (prev) => prev && sortByNumOrBool(prev, "is_completed", "desc")
+        );
+      }
+
+      if (sort === "name") {
+        setFilteredProjects((prev) => prev && sortByString(prev, "name", type));
+      }
     } catch (err: any) {
       console.log(err.message);
     }

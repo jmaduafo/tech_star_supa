@@ -1,10 +1,11 @@
 import CheckAuth from "@/components/auth/CheckAuth";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserProvider } from "@/context/UserContext";
 import Loader from "@/components/ui/loading/Loader";
 import { Suspense } from "react";
-import UserRealtimeListener from "./UserRealtimeListener";
+import MainPage from "../pages/login_signup/MainPage";
+import { images } from "@/utils/dataTools";
+import { Toaster } from "sonner";
 
 export default async function ClientWrapper({
   children,
@@ -19,7 +20,19 @@ export default async function ClientWrapper({
   } = await (await supabase).auth.getUser();
 
   if (!user) {
-    redirect("/");
+    return (
+      <>
+        <main
+          style={{
+            backgroundImage: `url(${images[0].image})`,
+          }}
+          className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
+        >
+          <MainPage />
+        </main>
+        <Toaster />
+      </>
+    );
   }
 
   // Get user profile from DB
@@ -32,10 +45,7 @@ export default async function ClientWrapper({
   return (
     <UserProvider value={{ user, userData: profile }}>
       <Suspense fallback={<Loader />}>
-          <CheckAuth>
-            {children}
-            <UserRealtimeListener />
-          </CheckAuth>
+        <CheckAuth>{children}</CheckAuth>
       </Suspense>
     </UserProvider>
   );

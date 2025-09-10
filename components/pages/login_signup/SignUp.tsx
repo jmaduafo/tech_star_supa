@@ -92,50 +92,47 @@ function SignUp() {
         console.log("No user found");
       }
 
-      
       // CREATE NEW TEAM USING NEWLY CREATED USER ID
       const { data: teamData, error: teamError } = await supabase
         .from("teams")
         .insert({ team_name: `${firstName}'s Team`, owner_id: userId })
         .select("id")
         .single();
-        
-        if (teamError) {
-          console.log(teamError.message);
-          return;
-        }
-        
-        // CREATE NEW USER DATA AND ADD TEAM ID WITH NEWLY CREATED ID FROM TEAMS TABLE
-        const { error: userError } = await supabase
-          .from("users")
-          .insert({
-            // id automatically set to authenticated user
-            id: userId,
-            first_name: firstName,
-            last_name: lastName,
-            full_name:
-              firstName.charAt(0).toUpperCase() +
-              firstName.slice(1) +
-              " " +
-              lastName.charAt(0).toUpperCase() +
-              lastName.slice(1),
-            email,
-            team_id: teamData.id,
-            image_url: null,
-            is_owner: true,
-            role: "admin",
-            job_title: null,
-            hire_type: "independent",
-            is_online: true,
-          });
-  
-        if (userError) {
-          console.log(userError.message);
-          return;
-        }
 
-        // CREATE A TEAM MEMBERS TABLE AND ADD ROLE, TEAM ID, AND USER ID
-        const { error: memberError } = await supabase
+      if (teamError) {
+        console.log(teamError.message);
+        return;
+      }
+
+      // CREATE NEW USER DATA AND ADD TEAM ID WITH NEWLY CREATED ID FROM TEAMS TABLE
+      const { error: userError } = await supabase.from("users").insert({
+        // id automatically set to authenticated user
+        id: userId,
+        first_name: firstName,
+        last_name: lastName,
+        full_name:
+          firstName.charAt(0).toUpperCase() +
+          firstName.slice(1) +
+          " " +
+          lastName.charAt(0).toUpperCase() +
+          lastName.slice(1),
+        email,
+        team_id: teamData.id,
+        image_url: null,
+        is_owner: true,
+        role: "admin",
+        job_title: null,
+        hire_type: "independent",
+        is_online: true,
+      });
+
+      if (userError) {
+        console.log(userError.message);
+        return;
+      }
+
+      // CREATE A TEAM MEMBERS TABLE AND ADD ROLE, TEAM ID, AND USER ID
+      const { error: memberError } = await supabase
         .from("team_members")
         .insert({
           team_id: teamData?.id,
@@ -144,7 +141,7 @@ function SignUp() {
         });
 
       if (memberError) {
-        console.log(memberError.message)
+        console.log(memberError.message);
         return;
       }
 
@@ -272,8 +269,14 @@ function SignUp() {
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="mt-[6em] flex justify-center">
-            <Submit loading={isLoading} />
+          <div className="mt-[4em] flex justify-end">
+            <Submit
+              loading={isLoading}
+              width="w-[50px]"
+              width_height="w-[100px] h-[50px]"
+              arrow_width_height="w-8 h-8"
+              disabledLogic={isLoading}
+            />
           </div>
         )}
       </form>

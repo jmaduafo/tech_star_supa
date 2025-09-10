@@ -104,8 +104,14 @@ function Login() {
         <div>
           <ForgotPassword />
         </div>
-        <div className="mt-[6em] flex justify-center">
-          <Submit loading={isLoading} />
+        <div className="mt-[4em] flex justify-end">
+          <Submit
+            loading={isLoading}
+            width="w-[50px]"
+            width_height="w-[100px] h-[50px]"
+            arrow_width_height="w-8 h-8"
+            disabledLogic={isLoading}
+          />
         </div>
       </form>
     </div>

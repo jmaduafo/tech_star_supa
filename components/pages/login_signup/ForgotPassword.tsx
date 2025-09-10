@@ -1,18 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Input from "@/components/ui/input/CustomInput";
-import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client";
+import Submit from "@/components/ui/buttons/Submit";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
 
 function ForgotPassword() {
   const [error, setError] = useState<string | null>(null);
@@ -20,33 +19,33 @@ function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
-    message: "",
   });
 
   const handleForgotPassword = async (e: React.FormEvent) => {
-      e.preventDefault();
-      const supabase = createClient();
-      setIsLoading(true);
-      setError(null);
-  
-      try {
-        // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
-        const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
-          redirectTo: `${window.location.origin}/auth/update-password`,
-        });
-        if (error) throw error;
-        setSuccess(true);
-      } catch (error: unknown) {
-        setError(error instanceof Error ? error.message : "An error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    e.preventDefault();
+    const supabase = createClient();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
+      const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
+        redirectTo: `${window.location.origin}/`,
+      });
+      if (error) throw error;
+      setSuccess(true);
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred");
+      setSuccess(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="mt-2 text-sm">Forgot password?</button>
+        <button className="mt-2 text-sm text-lightText/70">Forgot password?</button>
       </DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px]"
@@ -66,18 +65,31 @@ function ForgotPassword() {
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </Input>
-          {form.message.length ? (
-            <div>
-              <p>{form.message}</p>
-            </div>
+          {/* ERROR MESSAGE */}
+          {error ? (
+            <Alert variant="destructive" className="mt-3">
+              <AlertCircleIcon />
+              <AlertTitle>Something went wrong</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           ) : null}
+
+          {/* SUCCESS  MESSAGE */}
+          {success ? (
+            <Alert className="mt-3">
+              <CheckCircle2Icon />
+              <AlertTitle>Success</AlertTitle>
+              <AlertDescription>
+                Please check your email and follow the instructions to change
+                your password
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="mt-3 flex justify-end">
+              <Submit loading={isLoading} disabledLogic={isLoading} />
+            </div>
+          )}
         </form>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <Button type="submit">Reset password</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

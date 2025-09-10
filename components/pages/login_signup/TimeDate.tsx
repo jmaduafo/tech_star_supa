@@ -75,7 +75,7 @@ function TimeDate({
         {/* TIME ICON */}
         <div className="text-lightText duration-200">
           <Clock2
-            strokeWidth={1.5}
+            strokeWidth={1.2}
             className={
               timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6.5vw] h-[6.5vw]"
             }

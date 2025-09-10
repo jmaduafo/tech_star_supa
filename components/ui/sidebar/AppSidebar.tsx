@@ -25,6 +25,7 @@ import {
   Money01Icon,
   AnalysisTextLinkIcon,
   UserGroup03Icon,
+  ContractsIcon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import ProfileCard from "../cards/ProfileCard";
@@ -33,7 +34,7 @@ import { useUsers } from "@/lib/queries/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 import { getInitials } from "@/utils/initials";
 import Paragraph from "@/components/fontsize/Paragraph";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -69,7 +70,7 @@ function AppSidebar() {
         {
           title: "Contracts",
           url: "/tables/contracts",
-          icon: <HugeiconsIcon icon={TableIcon} size={16} strokeWidth={1} />,
+          icon: <HugeiconsIcon icon={ContractsIcon} size={16} strokeWidth={1} />,
         },
       ],
     },
@@ -95,6 +96,7 @@ function AppSidebar() {
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [collapseOpen, setCollapseOpen] = useState(false);
 
   return (
     <Sidebar>
@@ -110,18 +112,24 @@ function AppSidebar() {
                 item.dropdown ? (
                   <Collapsible
                     key={item.title}
-                    defaultOpen
                     className="group/collapsible"
+                    onClick={() => setCollapseOpen((prev) => !prev)}
                   >
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <span className="flex items-center justify-between px-2 py-1">
-                          <span className="flex items-center gap-2">
-                            {item.icon}
-                            {item.title}
+                        <SidebarMenuButton>
+                          <span className="flex items-center justify-between w-full">
+                            <span className="flex items-center gap-2">
+                              {item.icon}
+                              {item.title}
+                            </span>
+                            {collapseOpen ? (
+                              <ChevronUp size={16} strokeWidth={1} />
+                            ) : (
+                              <ChevronDown size={16} strokeWidth={1} />
+                            )}
                           </span>
-                          <ChevronDown size={16} strokeWidth={1}/>
-                        </span>
+                        </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>

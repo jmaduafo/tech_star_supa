@@ -4,22 +4,18 @@ import { currency_list } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import SelectBar from "@/components/ui/input/SelectBar";
 import Header2 from "@/components/fontsize/Header2";
-import { Amount, Payment, Project, User, Versus } from "@/types/types";
+import { Amount, Project, User, Versus } from "@/types/types";
 import {
   convertCurrency,
   getPercentChange,
   totalSum,
 } from "@/utils/currencies";
-import Loading from "@/components/ui/loading/Loading";
-import Reset from "@/components/ui/buttons/Reset";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import Header6 from "@/components/fontsize/Header6";
 import { createClient } from "@/lib/supabase/client";
 import Card from "@/components/ui/cards/MyCard";
-import Header5 from "@/components/fontsize/Header5";
 import PercentBanner from "@/components/ui/banners/PercentBanner";
-import { pastTime, versusLast } from "@/utils/dateAndTime";
-import { format } from "date-fns";
+import { versusLast } from "@/utils/dateAndTime";
 import { getUniqueObjects } from "@/utils/chartHelpers";
 
 function AmountDisplay({ user }: { readonly user: User | undefined }) {
@@ -27,18 +23,11 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
   const [selectedProject, setSelectedProject] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState("year");
   const [selectedCurrency, setSelectedCurrency] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState("");
 
-  const [kpi, setKpi] = useState<Versus[]>([]);
-
-  const [loading, setLoading] = useState(false);
-
-  const [allTotals, setAllTotals] = useState({
-    noncontractPayments: 0,
-    contractPayments: 0,
-    contracts: 0,
-  });
+  const [kpi, setKpi] = useState<Versus[] | undefined>();
 
   const supabase = createClient();
 
@@ -53,7 +42,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
         supabase
           .from("projects")
           .select(
-            "id, name, payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts ( id, date, contract_amounts ( * )), contractors (id, name, payments ( id, date, is_paid, is_completed ))"
+            "id, name, payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts ( id, date, contract_amounts ( * )), contractors (id, name, is_available, start_month, start_year)"
           )
           .eq("team_id", user.team_id)
           .throwOnError(),
@@ -100,7 +89,30 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
       setSelectedCurrency(uniqueCurrency[0].code);
       setCurrencySymbol(uniqueCurrency[0].symbol);
 
-      console.log(projects.data);
+      setKpi([
+        totalAmountPaid(
+          projects.data as unknown as Project[],
+          projects.data[0].id,
+          uniqueCurrency[0].code,
+          selectedPeriod
+        ),
+        totalPayments(
+          projects.data as unknown as Project[],
+          projects.data[0].id,
+          uniqueCurrency[0].code,
+          selectedPeriod
+        ),
+        averageContract(
+          projects.data as unknown as Project[],
+          projects.data[0].id,
+          uniqueCurrency[0].code,
+          selectedPeriod
+        ),
+        activeContractors(
+          projects.data as unknown as Project[],
+          projects.data[0].id
+        ),
+      ]);
     } catch (err: any) {
       console.error(err.message);
     }
@@ -110,29 +122,13 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     allData();
   }, [user]);
 
-  function reset() {
-    setSelectedCurrency("");
-    setCurrencySymbol("");
-    setAllTotals({
-      contractPayments: 0,
-      contracts: 0,
-      noncontractPayments: 0,
-    });
-  }
-
-  function currencyChange(curr: string) {
-    const currency = currency_list.find((item) => item.code === curr);
-    setCurrencySymbol(currency ? currency.symbol : "");
-  }
-
-  function totalAmountPaid(project_id: string, code: string) {
-    if (!allProjects) {
-      return;
-    }
-
-    const payments = allProjects.find(
-      (item) => item.id === project_id
-    )?.payments;
+  function totalAmountPaid(
+    data: Project[],
+    project_id: string,
+    code: string,
+    period: string
+  ) {
+    const payments = data.find((item) => item.id === project_id)?.payments;
 
     const filter = payments?.filter(
       (item) => item.payment_amounts && item.payment_amounts[0]?.code === code
@@ -143,36 +139,45 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
 
     filter?.forEach((item) => {
       if (item?.payment_amounts) {
-        versusLast(item?.date, "year").prev &&
+        versusLast(item?.date, period).prev &&
           prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
-        versusLast(item?.date, "year").current &&
+
+        versusLast(item?.date, period).current &&
           currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
       }
     });
 
     return {
-      previousAmount: totalSum(prevAmounts),
-      currentAmount: totalSum(currentAmounts),
+      previousAmount: prevAmounts.length
+        ? totalSum(prevAmounts) / prevAmounts.length
+        : 0,
+      currentAmount: currentAmounts.length
+        ? totalSum(currentAmounts) / currentAmounts.length
+        : 0,
     };
   }
 
-  function totalPayments(project_id: string) {
-    if (!allProjects) {
-      return;
-    }
+  function totalPayments(
+    data: Project[],
+    project_id: string,
+    code: string,
+    period: string
+  ) {
+    const payments = data.find((item) => item.id === project_id)?.payments;
 
-    const payments = allProjects.find(
-      (item) => item.id === project_id
-    )?.payments;
-
-    const filter = payments?.filter((item) => item.is_paid === true);
+    const filter = payments?.filter(
+      (item) =>
+        item.is_paid === true &&
+        item.payment_amounts &&
+        item.payment_amounts[0].code === code
+    );
 
     let previousAmount = 0;
     let currentAmount = 0;
 
     filter?.forEach((item) => {
-      versusLast(item?.date, "year").prev && previousAmount ++
-      versusLast(item?.date, "year").current && currentAmount ++
+      versusLast(item?.date, period).prev && previousAmount++;
+      versusLast(item?.date, period).current && currentAmount++;
     });
 
     return {
@@ -181,22 +186,119 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     };
   }
 
+  function averageContract(
+    data: Project[],
+    project_id: string,
+    code: string,
+    period: string
+  ) {
+    const contracts = data.find((item) => item.id === project_id)?.contracts;
+
+    const filter = contracts?.filter((item) =>
+      item.contract_amounts?.find((item) => item.code === code)
+    );
+
+    const prevAmounts: number[] = [];
+    const currentAmounts: number[] = [];
+
+    filter?.forEach((item) => {
+      if (item?.contract_amounts) {
+        versusLast(item?.date, period).prev &&
+          prevAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
+
+        versusLast(item?.date, period).current &&
+          currentAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
+      }
+    });
+
+    return {
+      previousAmount: prevAmounts.length
+        ? totalSum(prevAmounts) / prevAmounts.length
+        : 0,
+      currentAmount: currentAmounts.length
+        ? totalSum(currentAmounts) / currentAmounts.length
+        : 0,
+    };
+  }
+
+  function activeContractors(
+    data: Project[],
+    project_id: string,
+  ) {
+    const contractors = data.find(
+      (item) => item.id === project_id
+    )?.contractors;
+
+    const filter = contractors?.filter((item) => item.is_available === true);
+
+    return {
+      previousAmount: 0,
+      currentAmount: filter ? filter.length : 0,
+    };
+  }
+
+  function runKPI() {
+    if (!allProjects && !selectedCurrency.length && !selectedProject.length) {
+      return;
+    }
+
+    const currency = currency_list.find((item) => item.code === selectedCurrency);
+    setCurrencySymbol(currency ? currency.symbol : "")
+
+    setKpi([
+      totalAmountPaid(
+        allProjects as unknown as Project[],
+        selectedProject,
+        selectedCurrency,
+        selectedPeriod
+      ),
+      totalPayments(
+        allProjects as unknown as Project[],
+        selectedProject,
+        selectedCurrency,
+        selectedPeriod
+      ),
+      averageContract(
+        allProjects as unknown as Project[],
+        selectedProject,
+        selectedCurrency,
+        selectedPeriod
+      ),
+      activeContractors(
+        allProjects as unknown as Project[],
+        selectedProject
+      ),
+    ]);
+  }
+
   const cardTitle = [
     {
       title: "Total amount paid",
       symbol: currencySymbol,
+      visual: true
     },
     {
       title: "Payments made",
       symbol: null,
+      visual: true
     },
     {
       title: "Average contract size",
-      symbol: null,
+      symbol: currencySymbol,
+      visual: true
     },
     {
-      title: "Average contractors paid",
-      symbol: currencySymbol,
+      title: "Active contractors",
+      symbol: null,
+      visual: false
     },
   ];
 
@@ -224,7 +326,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
             : null}
         </SelectBar>
         <SelectBar
-          valueChange={(name) => currencyChange(name)}
+          valueChange={setSelectedCurrency}
           value={selectedCurrency}
           placeholder="Select a currency"
           label="Currencies"
@@ -243,32 +345,69 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
               })
             : null}
         </SelectBar>
+        <SelectBar
+          valueChange={setSelectedPeriod}
+          value={selectedPeriod}
+          placeholder="Select a period"
+          label="Periods"
+        >
+          {["year", "month", "week"].map((item) => {
+            return (
+              <SelectItem className="cursor-pointer" key={item} value={item}>
+                vs. last {item}
+              </SelectItem>
+            );
+          })}
+        </SelectBar>
         <div className="flex gap-1.5">
           <CheckedButton
-            clickedFn={() => {
-              totalAmountPaid(selectedProject, selectedCurrency);
-            }}
+            clickedFn={runKPI}
             disabledLogic={!selectedCurrency.length || !selectedProject.length}
           />
         </div>
       </div>
       <div className="grid grid-cols-4 gap-4 mt-2">
-        {cardTitle.map((item) => {
-          return (
-            <Fragment key={item.title}>
-              <Card>
-                <Header6 text={item.title} className="capitalize" />
-                <div className="flex justify-end items-start gap-2 mt-8">
-                  <Header2 text={`${98}`} />
-                  <PercentBanner
-                    type={getPercentChange(567, 390).type}
-                    percent={getPercentChange(567, 390).percent}
-                  />
-                </div>
-              </Card>
-            </Fragment>
-          );
-        })}
+        {kpi
+          ? cardTitle.map((item, i) => {
+              return (
+                <Fragment key={item.title}>
+                  <Card>
+                    <Header6 text={item.title} className="capitalize" />
+                    <div className="flex justify-end items-start gap-1 mt-8">
+                      <div className="flex items-start gap-1">
+                        {item.symbol ? (
+                          <p className="text-sm">{item.symbol}</p>
+                        ) : null}
+                        <Header2
+                          text={`${convertCurrency(kpi[i].currentAmount)}`}
+                        />
+                      </div>
+                      {item.visual && <PercentBanner
+                        type={
+                          getPercentChange(
+                            kpi[i].currentAmount,
+                            kpi[i].previousAmount
+                          ).type
+                        }
+                        percent={
+                          getPercentChange(
+                            kpi[i].currentAmount,
+                            kpi[i].previousAmount
+                          ).percent
+                        }
+                      />}
+                    </div>
+                  </Card>
+                </Fragment>
+              );
+            })
+          : Array.from({ length: 4 }).map((_, i) => {
+              return (
+                <Card className="h-32 w-full animate-pulse" key={`${i + 1}`}>
+                  <div></div>
+                </Card>
+              );
+            })}
       </div>
     </div>
   );

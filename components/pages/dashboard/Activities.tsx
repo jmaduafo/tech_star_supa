@@ -73,19 +73,23 @@ function Activities({ user }: { readonly user: User | undefined }) {
                   setsingleActivityOpen(true);
                 }}
                 key={`item_${i + 1}`}
-                className={`py-2.5 ${
+                className={`py-2.5 px-1.5 ${
                   i + 1 !== 5 ? "border-b" : ""
                 } border-b-lightText/10 flex justify-between items-center gap-4 w-full hover:bg-lightText/10 duration-300`}
               >
                 <div className="flex-1">
                   <Paragraph
-                    text={format(item.created_at).replace("minute", "min")}
+                    text={format(item.created_at)
+                      .replace("minute", "min")
+                      .replace("second", "sec")
+                      .replace("hour", "hr")}
+                    className="text-left"
                   />
                 </div>
                 <div className="flex-1">
                   <Paragraph
                     text={item.activity_type ?? ""}
-                    className="capitalize"
+                    className="capitalize text-left"
                   />
                 </div>
                 <div className="flex-[4] flex items-center gap-2">
@@ -98,14 +102,20 @@ function Activities({ user }: { readonly user: User | undefined }) {
                       {user ? getInitials(item.users?.full_name) : "??"}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="font-medium text-sm">
-                    {item.users?.first_name},{" "}
-                    <span className="font-light">
-                      {item.description && item.description?.length > 40
-                        ? item.description?.slice(0, 40) + "..."
-                        : item.description}
-                    </span>
-                  </p>
+                  <div className="flex items-end gap-1">
+                    <Paragraph
+                      text={`${item.users?.first_name},`}
+                      className="font-medium"
+                    />
+                    <Paragraph
+                      text={`${
+                        item.description && item.description?.length > 40
+                          ? item.description?.slice(0, 40) + "..."
+                          : item.description
+                      }`}
+                      className="font-light"
+                    />
+                  </div>
                 </div>
               </button>
             );
@@ -156,7 +166,11 @@ const SingleActivity = ({
           {data ? (
             <>
               <ViewLabel label={"Created by"} content={data.users?.full_name} />
-              <ViewLabel label={"Activity Type"} content={data.activity_type} className="capitalize"/>
+              <ViewLabel
+                label={"Activity Type"}
+                content={data.activity_type}
+                className="capitalize"
+              />
               <ViewLabel label={"Description"} content={data.description} />
               <ViewLabel
                 label={"Created at"}
@@ -183,7 +197,6 @@ const SingleActivity = ({
   );
 };
 
-
 const AllActivities = ({
   open,
   setOpen,
@@ -202,9 +215,7 @@ const AllActivities = ({
         <DialogHeader>
           <DialogTitle>Activity log</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          
-        </div>
+        <div className="grid grid-cols-2 gap-4 mt-4"></div>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Close</Button>

@@ -2,16 +2,34 @@ import { Amount } from "@/types/types";
 
 export function convertCurrency(labelValue: number) {
   let output = "";
+
   // Nine Zeroes for Billions
+  
+  // IF LENGTH IS 6 OR MORE, INCLUDING "." (ex. 290.78), CHANGE TO 
+  // 1 DECIMAL PLACE INSTEAD
   if (Math.abs(Number(labelValue)) >= 1.0e9) {
-    output += (Math.abs(Number(labelValue)) / 1.0e9).toFixed(2) + "B";
+    if ((Math.abs(Number(labelValue)) / 1.0e9).toFixed(2).length >= 6) {
+      output += (Math.abs(Number(labelValue)) / 1.0e9).toFixed(1) + "B";
+    } else {
+      output += (Math.abs(Number(labelValue)) / 1.0e9).toFixed(2) + "B";
+    }
   } else if (Math.abs(Number(labelValue)) >= 1.0e6) {
-    output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(2) + "M";
+    if ((Math.abs(Number(labelValue)) / 1.0e6).toFixed(2).length >= 6) {
+      output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(1) + "B";
+    } else {
+      output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(2) + "M";
+    }
   } else if (Math.abs(Number(labelValue)) >= 1.0e3) {
-    output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(2) + "K";
-  } else {
-    output += Math.abs(Number(labelValue));
-  }
+    if ((Math.abs(Number(labelValue)) / 1.0e3).toFixed(2).length >= 6) {
+      output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(1) + "B";
+    } else {
+      output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(2) + "K";
+    }
+  } else if ((Math.abs(Number(labelValue))).toFixed(2).length >= 6) {
+      output += Math.abs(Number(labelValue)).toFixed(2);
+    } else {
+      output += Math.abs(Number(labelValue));
+    }
 
   return output;
 }
@@ -64,10 +82,7 @@ export function upsertCurrency(
   ];
 }
 
-type EditableCurrency = Pick<
-  Amount,
-  "code" | "name" | "symbol" | "amount"
->;
+type EditableCurrency = Pick<Amount, "code" | "name" | "symbol" | "amount">;
 
 // FOR AN ARRAY OF ITEMS
 export function upsertCurrencies(
@@ -101,22 +116,23 @@ export function upsertCurrencies(
 }
 
 export function getPercentChange(current: number, prev: number) {
-  const change = ((current - prev) / prev) * 100
+  const change = ((current - prev) / prev) * 100;
+  let percent;
 
   if (change < 0) {
     return {
-      percent: change.toFixed(1),
-      type: "decrease"
-    }
+      percent: !isFinite(change) ? "-100+" : change.toFixed(1),
+      type: "decrease",
+    };
   } else if (change > 0) {
     return {
-      percent: change.toFixed(1),
-      type: "increase"
-    }
+      percent: !isFinite(change) ? "100+" : change.toFixed(1),
+      type: "increase",
+    };
   }
 
   return {
-      percent: change.toFixed(1),
-      type: "no change"
-    }
+    percent: !isNaN(change) ? change.toFixed(1) : (0.0).toFixed(1),
+    type: "no change",
+  };
 }

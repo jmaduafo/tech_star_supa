@@ -103,6 +103,7 @@ export type Project = {
   relevance?: number;
   payments?: Payment[];
   contracts?: Contract[];
+  contractors?: Contractor[];
   is_completed?: boolean;
   created_at?: string;
   updated_at?: string | null;

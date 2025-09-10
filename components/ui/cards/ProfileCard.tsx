@@ -23,10 +23,10 @@ import { SelectItem } from "../select";
 import Submit from "../buttons/Submit";
 import { toast } from "sonner";
 import FilePicker from "../buttons/FilePicker";
-import ViewLabel from "../labels/ViewLabel";
 import { format } from "timeago.js";
 import { createClient } from "@/lib/supabase/client";
 import { EditUserSchema } from "@/zod/validation";
+import Paragraph from "@/components/fontsize/Paragraph";
 
 type Card = {
   readonly user: User | undefined;
@@ -186,36 +186,29 @@ function ProfileCard({
     }
   };
 
-  const checkUserLocation = user?.location ? (
-    <div className="flex items-end gap-1">
-      <MapPin strokeWidth={1} className="w-4 h-4" />
-      <Header6 text={user.location} />
-    </div>
-  ) : null;
-
   return (
     <>
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogHeader>
+          <DialogTitle className="sr-only capitalize">
+            {user ? user.first_name + "'s " : null}
+            Profile
+          </DialogTitle>
+        </DialogHeader>
         <DialogContent
-          className="sm:max-w-md"
+          className="sm:max-w-sm"
           aria-describedby="user profile display"
         >
-          <DialogHeader>
-            <DialogTitle className="capitalize">
-              {user ? user.first_name + "'s " : null}
-              Profile
-            </DialogTitle>
-          </DialogHeader>
-          <div className="text-darkText/75">
+          <div className="text-darkText">
             {/* AVATAR IMAGE */}
             <div className="flex justify-center mt-2">
               {!user ? (
                 <div>
-                  <Skeleton className="w-[140px] h-[140px] rounded-full" />
+                  <Skeleton className="w-[220px] h-[220px] rounded-full" />
                 </div>
               ) : (
                 <div className="relative">
-                  <Avatar className="w-[140px] h-[140px]">
+                  <Avatar className="w-[220px] h-[220px]">
                     <AvatarImage
                       src={user?.image_url ?? ""}
                       alt="user profile url"
@@ -227,19 +220,19 @@ function ProfileCard({
                   <button
                     onClick={() => {
                       setProfileOpen(false);
-                      setEditProfileOpen && setEditProfileOpen(true);
+                      setEditProfileOpen(true);
                     }}
                     className={`${
                       hideEdit ? "hidden" : "flex"
-                    } absolute transform translate-x-[-50%] translate-y-[-50%] top-[90%] right-0 justify-center items-center w-7 h-7 rounded-full bg-darkText text-lightText hover:bg-dark85`}
+                    } absolute transform translate-x-[-50%] translate-y-[-50%] top-[85%] right-0 justify-center items-center w-10 h-10 rounded-full bg-darkText text-lightText hover:bg-dark85`}
                   >
-                    <Pencil className="w-4 h-4" strokeWidth={1} />
+                    <Pencil className="w-5 h-5" strokeWidth={1} />
                   </button>
                 </div>
               )}
             </div>
             {/* FULL NAME DISPLAY */}
-            <div className="mt-4">
+            <div className="mt-3">
               {!user?.full_name ? (
                 <div className="flex justify-center">
                   <Skeleton className="h-6 w-[60%]" />
@@ -251,67 +244,68 @@ function ProfileCard({
                 />
               )}
             </div>
-            {/* LOCATION WITH ROLE */}
-            {/* OUTPUT: South Africa | Admin */}
-            <div className="mt-2 flex justify-center items-end gap-2">
-              <div>
-                {!user ? (
-                  <div className="">
-                    <Skeleton className="h-4 w-[30%]" />
-                  </div>
-                ) : (
-                  checkUserLocation
-                )}
-              </div>
-              {user?.location ? <Header6 text="|" /> : null}
-              <div>
-                {!user?.role ? (
-                  <div className="">
-                    <Skeleton className="h-4 w-[30%]" />
-                  </div>
-                ) : (
-                  <div className="">
+            {/* JOB TITLE */}
+            <div className="mt-1">
+              {!user ? (
+                <div className="flex justify-center">
+                  <Skeleton className="h-3 w-[40%]" />
+                </div>
+              ) : (
+                <>
+                  {user.job_title ? (
                     <Header6
-                      text={user?.role}
-                      className="text-center capitalize"
+                      text={user.job_title}
+                      className="text-center text-darkText/75"
                     />
-                  </div>
-                )}
-              </div>
+                  ) : null}
+                </>
+              )}
             </div>
-            {/* USER INFO GRID */}
+            {/* LOCATION WITH ROLE */}
+            {/* OUTPUT: South Africa / Admin */}
             {user ? (
-              <div className="mt-5 grid grid-cols-2 gap-4">
-                {/* FIRST NAME */}
-                <ViewLabel
-                  label="First name"
-                  className="capitalize"
-                  content={user.first_name}
-                />
-                {/* LAST NAME */}
-                <ViewLabel
-                  label="Last name"
-                  className="capitalize"
-                  content={user.last_name}
-                />
-                {/* EMAIL */}
-                <ViewLabel label="Email" content={user.email} />
-                {/* HIRE TYPE */}
-                <ViewLabel
-                  label="Hire type"
-                  className="capitalize"
-                  content={user.hire_type}
-                />
-                {/* JOB TITLE */}
-                <ViewLabel
-                  label="Job title"
-                  content={user?.job_title ?? "N/A"}
-                />
-                {/* USER CREATED AT */}
-                <ViewLabel label="Joined" content={format(user?.created_at)} />
+              <div className="mt-4 flex justify-center items-end gap-2">
+                {user.location ? (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-5 h-5" strokeWidth={1} />
+                    <Header6 text={user.location} />
+                  </div>
+                ) : null}
+                {user.location ? <Header6 text="/" /> : null}
+                {user.role === "admin" ? <Header6 text="Admin" /> : null}
               </div>
             ) : (
-              <div></div>
+              <div className="mt-2 flex justify-center">
+                <Skeleton className="h-3 w-[45%]" />
+              </div>
+            )}
+            {/* USER EXTRA INFO */}
+            {user ? (
+              <div className="mt-5 flex bg-lightText/40 rounded-md p-3">
+                {/* HIRE TYPE */}
+                <div className="flex-1 border-r border-darkText/10">
+                  <Header6
+                    text="Hire Type"
+                    className="text-center font-medium"
+                  />
+                  <Paragraph
+                    text={user.hire_type}
+                    className="text-center capitalize text-darkText/75"
+                  />
+                </div>
+                {/* USER CREATED AT */}
+                <div className="flex-1">
+                  <Header6 text="Joined" className="text-center font-medium" />
+                  <Paragraph
+                    text={format(user.created_at)}
+                    className="text-center text-darkText/75"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Skeleton className="h-8 w-full bg-lightText/40" />
+              </div>
             )}
           </div>
         </DialogContent>

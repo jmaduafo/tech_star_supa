@@ -144,6 +144,45 @@ export const contractColumns: ColumnDef<Contract>[] = [
       );
     },
   },
+   // HIDDEN COLUMNS FOR FILTERING
+  {
+    accessorKey: "project_id",
+    header: "Project",
+    enableHiding: false, // can hide
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+      return filterValues.includes(row.getValue(columnId));
+    },
+  },
+  {
+    accessorKey: "contractor_id",
+    header: "Contractor",
+    enableHiding: false,
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+      return filterValues.includes(row.getValue(columnId));
+    },
+  },
+  {
+    accessorKey: "contract_id",
+    header: "Contract",
+    enableHiding: false,
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+
+      // ACTUALLY FILTER BY THE ID
+      return filterValues.includes(row.getValue("id"));
+    },
+  },
+  {
+    accessorKey: "stage_id",
+    header: "Stage",
+    enableHiding: false,
+    filterFn: (row, columnId, filterValues: string[]) => {
+      if (!filterValues?.length) return true;
+      return filterValues.includes(row.getValue(columnId));
+    },
+  },
   {
     id: "actions",
     cell: ({ row }) => {

@@ -131,7 +131,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     const payments = data.find((item) => item.id === project_id)?.payments;
 
     const filter = payments?.filter(
-      (item) => item.payment_amounts && item.payment_amounts[0]?.code === code
+      (item) => item.is_paid && item.payment_amounts && item.payment_amounts[0]?.code === code
     );
 
     const prevAmounts: number[] = [];

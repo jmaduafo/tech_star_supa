@@ -40,8 +40,19 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../collapsible";
+import { usePathname } from "next/navigation";
 
 function AppSidebar() {
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [collapseOpen, setCollapseOpen] = useState(false);
+  
+  const { setOpen } = useSidebar();
+  const path = usePathname()
+
+  const { userData } = useAuth();
+  const { data: user } = useUsers(userData?.id);
+  
   const items = [
     {
       title: "Dashboard",
@@ -90,14 +101,6 @@ function AppSidebar() {
     },
   ];
 
-  const { setOpen } = useSidebar();
-  const { userData } = useAuth();
-  const { data: user } = useUsers(userData?.id);
-
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const [collapseOpen, setCollapseOpen] = useState(false);
-
   return (
     <Sidebar>
       <SidebarHeader>
@@ -138,7 +141,7 @@ function AppSidebar() {
                               <SidebarMenuButton
                                 asChild
                                 onClick={() => setOpen(false)}
-                                className={`hover:bg-lightText duration-300`}
+                                className={`${path.includes(drop.url) ? "bg-lightText" : "bg-transparent"} hover:bg-lightText duration-300`}
                                 key={drop.title}
                               >
                                 <Link href={drop.url}>
@@ -157,7 +160,7 @@ function AppSidebar() {
                     <SidebarMenuButton
                       asChild
                       onClick={() => setOpen(false)}
-                      className={`hover:bg-lightText duration-300`}
+                      className={`${path.includes(item.url) ? "bg-lightText" : "bg-transparent"} hover:bg-lightText duration-300`}
                     >
                       <Link href={item.url}>
                         {item.icon}

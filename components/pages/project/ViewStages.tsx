@@ -249,7 +249,7 @@ const DeleteRow = ({
         .eq("id", stage.id);
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -266,18 +266,18 @@ const DeleteRow = ({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Stage deleted successfully",
       });
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
 
@@ -351,7 +351,7 @@ const EditRow = ({
     const result = StagesSchema.safeParse(values);
 
     if (!result.success) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: result.error.issues[0].message,
       });
 
@@ -378,7 +378,7 @@ const EditRow = ({
         .eq("id", stage.id);
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -395,20 +395,20 @@ const EditRow = ({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Stage updated successfully",
       });
 
       setStage(undefined);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
     } finally {

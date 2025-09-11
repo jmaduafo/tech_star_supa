@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import MainPage from "../pages/login_signup/MainPage";
 import AuthContainer from "./AuthContainer";
 import { images } from "@/utils/dataTools";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
 import Loader from "../ui/loading/Loader";
@@ -12,6 +12,7 @@ import { useAuth } from "@/context/UserContext";
 import { useBackgroundImage } from "@/lib/queries/queries";
 import { SidebarProvider } from "../ui/sidebar";
 import AppSidebar from "../ui/sidebar/AppSidebar";
+import { useNetworkStatus } from "../network/network";
 
 function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -27,7 +28,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const { userData } = useAuth();
 
   const { data: bgIndex } = useBackgroundImage(userData?.id);
-
+const { isInternetReachable, isOnline } = useNetworkStatus()
   // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS
   // LOGGED IN OR NOT
   useEffect(() => {
@@ -72,6 +73,17 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
     return <Loader />;
   }
 
+  let offlineToastId: string | number | undefined = undefined
+
+  if (!isInternetReachable && !isOnline && !offlineToastId) {
+    offlineToastId = toast.error("No internet connection", {
+      description: "Internet was disconnected. Failed to fetch.",
+      duration: Infinity
+    })
+  } else {
+    toast.dismiss(offlineToastId)
+  }
+
   return (
     <>
       {session && pathname !== "/" ? (
@@ -98,7 +110,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
           <MainPage />
         </main>
       )}
-      <Toaster />
+      <Toaster closeButton/>
     </>
   );
 }

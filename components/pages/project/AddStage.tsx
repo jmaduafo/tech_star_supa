@@ -74,7 +74,7 @@ function AddStage({
       });
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -91,14 +91,14 @@ function AddStage({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Stage added successfully",
       });
 
@@ -107,7 +107,7 @@ function AddStage({
         desc: "",
       });
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
     } finally {

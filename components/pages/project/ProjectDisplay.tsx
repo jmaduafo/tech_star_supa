@@ -273,7 +273,7 @@ const DeleteProject = ({
         .eq("id", project.id);
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -290,14 +290,14 @@ const DeleteProject = ({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Project deleted successfully",
       });
 
@@ -305,7 +305,7 @@ const DeleteProject = ({
 
       setOpen(false);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
 
@@ -407,7 +407,7 @@ const EditProject = ({
     const result = EditProjectSchema.safeParse(values);
 
     if (!result.success) {
-      toast("Something went wrong", {
+      toast.success("Something went wrong", {
         description: result.error.issues[0].message,
       });
 
@@ -441,7 +441,7 @@ const EditProject = ({
         .single();
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -458,7 +458,7 @@ const EditProject = ({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
@@ -466,13 +466,13 @@ const EditProject = ({
       }
       
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Project updated successfully",
       });
 
       setOpen(false);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
 

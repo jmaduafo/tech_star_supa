@@ -304,7 +304,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
 
   return (
     <div>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <SelectBar
           valueChange={setSelectedProject}
           value={selectedProject}
@@ -366,7 +366,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           />
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-4 mt-2">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-2">
         {kpi
           ? cardTitle.map((item, i) => {
               return (

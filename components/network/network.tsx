@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export function useNetworkStatus(
   pingUrl: string = "https://www.google.com/favicon.ico"
 ) {
-  const [isOnline, setIsOnline] = useState<boolean>(navigator?.onLine);
+  const [isOnline, setIsOnline] = useState<boolean>(false);
   const [isInternetReachable, setIsInternetReachable] = useState<boolean>(true);
 
   // Check if internet actually works
@@ -17,11 +17,23 @@ export function useNetworkStatus(
 
     try {
       const res = await fetch(pingUrl, { method: "HEAD", cache: "no-store" });
+
+      if (!res.ok) {
+        return;
+      }
+
       setIsInternetReachable(res.ok);
-    } catch {
+    } catch (err: any) {
       setIsInternetReachable(false);
+      console.log(err.message)
     }
   };
+
+  useEffect(() => {
+    if (navigator) {
+      setIsOnline(navigator.onLine);
+    }
+  }, [navigator]);
 
   useEffect(() => {
     // Handle browser-level online/offline events
@@ -41,12 +53,12 @@ export function useNetworkStatus(
     checkInternet();
 
     // Keep re-checking every 10s
-    const interval = setInterval(checkInternet, 10000);
+    // const interval = setInterval(checkInternet, 10000);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      clearInterval(interval);
+    //   clearInterval(interval);
     };
   }, []);
 

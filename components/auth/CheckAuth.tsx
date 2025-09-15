@@ -28,7 +28,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const { userData } = useAuth();
 
   const { data: bgIndex } = useBackgroundImage(userData?.id);
-const { isInternetReachable, isOnline } = useNetworkStatus()
+const { isOnline } = useNetworkStatus()
   // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS
   // LOGGED IN OR NOT
   useEffect(() => {
@@ -75,7 +75,7 @@ const { isInternetReachable, isOnline } = useNetworkStatus()
 
   let offlineToastId: string | number | undefined = undefined
 
-  if (!isInternetReachable && !isOnline && !offlineToastId) {
+  if (!isOnline && !offlineToastId) {
     offlineToastId = toast.error("No internet connection", {
       description: "Internet was disconnected. Failed to fetch.",
       duration: Infinity

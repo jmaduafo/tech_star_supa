@@ -41,6 +41,7 @@ function MainPage() {
   const [projectName, setProjectName] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
+  const [ sortLoading, setSortLoading ] = useState(false)
   const [open, setOpen] = useState(false);
 
   const { userData } = useAuth();
@@ -110,6 +111,8 @@ function MainPage() {
   }, [project_id]);
 
   function filterContractors() {
+    setSortLoading(true)
+
     try {      
       const sort = searchParams.get("sort");
       const type = searchParams.get("type") as "asc" | "desc";
@@ -145,8 +148,6 @@ function MainPage() {
           (prev) => prev && sortByNumOrBool(prev, "is_available", "desc")
         );
       }
-
-      console.log(sort);
       if (sort === "name") {
         setFilteredContractors(
           (prev) =>
@@ -155,6 +156,8 @@ function MainPage() {
       }
     } catch (err: any) {
       console.log(err.message);
+    } finally {
+      setSortLoading(false)
     }
   }
 
@@ -432,7 +435,7 @@ function MainPage() {
         </AddButton>
       </div>
       <div className="mt-10">
-        <ContractorDisplay allContractors={filteredContractors} />
+        <ContractorDisplay allContractors={filteredContractors} loading={sortLoading} />
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ function Greeting({ user }: { readonly user: User | undefined }) {
   }, []);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-row justify-between xl:flex-col">
       <div className="">
         <div className="mb-3">
           {typeof user?.image_url === "string" ? (

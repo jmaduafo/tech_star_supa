@@ -59,8 +59,10 @@ import MultiComboBox from "@/components/ui/input/MultiComboBox";
 
 function ContractorDisplay({
   allContractors,
+  loading
 }: {
   readonly allContractors: Contractor[] | undefined;
+  readonly loading?: boolean
 }) {
   const notAvailable =
     allContractors && allContractors.length === 0 ? (
@@ -70,7 +72,7 @@ function ContractorDisplay({
   return (
     <section className="">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
-        {!allContractors
+        {!allContractors || loading
           ? Array.from({ length: 6 }).map((_, i) => {
               return (
                 <Fragment key={`skeleton_${i + 1}`}>

@@ -62,29 +62,39 @@ function DashboardGrid() {
     }, [supabase, user, setUser]);
 
   return (
-    <div className="dashGrid h-auto gap-4">
+    <div className="grid h-auto gap-4
+    [grid-template-areas:'greeting_greeting''calc_calc''activities_activities''activities_activities''pie_pie''pie_pie''projects_contractors']
+    [grid-template-rows:auto]
+    [grid-template-columns:1fr_1fr]
+    sm:[grid-template-areas:'greeting_greeting_greeting''calc_calc_calc''activities_activities_activities''pie_pie_projects''pie_pie_contractors']
+    sm:[grid-template-rows:auto_auto_auto_1fr_1fr]
+    sm:[grid-template-columns:1.4fr_1.2fr_1fr]
+    xl:[grid-template-areas:'greeting_calc_calc_calc_calc_calc''greeting_activities_activities_activities_pie_pie''greeting_activities_activities_activities_contractors_projects']
+    xl:[grid-template-rows:auto_1.4fr_0.8fr]
+    xl:[grid-template-columns:1.2fr_1fr_1fr_1fr_1fr_1fr]
+    ">
       {/* Greeting */}
-      <Card className="greeting">
+      <Card className="[grid-area:greeting]">
         <Greeting user={user} />
       </Card>
       {/* Amount Display */}
-      <div className="calc">
+      <div className="[grid-area:calc]">
         <AmountDisplay user={user} />
       </div>
       {/* Line chart */}
-      <Card className="line">
+      <Card className="[grid-area:activities]">
         <Activities user={user} />
       </Card>
       {/* Pie chart */}
-      <Card className="pie">
+      <Card className="[grid-area:pie]">
         <PieChartDisplay user={user} />
       </Card>
       {/* Contractors */}
-      <Card className="contractors">
+      <Card className="[grid-area:contractors]">
         <ContractorCount user={user} />
       </Card>
       {/* Project */}
-      <Card className="project">
+      <Card className="[grid-area:projects]">
         <ProjectCount user={user} />
       </Card>
     </div>

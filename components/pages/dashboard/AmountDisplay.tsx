@@ -4,15 +4,13 @@ import { currency_list } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { Amount, Project, User, Versus } from "@/types/types";
-import {
-  totalSum,
-} from "@/utils/currencies";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import { createClient } from "@/lib/supabase/client";
 import Card from "@/components/ui/cards/MyCard";
-import { versusLast } from "@/utils/dateAndTime";
 import { getUniqueObjects } from "@/utils/chartHelpers";
 import KpiCard from "@/components/ui/cards/KpiCard";
+import Loading from "@/components/ui/loading/Loading";
+import { activeContractors, averageContract, totalAmountPaid, totalPayments } from "@/utils/kpi";
 
 function AmountDisplay({ user }: { readonly user: User | undefined }) {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -117,129 +115,6 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
   useEffect(() => {
     allData();
   }, [user]);
-
-  function totalAmountPaid(
-    data: Project[],
-    project_id: string,
-    code: string,
-    period: string
-  ) {
-    const payments = data.find((item) => item.id === project_id)?.payments;
-
-    const filter = payments?.filter(
-      (item) =>
-        item.is_paid &&
-        item.payment_amounts &&
-        item.payment_amounts[0]?.code === code
-    );
-
-    const prevAmounts: number[] = [];
-    const currentAmounts: number[] = [];
-
-    filter?.forEach((item) => {
-      if (item?.payment_amounts) {
-        versusLast(item?.date, period).prev &&
-          prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
-
-        versusLast(item?.date, period).current &&
-          currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
-      }
-    });
-
-    return {
-      previousAmount: prevAmounts.length
-        ? totalSum(prevAmounts) / prevAmounts.length
-        : 0,
-      currentAmount: currentAmounts.length
-        ? totalSum(currentAmounts) / currentAmounts.length
-        : 0,
-    };
-  }
-
-  function totalPayments(
-    data: Project[],
-    project_id: string,
-    code: string,
-    period: string
-  ) {
-    const payments = data.find((item) => item.id === project_id)?.payments;
-
-    const filter = payments?.filter(
-      (item) =>
-        item.is_paid === true &&
-        item.payment_amounts &&
-        item.payment_amounts[0].code === code
-    );
-
-    let previousAmount = 0;
-    let currentAmount = 0;
-
-    filter?.forEach((item) => {
-      versusLast(item?.date, period).prev && previousAmount++;
-      versusLast(item?.date, period).current && currentAmount++;
-    });
-
-    return {
-      previousAmount,
-      currentAmount,
-    };
-  }
-
-  function averageContract(
-    data: Project[],
-    project_id: string,
-    code: string,
-    period: string
-  ) {
-    const contracts = data.find((item) => item.id === project_id)?.contracts;
-
-    const filter = contracts?.filter((item) =>
-      item.contract_amounts?.find((item) => item.code === code)
-    );
-
-    const prevAmounts: number[] = [];
-    const currentAmounts: number[] = [];
-
-    filter?.forEach((item) => {
-      if (item?.contract_amounts) {
-        versusLast(item?.date, period).prev &&
-          prevAmounts.push(
-            Number(
-              item?.contract_amounts?.find((item) => item.code === code)?.amount
-            )
-          );
-
-        versusLast(item?.date, period).current &&
-          currentAmounts.push(
-            Number(
-              item?.contract_amounts?.find((item) => item.code === code)?.amount
-            )
-          );
-      }
-    });
-
-    return {
-      previousAmount: prevAmounts.length
-        ? totalSum(prevAmounts) / prevAmounts.length
-        : 0,
-      currentAmount: currentAmounts.length
-        ? totalSum(currentAmounts) / currentAmounts.length
-        : 0,
-    };
-  }
-
-  function activeContractors(data: Project[], project_id: string) {
-    const contractors = data.find(
-      (item) => item.id === project_id
-    )?.contractors;
-
-    const filter = contractors?.filter((item) => item.is_available === true);
-
-    return {
-      previousAmount: 0,
-      currentAmount: filter ? filter.length : 0,
-    };
-  }
 
   function runKPI() {
     if (!allProjects && !selectedCurrency.length && !selectedProject.length) {
@@ -366,14 +241,14 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           ? cardTitle.map((item, i) => {
               return (
                 <Fragment key={item.title}>
-                  <KpiCard item={item} i={i} arr={kpi} />
+                  <KpiCard item={item} index={i} arr={kpi} />
                 </Fragment>
               );
             })
           : Array.from({ length: 4 }).map((_, i) => {
               return (
-                <Card className="h-32 w-full animate-pulse" key={`${i + 1}`}>
-                  <div></div>
+                <Card className="h-32 w-full animate-pulse flex justify-center items-center" key={`${i + 1}`}>
+                  <Loading/>
                 </Card>
               );
             })}

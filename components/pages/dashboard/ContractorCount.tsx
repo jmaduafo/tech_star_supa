@@ -31,7 +31,7 @@ function ContractorCount({ user }: { readonly user: User | undefined }) {
     getUser();
   }, [user]);
 
-  return <CountCard count={count} />;
+  return <CountCard count={count} title="Total contractor"/>;
 }
 
 export default ContractorCount;

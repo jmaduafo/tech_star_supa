@@ -32,7 +32,7 @@ function ProjectCount({ user }: { readonly user: User | undefined }) {
   }, [user]);
 
   return (
-    <CountCard count={count} showLink />
+    <CountCard count={count} showLink title="Total project" />
   );
 }
 

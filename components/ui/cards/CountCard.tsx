@@ -7,9 +7,13 @@ import Loading from "../loading/Loading";
 function CountCard({
   count,
   showLink,
+  title,
+  link
 }: {
   readonly count: number | undefined;
   readonly showLink?: boolean;
+  readonly title: string;
+  readonly link?: string
 }) {
   return (
     <>
@@ -18,7 +22,7 @@ function CountCard({
           {count > 0 && showLink ? (
             <div className="flex justify-end">
               <TextButton
-                href="/projects"
+                href={link}
                 text="View all"
                 iconDirection="right"
               />
@@ -29,13 +33,13 @@ function CountCard({
               {count}
             </p>
             <Header6
-              text={`Total project${optionalS(count)}`}
+              text={`${title}${optionalS(count)}`}
               className="text-center mt-3"
             />
           </div>
         </div>
       ) : (
-        <div className="h-full flex justify-center items-center">
+        <div className="min-h-16 flex justify-center items-center">
           <Loading />
         </div>
       )}

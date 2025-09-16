@@ -1,4 +1,4 @@
-import { ChartData } from "@/types/types";
+import { ChartData, Contractor, Payment } from "@/types/types";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -21,7 +21,7 @@ export const mostFrequent = (array: string[] | number[]) => {
 };
 
 // RETURNS APPROPRIATE FORMAT FOR CHART GRAPHING
-// => [{name: "Reas", value" 18}, {name: "Opal", value: 90}, ...]
+// key = "value" => [{name: "Reas", value" 18}, {name: "Opal", value: 90}, ...]
 export const chartFormatCount = (array: any[], key: string | number) => {
   let count = array.reduce<Record<string, number>>((acc, curr) => {
     acc[curr[key]] = (acc[curr[key]] || 0) + 1;
@@ -35,6 +35,7 @@ export const chartFormatCount = (array: any[], key: string | number) => {
 
   return chartData;
 };
+
 
 export function getUniqueObjects(
   arr: any[],
@@ -60,6 +61,8 @@ export function getUniqueObjects(
   });
 }
 
+// Input => [{ name: "Zion", value: 78, isPresent: false}, { name: "Zion", value: 45, isPresent: false}, { name: "Lucas", value: 50, isPresent: true}]
+// Output => [{ name: "Zion", value: 113, isPresent: false}, { name: "Lucas", value: 50, isPresent: true}]
 export function chartFormatTotal(
   arr: any[],
   name: string | number,
@@ -76,6 +79,44 @@ export function chartFormatTotal(
       data.push({ ...item, name: item[name], value: item[value] });
     }
   });
+
+  return data;
+}
+
+export function statusBarChart(
+  payments: Payment[],
+  contractors: Contractor[]
+) {
+  const data: any[] = [];
+
+  contractors.forEach((contractor) => {
+    const filter = payments.filter(item => item.contractor_id === contractor.id)
+
+    const index = data.findIndex(item => item["name"] === contractor.name)
+
+    filter.forEach(item => {
+      if (index > -1) {
+        if (item.is_completed && item.is_paid) {
+          data.push({ ...item, paid: data[index].paid++ })
+        } else if (!item.is_paid && !item.is_completed) {
+          data.push({ ...item, pending: data[index].pending++ })
+        } else if (!item.is_paid && item.is_completed) {
+          data.push({ ...item, unpaid: data[index].unpaid++ })
+        }
+      } else {
+        if (item.is_completed && item.is_paid) {
+          data.push({ name: contractor.name, paid: 1, pending: 0, unpaid: 0 })
+        } else if (!item.is_paid && !item.is_completed) {
+          data.push({ name: contractor.name, paid: 0, pending: 1, unpaid: 0 })
+        } else if (!item.is_paid && item.is_completed) {
+          data.push({ name: contractor.name, paid: 0, pending: 0, unpaid: 1 })
+        }
+
+        data.push({name: contractor.name, paid: 0, pending: 0, unpaid: 0 })
+      }
+    })
+  })
+ 
 
   return data;
 }

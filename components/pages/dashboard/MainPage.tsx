@@ -6,15 +6,13 @@ import Card from "@/components/ui/cards/MyCard";
 
 function MainPage() {
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <DashboardGrid />
-      <Card className="mt-4">
+      <Card className="">
         <LineChartDisplay />
       </Card>
-      <div className="mt-8">
-        <PaymentDisplay />
-      </div>
-    </>
+      <PaymentDisplay />
+    </div>
   );
 }
 

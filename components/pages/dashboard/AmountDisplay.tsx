@@ -3,20 +3,16 @@ import React, { useState, useEffect, Fragment } from "react";
 import { currency_list } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import SelectBar from "@/components/ui/input/SelectBar";
-import Header2 from "@/components/fontsize/Header2";
 import { Amount, Project, User, Versus } from "@/types/types";
 import {
-  convertCurrency,
-  getPercentChange,
   totalSum,
 } from "@/utils/currencies";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
-import Header6 from "@/components/fontsize/Header6";
 import { createClient } from "@/lib/supabase/client";
 import Card from "@/components/ui/cards/MyCard";
-import PercentBanner from "@/components/ui/banners/PercentBanner";
 import { versusLast } from "@/utils/dateAndTime";
 import { getUniqueObjects } from "@/utils/chartHelpers";
+import KpiCard from "@/components/ui/cards/KpiCard";
 
 function AmountDisplay({ user }: { readonly user: User | undefined }) {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -131,7 +127,10 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     const payments = data.find((item) => item.id === project_id)?.payments;
 
     const filter = payments?.filter(
-      (item) => item.is_paid && item.payment_amounts && item.payment_amounts[0]?.code === code
+      (item) =>
+        item.is_paid &&
+        item.payment_amounts &&
+        item.payment_amounts[0]?.code === code
     );
 
     const prevAmounts: number[] = [];
@@ -229,10 +228,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     };
   }
 
-  function activeContractors(
-    data: Project[],
-    project_id: string,
-  ) {
+  function activeContractors(data: Project[], project_id: string) {
     const contractors = data.find(
       (item) => item.id === project_id
     )?.contractors;
@@ -250,8 +246,10 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
       return;
     }
 
-    const currency = currency_list.find((item) => item.code === selectedCurrency);
-    setCurrencySymbol(currency ? currency.symbol : "")
+    const currency = currency_list.find(
+      (item) => item.code === selectedCurrency
+    );
+    setCurrencySymbol(currency ? currency.symbol : "");
 
     setKpi([
       totalAmountPaid(
@@ -272,10 +270,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
         selectedCurrency,
         selectedPeriod
       ),
-      activeContractors(
-        allProjects as unknown as Project[],
-        selectedProject
-      ),
+      activeContractors(allProjects as unknown as Project[], selectedProject),
     ]);
   }
 
@@ -283,22 +278,22 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
     {
       title: "Total amount paid",
       symbol: currencySymbol,
-      visual: true
+      visual: true,
     },
     {
       title: "Payments made",
       symbol: null,
-      visual: true
+      visual: true,
     },
     {
       title: "Average contract size",
       symbol: currencySymbol,
-      visual: true
+      visual: true,
     },
     {
       title: "Active contractors",
       symbol: null,
-      visual: false
+      visual: false,
     },
   ];
 
@@ -371,33 +366,7 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           ? cardTitle.map((item, i) => {
               return (
                 <Fragment key={item.title}>
-                  <Card>
-                    <Header6 text={item.title} className="capitalize" />
-                    <div className="flex justify-end items-start gap-1 mt-8">
-                      <div className="flex items-start gap-1">
-                        {item.symbol ? (
-                          <p className="text-sm">{item.symbol}</p>
-                        ) : null}
-                        <Header2
-                          text={`${convertCurrency(kpi[i].currentAmount)}`}
-                        />
-                      </div>
-                      {item.visual && <PercentBanner
-                        type={
-                          getPercentChange(
-                            kpi[i].currentAmount,
-                            kpi[i].previousAmount
-                          ).type
-                        }
-                        percent={
-                          getPercentChange(
-                            kpi[i].currentAmount,
-                            kpi[i].previousAmount
-                          ).percent
-                        }
-                      />}
-                    </div>
-                  </Card>
+                  <KpiCard item={item} i={i} arr={kpi} />
                 </Fragment>
               );
             })

@@ -28,7 +28,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const { userData } = useAuth();
 
   const { data: bgIndex } = useBackgroundImage(userData?.id);
-const { isOnline } = useNetworkStatus()
+  const isOnline = useNetworkStatus();
   // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS
   // LOGGED IN OR NOT
   useEffect(() => {
@@ -64,6 +64,17 @@ const { isOnline } = useNetworkStatus()
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!isOnline) {
+      toast.error("No internet connection", {
+        description: "Internet was disconnected. Failed to fetch.",
+        duration: Infinity,
+      });
+    } else {
+      toast.dismiss(); // clear toast when back online
+    }
+  }, [isOnline]);
+
   if (!isMounted) {
     return null; // or a static placeholder that doesn't depend on auth
   }
@@ -71,17 +82,6 @@ const { isOnline } = useNetworkStatus()
   // LOADING STATE
   if (!isMounted && loading && !session && pathname === "/") {
     return <Loader />;
-  }
-
-  let offlineToastId: string | number | undefined = undefined
-
-  if (!isOnline && !offlineToastId) {
-    offlineToastId = toast.error("No internet connection", {
-      description: "Internet was disconnected. Failed to fetch.",
-      duration: Infinity
-    })
-  } else {
-    toast.dismiss(offlineToastId)
   }
 
   return (
@@ -110,7 +110,7 @@ const { isOnline } = useNetworkStatus()
           <MainPage />
         </main>
       )}
-      <Toaster closeButton/>
+      <Toaster closeButton />
     </>
   );
 }

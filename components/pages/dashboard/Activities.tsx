@@ -55,7 +55,7 @@ function Activities({ user }: { readonly user: User | undefined }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-between">
+      <div className="flex justify-between mb-20 xl:mb-0">
         <Header5 text="Recent Activities" />
         <TextButton
           text={"View all"}
@@ -77,7 +77,7 @@ function Activities({ user }: { readonly user: User | undefined }) {
                   i + 1 !== 5 ? "border-b" : ""
                 } border-b-lightText/10 flex justify-between items-center gap-4 w-full hover:bg-lightText/10 duration-300`}
               >
-                <div className="flex-1">
+                <div className="flex-1 hidden sm:block">
                   <Paragraph
                     text={format(item.created_at)
                       .replace("minute", "min")
@@ -86,7 +86,7 @@ function Activities({ user }: { readonly user: User | undefined }) {
                     className="text-left"
                   />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 hidden md:block lg:block xl:hidden 2xl:block">
                   <Paragraph
                     text={item.activity_type ?? ""}
                     className="capitalize text-left"
@@ -102,7 +102,7 @@ function Activities({ user }: { readonly user: User | undefined }) {
                       {user ? getInitials(item.users?.full_name) : "??"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex items-end gap-1">
+                  <div className="flex items-start gap-1">
                     <Paragraph
                       text={`${item.users?.first_name},`}
                       className="font-medium"
@@ -113,7 +113,7 @@ function Activities({ user }: { readonly user: User | undefined }) {
                           ? item.description?.slice(0, 40) + "..."
                           : item.description
                       }`}
-                      className="font-light"
+                      className="font-light text-left"
                     />
                   </div>
                 </div>

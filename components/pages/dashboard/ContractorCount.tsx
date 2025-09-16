@@ -1,10 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Header6 from "@/components/fontsize/Header6";
-import Loading from "@/components/ui/loading/Loading";
-import { optionalS } from "@/utils/optionalS";
 import { User } from "@/types/types";
 import { createClient } from "@/lib/supabase/client";
+import CountCard from "@/components/ui/cards/CountCard";
 
 function ContractorCount({ user }: { readonly user: User | undefined }) {
   const [count, setCount] = useState<number | undefined>();
@@ -33,27 +31,7 @@ function ContractorCount({ user }: { readonly user: User | undefined }) {
     getUser();
   }, [user]);
 
-  return (
-    <>
-      {typeof count === "number" ? (
-        <div className="flex flex-col h-full">
-          <div className="mt-auto">
-            <p className="text-center font-semibold text-[4vw] leading-[1]">
-              {count}
-            </p>
-            <Header6
-              text={`Total contractor${optionalS(count)}`}
-              className="text-center mt-3"
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="h-full flex justify-center items-center">
-          <Loading />
-        </div>
-      )}
-    </>
-  );
+  return <CountCard count={count} />;
 }
 
 export default ContractorCount;

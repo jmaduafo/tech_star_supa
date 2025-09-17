@@ -44,13 +44,31 @@ function Charts({
         </Card>
         <div className="col-span-1 grid gap-4">
           <Card>
-            <PaidCount />
+            <PaidCount
+              project_id={project_id}
+              projects={projects}
+              timePeriod={timePeriod}
+              currency_code={currency_code}
+              currency_symbol={currency_symbol}
+            />
           </Card>
           <Card>
-            <PendingCount />
+            <PendingCount
+              project_id={project_id}
+              projects={projects}
+              timePeriod={timePeriod}
+              currency_code={currency_code}
+              currency_symbol={currency_symbol}
+            />
           </Card>
           <Card>
-            <UnpaidCount />
+            <UnpaidCount
+              project_id={project_id}
+              projects={projects}
+              timePeriod={timePeriod}
+              currency_code={currency_code}
+              currency_symbol={currency_symbol}
+            />
           </Card>
         </div>
         <Card className="col-span-2">

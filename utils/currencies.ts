@@ -134,3 +134,9 @@ export function getPercentChange(current: number, prev: number) {
     type: "no change",
   };
 }
+
+export function checkArray(arr: any) {
+  const checked = Array.isArray(arr) ? arr[0] : arr;
+
+  return checked;
+}

@@ -37,7 +37,7 @@ function MainPage() {
         supabase
           .from("projects")
           .select(
-            "id, name, contractors ( * ), stages ( * ), contracts ( *, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
+            "id, name, contractors ( *, payments ( *, payment_amounts ( * ) ) ), stages ( * ), contracts ( *, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
           )
           .eq("team_id", userData.team_id)
           .order("created_at", { ascending: false })
@@ -45,14 +45,14 @@ function MainPage() {
         supabase
           .from("contract_amounts")
           .select(
-            "id, contract_id, name, symbol, code, contracts ( id, team_id, project_id )"
+            "id, contract_id, name, symbol, code, contracts ( id, team_id, project_id, contractor_id )"
           )
           .eq("contracts.team_id", userData.team_id)
           .throwOnError(),
         supabase
           .from("payment_amounts")
           .select(
-            "id, payment_id, name, symbol, code, payments ( id, team_id, project_id )"
+            "id, payment_id, name, symbol, code, payments ( id, team_id, project_id, contractor_id )"
           )
           .eq("payments.team_id", userData.team_id)
           .throwOnError(),

@@ -4,8 +4,8 @@ export function convertCurrency(labelValue: number) {
   let output = "";
 
   // Nine Zeroes for Billions
-  
-  // IF LENGTH IS 6 OR MORE, INCLUDING "." (ex. 290.78), CHANGE TO 
+
+  // IF LENGTH IS 6 OR MORE, INCLUDING "." (ex. 290.78), CHANGE TO
   // 1 DECIMAL PLACE INSTEAD
   if (Math.abs(Number(labelValue)) >= 1.0e9) {
     if ((Math.abs(Number(labelValue)) / 1.0e9).toFixed(2).length >= 6) {
@@ -25,11 +25,11 @@ export function convertCurrency(labelValue: number) {
     } else {
       output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(2) + "K";
     }
-  } else if ((Math.abs(Number(labelValue))).toFixed(2).length >= 6) {
-      output += Math.abs(Number(labelValue)).toFixed(2);
-    } else {
-      output += Math.abs(Number(labelValue));
-    }
+  } else if (Math.abs(Number(labelValue)).toFixed(2).length >= 6) {
+    output += Math.abs(Number(labelValue)).toFixed(2);
+  } else {
+    output += Math.abs(Number(labelValue));
+  }
 
   return output;
 }
@@ -45,12 +45,10 @@ export function totalSum(arr: number[]) {
 }
 
 export function formatCurrency(num: number, code: string) {
-  if (num.toString().length < 16) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: code,
-    }).format(num);
-  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: code,
+  }).format(num);
 }
 
 // FOR ONE ITEM

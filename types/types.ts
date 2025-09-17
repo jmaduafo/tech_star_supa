@@ -145,6 +145,7 @@ export type Contractor = {
   start_month: string;
   start_year: number;
   projects: Project;
+  payments: Payment[];
   comment?: string | null;
   is_available: boolean;
   created_at: string;

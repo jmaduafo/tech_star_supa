@@ -6,7 +6,7 @@ import {
   Payment,
   Stage,
 } from "@/types/types";
-import { versusLast } from "./dateAndTime";
+import { switchPeriod, versusLast } from "./dateAndTime";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -263,6 +263,40 @@ export function paymentPieStageChart(
 
     paymentsFilter.forEach((item) => {
       item.stage_id === stage.id && data[i]["paymentCount"]++;
+    });
+  });
+
+  return data;
+}
+
+export function topContractors(
+  contractor: Contractor[],
+  currency_code: string,
+  timePeriod: string
+) {
+  const data: any[] = [];
+
+  contractor.forEach((contractor, i) => {
+    data.push({ name: contractor.name, paymentAmount: 0 });
+
+    contractor.payments.forEach((item) => {
+      const amount = Array.isArray(item.payment_amounts)
+        ? item.payment_amounts[0]
+        : item.payment_amounts;
+
+      if (timePeriod !== "All Time") {
+        if (
+          amount &&
+          amount.code === currency_code &&
+          versusLast(item.date, timePeriod).current
+        ) {
+          data[i]["paymentAmount"] += +amount?.amount;
+        }
+      } else {
+        if (amount && amount.code === currency_code) {
+          data[i]["paymentAmount"] += +amount?.amount;
+        }
+      }
     });
   });
 

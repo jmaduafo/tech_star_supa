@@ -69,7 +69,7 @@ function PieChart2({ data, dataKey }: { readonly data: any[]; readonly dataKey?:
                       marginRight: 5,
                     }}
                   />
-                  <span className="whitespace-nowrap">{entry.value}</span>
+                  <span className="whitespace-nowrap text-sm 2xl:text-base">{entry.value}</span>
                 </li>
               ))}
             </ul>

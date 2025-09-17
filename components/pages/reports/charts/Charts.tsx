@@ -18,7 +18,7 @@ function Charts({
   project_id,
   currency_code,
   projects,
-  currencies
+  currencies,
 }: {
   readonly timePeriod: string;
   readonly project_id: string;
@@ -27,16 +27,20 @@ function Charts({
   readonly user: User | undefined;
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
-  
 }) {
   return (
     <>
       <div className="grid grid-cols-6 gap-4 row-auto">
         <Card className="col-span-4">
-          <StatusBar project_id={project_id} projects={projects} user={user} timePeriod={timePeriod}/>
+          <StatusBar
+            project_id={project_id}
+            projects={projects}
+            user={user}
+            timePeriod={timePeriod}
+          />
         </Card>
         <Card className="col-span-2">
-          <ContractorPie user={user} timePeriod={timePeriod}/>
+          <ContractorPie user={user} timePeriod={timePeriod} />
         </Card>
         <div className="col-span-1 grid gap-4">
           <Card>
@@ -50,10 +54,23 @@ function Charts({
           </Card>
         </div>
         <Card className="col-span-2">
-          <PaymentPie project_id={project_id} projects={projects} currencies={currencies} user={user} timePeriod={timePeriod}/>
+          <PaymentPie
+            project_id={project_id}
+            projects={projects}
+            currencies={currencies}
+            user={user}
+            timePeriod={timePeriod}
+          />
         </Card>
         <Card className="col-span-3">
-          <ContractorPayments user={user} timePeriod={timePeriod}/>
+          <ContractorPayments
+            project_id={project_id}
+            projects={projects}
+            currency_code={currency_code}
+            currency_symbol={currency_symbol}
+            user={user}
+            timePeriod={timePeriod}
+          />
         </Card>
       </div>
       <Card>

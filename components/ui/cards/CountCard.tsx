@@ -3,6 +3,7 @@ import { optionalS } from "@/utils/optionalS";
 import React from "react";
 import TextButton from "../buttons/TextButton";
 import Loading from "../loading/Loading";
+import Paragraph from "@/components/fontsize/Paragraph";
 
 function CountCard({
   count,
@@ -32,7 +33,7 @@ function CountCard({
             <p className="text-center font-semibold text-[4vw] leading-[1] mt-3">
               {count}
             </p>
-            <Header6
+            <Paragraph
               text={`${title}${optionalS(count)}`}
               className="text-center mt-3"
             />

@@ -53,14 +53,16 @@ function PaymentPie({
       return;
     }
 
-    const currency: Amount[] = []
+    const currency: Amount[] = [];
 
-    project.payments.forEach(item => {
-      const amount = Array.isArray(item.payment_amounts) ? item.payment_amounts[0] : item.payment_amounts
+    project.payments.forEach((item) => {
+      const amount = Array.isArray(item.payment_amounts)
+        ? item.payment_amounts[0]
+        : item.payment_amounts;
 
-      currency.push(amount as Amount)
-    })
-    
+      currency.push(amount as Amount);
+    });
+
     const contracts = project.contracts;
     const payments = project.payments;
     const contractors = project.contractors;
@@ -103,48 +105,51 @@ function PaymentPie({
 
   const switchCharts = () => {
     if (!currencyData || !stageData || !contractorData || !contractData) {
-      return
+      return;
     }
 
     if (value === "Currency") {
-      return currencyData
+      return currencyData;
     } else if (value === "Stages") {
-      return stageData
+      return stageData;
     } else if (value === "Contractors") {
-      return contractorData
+      return contractorData;
     } else if (value === "Contracts") {
-      return contractData
+      return contractData;
     }
-  }
+  };
 
   return (
-    <div className="">
-      <SelectBar
-        placeholder={"Select a category"}
-        label={"Categories"}
-        value={value}
-        valueChange={setValue}
-        className="w-full"
-      >
-        {["Currency", "Stages", "Contractors", "Contracts"].map((item) => {
-          return (
-            <SelectItem value={item} key={item}>
-              {item}
-            </SelectItem>
-          );
-        })}
-      </SelectBar>
-      <div className="h-full">
-        {
-          !currencyData || !contractData || !contractorData || !stageData ?
-          <div className="h-full flex justify-center item-center">
-            <Loading/>
-          </div> : 
-          <div className="h-[35vh] flex justify-center items-center w-full">
-            <PieChart2 data={switchCharts() ?? []} dataKey="paymentCount"/>
+    <div className="h-full">
+      {!currencyData || !contractData || !contractorData || !stageData ? (
+        <div className="h-full flex justify-center item-center">
+          <Loading />
+        </div>
+      ) : (
+        <div className="flex flex-col justify-center items-center h-full">
+          <SelectBar
+            placeholder={"Select a category"}
+            label={"Categories"}
+            value={value}
+            valueChange={setValue}
+            className="w-full"
+          >
+            {["Currency", "Stages", "Contractors", "Contracts"].map((item) => {
+              return (
+                <SelectItem value={item} key={item}>
+                  {item}
+                </SelectItem>
+              );
+            })}
+          </SelectBar>
+          <div className="h-[35vh] w-full mt-auto">
+            <PieChart2 data={switchCharts() ?? []} dataKey="paymentCount" />
           </div>
-        }
-      </div>
+          <div className="mt-auto">
+            <p>Hsis</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

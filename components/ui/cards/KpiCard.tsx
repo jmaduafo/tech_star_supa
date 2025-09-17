@@ -15,7 +15,7 @@ type Kpi = {
 
 function KpiCard({ item, arr, index, period }: Kpi) {
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col min-h-32">
       <Header6 text={item.title} className="capitalize" />
       <div className="flex justify-end items-start gap-1 mt-auto">
         <div className="flex items-start gap-1">

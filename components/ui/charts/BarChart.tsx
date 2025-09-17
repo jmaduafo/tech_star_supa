@@ -23,7 +23,7 @@ function BarChart({
       <BarContainer data={data} accessibilityLayer>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(236, 236, 236, 0.3)"/>
         <XAxis dataKey="name" stroke="rgba(236, 236, 236, 0.8)" />
-        <YAxis stroke="rgba(236, 236, 236, 0.8)" allowDecimals={false} />
+        <YAxis stroke="rgba(236, 236, 236, 0.8)" allowDecimals={false} hide/>
         <Tooltip
           contentStyle={{
             backgroundColor: "#141414",

@@ -32,6 +32,7 @@ export interface DataTableProps<TData, TValue> {
 }
 
 export type ChartData = { name: string; value: number };
+export type ColorData = { name: string; color: string };
 export type LineData = { name: string; value: number; project_id: string; code: string };
 
 export type UserItem = {

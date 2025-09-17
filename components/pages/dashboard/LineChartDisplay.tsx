@@ -162,21 +162,6 @@ function LineChartDisplay() {
               : null}
           </SelectBar>
           <SelectBar
-            valueChange={setRange}
-            className=""
-            value={range}
-            placeholder="Select a range"
-            label="Ranges"
-          >
-            {["Last week", "Last 1 month", "Last 1 year"].map((item) => {
-              return (
-                <SelectItem value={item.toLowerCase()} key={item}>
-                  {item}
-                </SelectItem>
-              );
-            })}
-          </SelectBar>
-          <SelectBar
             valueChange={setCurrencyCode}
             className=""
             value={currencyCode}
@@ -192,6 +177,21 @@ function LineChartDisplay() {
                   );
                 })
               : null}
+          </SelectBar>
+          <SelectBar
+            valueChange={setRange}
+            className=""
+            value={range}
+            placeholder="Select a range"
+            label="Ranges"
+          >
+            {["Last week", "Last 1 month", "Last 1 year"].map((item) => {
+              return (
+                <SelectItem value={item.toLowerCase()} key={item}>
+                  {item}
+                </SelectItem>
+              );
+            })}
           </SelectBar>
           <div className="flex gap-1.5">
             <CheckedButton

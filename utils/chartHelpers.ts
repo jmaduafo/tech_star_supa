@@ -1,4 +1,4 @@
-import { ChartData, Contractor, Payment } from "@/types/types";
+import { ChartData, Contract, Contractor, Payment } from "@/types/types";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -83,40 +83,54 @@ export function chartFormatTotal(
   return data;
 }
 
-export function statusBarChart(
+export function paymentStatusBarChart(
   payments: Payment[],
   contractors: Contractor[]
 ) {
   const data: any[] = [];
 
-  contractors.forEach((contractor) => {
-    const filter = payments.filter(item => item.contractor_id === contractor.id)
+  // Filter through contractor
+  contractors.forEach((contractor, index) => {
+    data.push({ name: contractor.name, pending: 0, paid: 0, unpaid: 0 })
 
-    const index = data.findIndex(item => item["name"] === contractor.name)
+    const paymentsFilter = payments.filter(item => item.contractor_id === contractor.id)
 
-    filter.forEach(item => {
-      if (index > -1) {
+    paymentsFilter.forEach(item => {
         if (item.is_completed && item.is_paid) {
-          data.push({ ...item, paid: data[index].paid++ })
+          data[index]["paid"]++
         } else if (!item.is_paid && !item.is_completed) {
-          data.push({ ...item, pending: data[index].pending++ })
+          data[index]["pending"]++
         } else if (!item.is_paid && item.is_completed) {
-          data.push({ ...item, unpaid: data[index].unpaid++ })
+          data[index]["unpaid"]++
         }
-      } else {
-        if (item.is_completed && item.is_paid) {
-          data.push({ name: contractor.name, paid: 1, pending: 0, unpaid: 0 })
-        } else if (!item.is_paid && !item.is_completed) {
-          data.push({ name: contractor.name, paid: 0, pending: 1, unpaid: 0 })
-        } else if (!item.is_paid && item.is_completed) {
-          data.push({ name: contractor.name, paid: 0, pending: 0, unpaid: 1 })
-        }
-
-        data.push({name: contractor.name, paid: 0, pending: 0, unpaid: 0 })
-      }
+      
     })
   })
- 
+
+  return data;
+}
+
+export function contractStatusBarChart(
+  contracts: Contract[],
+  contractors: Contractor[]
+) {
+  const data: any[] = [];
+
+  // Filter through contractor
+  contractors.forEach((contractor, index) => {
+    data.push({ name: contractor.name, completed: 0, ongoing: 0 })
+
+    const contractFilter = contracts.filter(item => item.contractor_id === contractor.id)
+
+    contractFilter.forEach(item => {
+        if (item.is_completed) {
+          data[index]["completed"]++
+        } else {
+          data[index]["ongoing"]++
+        }
+      
+    })
+  })
 
   return data;
 }

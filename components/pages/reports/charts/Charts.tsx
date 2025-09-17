@@ -8,6 +8,8 @@ import ContractorPie from "./ContractorPie";
 import PaymentPie from "./PaymentPie";
 import ContractorPayments from "./ContractorPayments";
 import Card from "@/components/ui/cards/MyCard";
+import ContractorPaymentBar from "./ContractorPaymentBar";
+import LineChartDisplay from "../../dashboard/LineChartDisplay";
 
 function Charts({
   timePeriod,
@@ -17,31 +19,39 @@ function Charts({
   readonly user: User | undefined;
 }) {
   return (
-    <div className="grid grid-cols-6 gap-4 row-auto">
-      <Card className="col-span-4">
-        <StatusBar />
-      </Card>
-      <Card className="col-span-2">
-        <ContractorPie />
-      </Card>
-      <div className="col-span-1 grid gap-4">
-        <Card>
-          <PaidCount />
+    <>
+      <div className="grid grid-cols-6 gap-4 row-auto">
+        <Card className="col-span-4">
+          <StatusBar user={user} timePeriod={timePeriod}/>
         </Card>
-        <Card>
-          <PendingCount />
+        <Card className="col-span-2">
+          <ContractorPie user={user} timePeriod={timePeriod}/>
         </Card>
-        <Card>
-          <UnpaidCount />
+        <div className="col-span-1 grid gap-4">
+          <Card>
+            <PaidCount />
+          </Card>
+          <Card>
+            <PendingCount />
+          </Card>
+          <Card>
+            <UnpaidCount />
+          </Card>
+        </div>
+        <Card className="col-span-2">
+          <PaymentPie user={user} timePeriod={timePeriod}/>
+        </Card>
+        <Card className="col-span-3">
+          <ContractorPayments user={user} timePeriod={timePeriod}/>
         </Card>
       </div>
-      <Card className="col-span-2">
-        <PaymentPie />
+      <Card>
+        <LineChartDisplay />
       </Card>
-      <Card className="col-span-3">
-        <ContractorPayments />
+      <Card>
+        <ContractorPaymentBar />
       </Card>
-    </div>
+    </>
   );
 }
 

@@ -1,4 +1,11 @@
-import { ChartData, Contract, Contractor, Payment } from "@/types/types";
+import {
+  Amount,
+  ChartData,
+  Contract,
+  Contractor,
+  Payment,
+  Stage,
+} from "@/types/types";
 import { versusLast } from "./dateAndTime";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
@@ -79,6 +86,8 @@ export function chartFormatTotal(
   return data;
 }
 
+// pages/reports/charts/StatusBar
+
 export function paymentStatusBarChart(
   project_id: string,
   payments: Payment[],
@@ -89,10 +98,10 @@ export function paymentStatusBarChart(
 
   // Filter through contractor
   contractors.forEach((contractor, index) => {
-    // INITIALIZE DATA WITH CONTRACTOR OBJECT AND ONLY EDIT LATER
+    // INITIALIZE ARRAY WITH CONTRACTOR OBJECT AND ONLY EDIT LATER
     data.push({ name: contractor.name, pending: 0, paid: 0, unpaid: 0 });
 
-    // FILTER BY TIME PERIOD ("year", "month", "week")
+    // FILTER BY TIME PERIOD ("year", "month", "week") AND PROJECT ID
     const paymentsFilter =
       period !== "All Time"
         ? payments.filter(
@@ -134,7 +143,7 @@ export function contractStatusBarChart(
   contractors.forEach((contractor, index) => {
     data.push({ name: contractor.name, completed: 0, ongoing: 0 });
 
-    // FILTER BY TIME PERIOD ("year", "month", "week")
+    // FILTER BY TIME PERIOD ("year", "month", "week") AND PROJECT ID
     const contractFilter =
       period !== "All Time"
         ? contracts.filter(
@@ -156,6 +165,104 @@ export function contractStatusBarChart(
       } else {
         data[index]["ongoing"]++;
       }
+    });
+  });
+
+  return data;
+}
+
+// pages/report/PaymentPie
+
+export function paymentPieCurrencyChart(
+  project_id: string,
+  currencies: Amount[],
+  payments: Payment[]
+) {
+  const data: any[] = [];
+
+  const paymentsFilter = payments.filter((item) => item.is_paid);
+
+  currencies.forEach((currency, i) => {
+    const index = data.findIndex((item) => item.name === currency.name);
+
+    if (index === -1) {
+      data.push({ name: currency.name, paymentCount: 0 });
+
+      paymentsFilter.forEach((item) => {
+        const amounts = Array.isArray(item.payment_amounts)
+          ? item.payment_amounts[0]
+          : item.payment_amounts;
+
+        if (amounts) {
+          amounts.name === currency.name && data[i]["paymentCount"]++;
+        }
+      });
+    }
+  });
+
+  return data;
+}
+
+export function paymentPieContractorChart(
+  project_id: string,
+  contractors: Contractor[],
+  payments: Payment[]
+) {
+  const data: any[] = [];
+
+  const paymentsFilter = payments.filter(
+    (item) => item.project_id === project_id && item.is_paid
+  );
+
+  contractors.forEach((contractor, i) => {
+    data.push({ name: contractor.name, paymentCount: 0 });
+
+    paymentsFilter.forEach((item) => {
+      item.contractor_id === contractor.id && data[i]["paymentCount"]++;
+    });
+  });
+
+  return data;
+}
+
+export function paymentPieContractChart(
+  project_id: string,
+  contracts: Contract[],
+  payments: Payment[]
+) {
+  const data: any[] = [];
+
+  const paymentsFilter = payments.filter(
+    (item) => item.project_id === project_id && item.is_paid
+  );
+
+  contracts.forEach((contract, i) => {
+    data.push({ name: contract.contract_code, paymentCount: 0 });
+
+    paymentsFilter.forEach((item) => {
+      item.contract_id === contract.id && data[i]["paymentCount"]++;
+    });
+  });
+
+  return data;
+}
+
+export function paymentPieStageChart(
+  project_id: string,
+  stages: Stage[],
+  payments: Payment[]
+) {
+  const data: any[] = [];
+
+  const paymentsFilter = payments.filter(
+    (item) => item.project_id === project_id && item.is_paid
+  );
+
+  stages.forEach((stage, i) => {
+    data.push({ name: stage.name, paymentCount: 0 });
+
+    paymentsFilter.forEach((item) => {
+      item.stage_id === stage.id && data[i]["paymentCount"]++;
     });
   });
 

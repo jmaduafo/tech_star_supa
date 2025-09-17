@@ -4,7 +4,7 @@ import Header6 from "@/components/fontsize/Header6";
 import KpiCard from "@/components/ui/cards/KpiCard";
 import Card from "@/components/ui/cards/MyCard";
 import Loading from "@/components/ui/loading/Loading";
-import { Payment, User, Versus } from "@/types/types";
+import { Amount, Project, User, Versus } from "@/types/types";
 import React, { Fragment, useState } from "react";
 
 function Kpi({
@@ -12,16 +12,19 @@ function Kpi({
   user,
   currency_symbol,
   project_id,
-  currency_code
+  currency_code,
+  projects,
+  currencies
 }: {
   readonly timePeriod: string;
   readonly project_id: string;
   readonly currency_code: string;
   readonly currency_symbol: string;
   readonly user: User | undefined;
+  readonly projects: Project[] | undefined;
+  readonly currencies: Amount[] | undefined;
   
 }) {
-  const [allPayments, setAllPayments] = useState<Payment[] | undefined>();
 
   const [kpi, setKpi] = useState<Versus[] | undefined>([
     {

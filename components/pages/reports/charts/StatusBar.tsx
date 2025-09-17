@@ -4,8 +4,7 @@ import BarChart from "@/components/ui/charts/BarChart";
 import SelectBar from "@/components/ui/input/SelectBar";
 import Loading from "@/components/ui/loading/Loading";
 import { SelectItem } from "@/components/ui/select";
-import { createClient } from "@/lib/supabase/client";
-import { Contract, Contractor, Payment, User } from "@/types/types";
+import { Contract, Contractor, Payment, Project, User } from "@/types/types";
 import {
   paymentStatusBarChart,
   contractStatusBarChart,
@@ -24,10 +23,12 @@ function StatusBar({
   timePeriod,
   user,
   project_id,
+  projects,
 }: {
   readonly timePeriod: string;
   readonly user: User | undefined;
   readonly project_id: string;
+  readonly projects: Project[] | undefined;
 }) {
   const [allPayments, setAllPayments] = useState<Payment[] | undefined>();
   const [allContracts, setAllContracts] = useState<Contract[] | undefined>();
@@ -35,50 +36,40 @@ function StatusBar({
     Contractor[] | undefined
   >();
 
-  const [paymentData, setPaymentData] = useState<any[] | undefined>();
-  const [contractData, setContractData] = useState<any[] | undefined>();
+  const [paymentData, setPaymentData] = useState<Status[] | undefined>();
+  const [contractData, setContractData] = useState<Status[] | undefined>();
 
   const [selectedData, setSelectedData] = useState("Payments");
 
-  const supabase = createClient();
-
   const getData = async () => {
-    if (!user || !project_id.length) {
+    if (!user || !project_id.length || !projects) {
       return;
     }
 
-    const [contractors, payments, contracts] = await Promise.all([
-      supabase
-        .from("contractors")
-        .select("id, project_id, name")
-        .eq("team_id", user.team_id)
-        .throwOnError(),
-      supabase
-        .from("payments")
-        .select("id, project_id, date, contractor_id, is_paid, is_completed")
-        .eq("team_id", user.team_id)
-        .throwOnError(),
-      supabase
-        .from("contracts")
-        .select("id, project_id, date, contractor_id, is_completed")
-        .eq("team_id", user.team_id)
-        .throwOnError(),
-    ]);
+    const project = projects.find(item => item.id === project_id)
 
-    setAllContractors(contractors.data as unknown as Contractor[]);
-    setAllContracts(contracts.data as unknown as Contract[]);
-    setAllPayments(payments.data);
+    if (!project) {
+        return
+    }
+
+    const contractors = project.contractors
+    const contracts = project.contracts
+    const payments = project.payments
+
+    setAllContractors(contractors);
+    setAllContracts(contracts);
+    setAllPayments(payments);
 
     const paymentChart = paymentStatusBarChart(
       project_id,
-      payments.data as Payment[],
-      contractors.data as Contractor[],
+      payments as Payment[],
+      contractors as Contractor[],
       timePeriod
     );
     const contractChart = contractStatusBarChart(
       project_id,
-      contracts.data as Contract[],
-      contractors.data as Contractor[],
+      contracts as Contract[],
+      contractors as Contractor[],
       timePeriod
     );
 
@@ -88,7 +79,7 @@ function StatusBar({
 
   useEffect(() => {
     getData();
-  }, [project_id, user]);
+  }, [project_id, user, projects]);
 
   useEffect(() => {
     if (allContracts && allContractors) {

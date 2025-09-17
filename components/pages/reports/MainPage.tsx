@@ -32,31 +32,59 @@ function MainPage() {
       return;
     }
 
-    const [projects, currencies] = await Promise.all([
-      supabase
-        .from("projects")
-        .select("id, name")
-        .eq("team_id", userData.team_id)
-        .order("created_at", { ascending: false })
-        .throwOnError(),
-      supabase
-        .from("contract_amounts")
-        .select("id, name, symbol, code, contracts ( id, team_id )")
-        .eq("contracts.team_id", userData.team_id)
-        .throwOnError(),
-    ]);
+    const [projects, contractCurrencies, paymentCurrencies] = await Promise.all(
+      [
+        supabase
+          .from("projects")
+          .select(
+            "id, name, contractors ( * ), stages ( * ), contracts ( *, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
+          )
+          .eq("team_id", userData.team_id)
+          .order("created_at", { ascending: false })
+          .throwOnError(),
+        supabase
+          .from("contract_amounts")
+          .select(
+            "id, contract_id, name, symbol, code, contracts ( id, team_id, project_id )"
+          )
+          .eq("contracts.team_id", userData.team_id)
+          .throwOnError(),
+        supabase
+          .from("payment_amounts")
+          .select(
+            "id, payment_id, name, symbol, code, payments ( id, team_id, project_id )"
+          )
+          .eq("payments.team_id", userData.team_id)
+          .throwOnError(),
+      ]
+    );
 
-    setSelectedProject(projects.data[0].id)
-    setAllProjects(projects.data)
-    
-    setCurrenciesList(getUniqueObjects(currencies.data, "code"))
-    setSelectedCurrency(getUniqueObjects(currencies.data, "code")[0].code)
-    setCurrencySymbol(getUniqueObjects(currencies.data, "code")[0].symbol)
+    setSelectedProject(projects.data[0].id);
+    setAllProjects(projects.data);
+
+    setCurrenciesList(
+      getUniqueObjects(
+        [...contractCurrencies.data, ...paymentCurrencies.data],
+        "code"
+      )
+    );
+    setSelectedCurrency(
+      getUniqueObjects(
+        [...contractCurrencies.data, ...paymentCurrencies.data],
+        "code"
+      )[0].code
+    );
+    setCurrencySymbol(
+      getUniqueObjects(
+        [...contractCurrencies.data, ...paymentCurrencies.data],
+        "code"
+      )[0].symbol
+    );
   };
 
   useEffect(() => {
-    getData()
-  }, [])
+    getData();
+  }, []);
 
   return (
     <div className="">
@@ -130,6 +158,8 @@ function MainPage() {
           project_id={selectedProject}
           currency_code={selectedCurrency}
           currency_symbol={currencySymbol}
+          projects={allProjects}
+          currencies={currenciesList}
           timePeriod={period}
           user={userData}
         />
@@ -137,6 +167,8 @@ function MainPage() {
           project_id={selectedProject}
           currency_code={selectedCurrency}
           currency_symbol={currencySymbol}
+          projects={allProjects}
+          currencies={currenciesList}
           timePeriod={period}
           user={userData}
         />
@@ -144,6 +176,8 @@ function MainPage() {
           project_id={selectedProject}
           currency_code={selectedCurrency}
           currency_symbol={currencySymbol}
+          projects={allProjects}
+          currencies={currenciesList}
           timePeriod={period}
           user={userData}
         />

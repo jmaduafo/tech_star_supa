@@ -44,13 +44,11 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
           .from("contract_amounts")
           .select("*, contracts ( id, is_completed, team_id)")
           .eq("contracts.team_id", user.team_id)
-          // .rangeGte("contracts.date", format(pastTime("Last 1 year"), "PP"))
           .throwOnError(),
         supabase
           .from("payment_amounts")
           .select("*, payments ( id, is_completed, is_paid, team_id)")
           .eq("payments.team_id", user.team_id)
-          // .rangeGte("contracts.date", format(pastTime("Last 1 year"), "PP"))
           .throwOnError(),
       ]);
 

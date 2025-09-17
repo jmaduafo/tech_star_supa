@@ -10,13 +10,13 @@ import {
 } from "recharts";
 import { COLORS } from "@/utils/dataTools";
 
-function PieChart2({ data }: { readonly data: ChartData[] }) {
+function PieChart2({ data, dataKey }: { readonly data: any[]; readonly dataKey?: string }) {
   return (
-    <ResponsiveContainer width="100%" height="80%">
+    <ResponsiveContainer width="100%" height="100%" className={"w-full h-full"}>
       <PieChart>   
         <Pie
           data={data}
-          dataKey="value"
+          dataKey={dataKey ?? "value"}
           nameKey="name"
           cx="50%"
           cy="50%"
@@ -42,9 +42,12 @@ function PieChart2({ data }: { readonly data: ChartData[] }) {
                 padding: 0,
                 margin: 0,
                 display: "flex",
+                flexWrap: "wrap",
+
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 10,
+                rowGap: 3,
+                columnGap: 10
               }}
             >
               {payload?.map((entry, index) => (
@@ -52,6 +55,7 @@ function PieChart2({ data }: { readonly data: ChartData[] }) {
                   key={`item-${index + 1}`}
                   style={{
                     display: "flex",
+                    gap: 4,
                     alignItems: "center",
                     marginBottom: 4,
                   }}
@@ -65,7 +69,7 @@ function PieChart2({ data }: { readonly data: ChartData[] }) {
                       marginRight: 5,
                     }}
                   />
-                  <span>{entry.value}</span>
+                  <span className="whitespace-nowrap">{entry.value}</span>
                 </li>
               ))}
             </ul>

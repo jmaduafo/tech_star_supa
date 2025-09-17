@@ -1,29 +1,27 @@
 "use client";
 import Header2 from "@/components/fontsize/Header2";
 import Header6 from "@/components/fontsize/Header6";
-import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import KpiCard from "@/components/ui/cards/KpiCard";
 import Card from "@/components/ui/cards/MyCard";
-import SelectBar from "@/components/ui/input/SelectBar";
 import Loading from "@/components/ui/loading/Loading";
-import { Amount, Payment, Project, User, Versus } from "@/types/types";
-import { SelectItem } from "@radix-ui/react-select";
+import { Payment, User, Versus } from "@/types/types";
 import React, { Fragment, useState } from "react";
 
 function Kpi({
   timePeriod,
   user,
+  currency_symbol,
+  project_id,
+  currency_code
 }: {
   readonly timePeriod: string;
+  readonly project_id: string;
+  readonly currency_code: string;
+  readonly currency_symbol: string;
   readonly user: User | undefined;
+  
 }) {
-  const [allProjects, setAllProjects] = useState<Project[] | undefined>();
   const [allPayments, setAllPayments] = useState<Payment[] | undefined>();
-  const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
-
-  const [selectedCurrency, setSelectedCurrency] = useState("");
-  const [currencySymbol, setCurrencySymbol] = useState("$");
-  const [selectedProject, setSelectedProject] = useState("");
 
   const [kpi, setKpi] = useState<Versus[] | undefined>([
     {
@@ -51,119 +49,69 @@ function Kpi({
   const cardTitles = [
     {
       title: "Total payment amount",
-      symbol: currencySymbol,
+      symbol: currency_symbol,
       visual: true,
-      className: "md:col-span-2 lg:col-span-1"
+      className: "md:col-span-2 lg:col-span-1",
     },
     {
       title: "Total contract amount",
-      symbol: currencySymbol,
+      symbol: currency_symbol,
       visual: true,
-      className: ""
+      className: "",
     },
     {
       title: "Contract payment amount",
-      symbol: currencySymbol,
+      symbol: currency_symbol,
       visual: true,
-      className: ""
+      className: "",
     },
     {
       title: "Contract balance",
-      symbol: currencySymbol,
+      symbol: currency_symbol,
       visual: true,
-      className: ""
+      className: "",
     },
     {
       title: "Top contractor",
       symbol: null,
       visual: false,
-      className: ""
+      className: "",
     },
   ];
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-4">
-        <SelectBar
-          valueChange={setSelectedProject}
-          value={selectedProject}
-          placeholder="Select a project"
-          label="Projects"
-        >
-          {allProjects
-            ? allProjects.map((item) => {
-                return (
-                  <SelectItem
-                    className="cursor-pointer"
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {item.name}
-                  </SelectItem>
-                );
-              })
-            : null}
-        </SelectBar>
-        <SelectBar
-          valueChange={setSelectedCurrency}
-          value={selectedCurrency}
-          placeholder="Select a currency"
-          label="Currencies"
-        >
-          {currenciesList
-            ? currenciesList.map((item) => {
-                return (
-                  <SelectItem
-                    className="cursor-pointer"
-                    key={item.name}
-                    value={item.code}
-                  >
-                    {item.name}
-                  </SelectItem>
-                );
-              })
-            : null}
-        </SelectBar>
-        <div className="flex gap-1.5">
-          <CheckedButton
-            clickedFn={() => {}}
-            disabledLogic={!selectedCurrency.length || !selectedProject.length}
-          />
-        </div>
-      </div>
-      <div className="grid md:grid-cols-3 xl:grid-cols-5 gap-4 mt-2">
-        {kpi
-          ? cardTitles.map((item, i) => {
-              return (
-                <Fragment key={item.title}>
-                  {i < 4 ? (
-                    <KpiCard
-                      period={timePeriod}
-                      item={item}
-                      index={i}
-                      arr={kpi}
-                    />
-                  ) : (
-                    <Card className="">
-                      <Header6 text={item.title} className="capitalize" />
-                      <div className="flex justify-end items-start gap-1 mt-8">
-                        <div className="flex items-start gap-1">
-                          <Header2 text={``} />
-                        </div>
+    <div className="grid md:grid-cols-3 xl:grid-cols-5 gap-4">
+      {kpi
+        ? cardTitles.map((item, i) => {
+            return (
+              <Fragment key={item.title}>
+                {i < 4 ? (
+                  <KpiCard
+                    period={timePeriod}
+                    item={item}
+                    index={i}
+                    arr={kpi}
+                  />
+                ) : (
+                  <Card className="flex flex-col">
+                    <Header6 text={item.title} className="capitalize" />
+                    <div className="flex justify-end items-start gap-1 mt-8">
+                      <div className="">
+                        <Header2 text={`Equalize Limited`} className="text-right" />
                       </div>
-                    </Card>
-                  )}
-                </Fragment>
-              );
-            })
-          : Array.from({ length: 5 }).map((_, i) => {
-              return (
-                <Card className="h-32 w-full animate-pulse" key={`${i + 1}`}>
-                  <Loading />
-                </Card>
-              );
-            })}
-      </div>
+                    </div>
+                  </Card>
+                )}
+              </Fragment>
+            );
+          })
+        : Array.from({ length: 5 }).map((_, i) => {
+            return (
+              <Card className="h-32 w-full animate-pulse" key={`${i + 1}`}>
+                <Loading />
+              </Card>
+            );
+          })}
     </div>
   );
 }

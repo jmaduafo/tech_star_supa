@@ -15,9 +15,9 @@ type Kpi = {
 
 function KpiCard({ item, arr, index, period }: Kpi) {
   return (
-    <Card>
+    <Card className="flex flex-col">
       <Header6 text={item.title} className="capitalize" />
-      <div className="flex justify-end items-start gap-1 mt-8">
+      <div className="flex justify-end items-start gap-1 mt-auto">
         <div className="flex items-start gap-1">
           {item.symbol ? <p className="text-sm">{item.symbol}</p> : null}
           <Header2 text={`${convertCurrency(arr[index].currentAmount)}`} />

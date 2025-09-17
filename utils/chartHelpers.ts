@@ -1,4 +1,5 @@
 import { ChartData, Contract, Contractor, Payment } from "@/types/types";
+import { versusLast } from "./dateAndTime";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -36,18 +37,13 @@ export const chartFormatCount = (array: any[], key: string | number) => {
   return chartData;
 };
 
-
-export function getUniqueObjects(
-  arr: any[],
-  key?: string | number,
-) {
+export function getUniqueObjects(arr: any[], key?: string | number) {
   const unique = new Set();
   return arr.filter((obj) => {
     let keyValue;
 
     if (key) {
       keyValue = obj[key];
-
     } else {
       keyValue = JSON.stringify(obj);
     }
@@ -84,53 +80,84 @@ export function chartFormatTotal(
 }
 
 export function paymentStatusBarChart(
+  project_id: string,
   payments: Payment[],
-  contractors: Contractor[]
+  contractors: Contractor[],
+  period: string
 ) {
   const data: any[] = [];
 
   // Filter through contractor
   contractors.forEach((contractor, index) => {
-    data.push({ name: contractor.name, pending: 0, paid: 0, unpaid: 0 })
+    // INITIALIZE DATA WITH CONTRACTOR OBJECT AND ONLY EDIT LATER
+    data.push({ name: contractor.name, pending: 0, paid: 0, unpaid: 0 });
 
-    const paymentsFilter = payments.filter(item => item.contractor_id === contractor.id)
+    // FILTER BY TIME PERIOD ("year", "month", "week")
+    const paymentsFilter =
+      period !== "All Time"
+        ? payments.filter(
+            (item) =>
+              item.project_id === project_id &&
+              item.contractor_id === contractor.id &&
+              versusLast(item.date, period).current
+          )
+        : payments.filter(
+            (item) =>
+              item.project_id === project_id &&
+              item.contractor_id === contractor.id
+          );
 
-    paymentsFilter.forEach(item => {
-        if (item.is_completed && item.is_paid) {
-          data[index]["paid"]++
-        } else if (!item.is_paid && !item.is_completed) {
-          data[index]["pending"]++
-        } else if (!item.is_paid && item.is_completed) {
-          data[index]["unpaid"]++
-        }
-      
-    })
-  })
+    // COUNT THE PAYMENTS PAID, PENDING, OR UNPAID PER CONTRACTOR
+    paymentsFilter.forEach((item) => {
+      if (item.is_completed && item.is_paid) {
+        data[index]["paid"]++;
+      } else if (!item.is_paid && !item.is_completed) {
+        data[index]["pending"]++;
+      } else if (!item.is_paid && item.is_completed) {
+        data[index]["unpaid"]++;
+      }
+    });
+  });
 
   return data;
 }
 
 export function contractStatusBarChart(
+  project_id: string,
   contracts: Contract[],
-  contractors: Contractor[]
+  contractors: Contractor[],
+  period: string
 ) {
   const data: any[] = [];
 
   // Filter through contractor
   contractors.forEach((contractor, index) => {
-    data.push({ name: contractor.name, completed: 0, ongoing: 0 })
+    data.push({ name: contractor.name, completed: 0, ongoing: 0 });
 
-    const contractFilter = contracts.filter(item => item.contractor_id === contractor.id)
+    // FILTER BY TIME PERIOD ("year", "month", "week")
+    const contractFilter =
+      period !== "All Time"
+        ? contracts.filter(
+            (item) =>
+              item.project_id === project_id &&
+              item.contractor_id === contractor.id &&
+              versusLast(item.date, period).current
+          )
+        : contracts.filter(
+            (item) =>
+              item.project_id === project_id &&
+              item.contractor_id === contractor.id
+          );
 
-    contractFilter.forEach(item => {
-        if (item.is_completed) {
-          data[index]["completed"]++
-        } else {
-          data[index]["ongoing"]++
-        }
-      
-    })
-  })
+    // COUNT THE CONTRACTS COMPLETED OR STILL ONGOING
+    contractFilter.forEach((item) => {
+      if (item.is_completed) {
+        data[index]["completed"]++;
+      } else {
+        data[index]["ongoing"]++;
+      }
+    });
+  });
 
   return data;
 }

@@ -146,7 +146,7 @@ function PaymentPie({
             <PieChart2 data={switchCharts() ?? []} dataKey="paymentCount" />
           </div>
           <div className="mt-auto">
-            <p>Hsis</p>
+            <p>Paid Payments Count by {value !== "Currency" ? value.slice(0,-1) : value}</p>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { Contractor, Payment, Project } from "@/types/types";
+import { Amount, Contractor, Payment, Project } from "@/types/types";
 import { totalSum } from "./currencies";
 import { versusLast } from "./dateAndTime";
 import { chartFormatCount } from "./chartHelpers";
@@ -25,21 +25,140 @@ export function totalAmountPaid(
 
   filter?.forEach((item) => {
     if (item?.payment_amounts) {
-      versusLast(item?.date, period).prev &&
-        prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      if (period !== "All Time") {
+        versusLast(item?.date, period).prev &&
+          prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
 
-      versusLast(item?.date, period).current &&
+        versusLast(item?.date, period).current &&
+          currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      } else {
         currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      }
     }
   });
 
   return {
-    previousAmount: prevAmounts.length
-      ? totalSum(prevAmounts) / prevAmounts.length
-      : 0,
-    currentAmount: currentAmounts.length
-      ? totalSum(currentAmounts) / currentAmounts.length
-      : 0,
+    previousAmount: prevAmounts.length ? totalSum(prevAmounts) : 0,
+    currentAmount: currentAmounts.length ? totalSum(currentAmounts) : 0,
+  };
+}
+
+export function totalContractAmount(
+  data: Project[],
+  project_id: string,
+  code: string,
+  period: string
+) {
+  const contracts = data.find((item) => item.id === project_id)?.contracts;
+
+  const contractAmounts: any[] = [];
+
+  contracts?.forEach((item) => {
+    item.contract_amounts.forEach((amount) => {
+      contractAmounts.push({ ...amount, date: item.date });
+    });
+  });
+
+  const filter = contractAmounts.filter((item) => item.code === code);
+
+  const prevAmounts: number[] = [];
+  const currentAmounts: number[] = [];
+
+  filter?.forEach((item) => {
+    if (period !== "All Time") {
+      versusLast(item.date, period).prev &&
+        prevAmounts.push(Number(item.amount));
+
+      versusLast(item.date, period).current &&
+        currentAmounts.push(Number(item.amount));
+    } else {
+      currentAmounts.push(Number(item.amount));
+    }
+  });
+
+  return {
+    previousAmount: prevAmounts.length ? totalSum(prevAmounts) : 0,
+    currentAmount: currentAmounts.length ? totalSum(currentAmounts) : 0,
+  };
+}
+
+export function totalContractPayments(
+  data: Project[],
+  project_id: string,
+  code: string,
+  period: string
+) {
+  const payments = data.find((item) => item.id === project_id)?.payments;
+
+  const filter = payments?.filter(
+    (item) =>
+      item.is_paid &&
+      item.contract_id &&
+      item.payment_amounts &&
+      item.payment_amounts[0]?.code === code
+  );
+
+  const prevAmounts: number[] = [];
+  const currentAmounts: number[] = [];
+
+  filter?.forEach((item) => {
+    if (item?.payment_amounts) {
+      if (period !== "All Time") {
+        versusLast(item?.date, period).prev &&
+          prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
+
+        versusLast(item?.date, period).current &&
+          currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      } else {
+        currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      }
+    }
+  });
+
+  return {
+    previousAmount: prevAmounts.length ? totalSum(prevAmounts) : 0,
+    currentAmount: currentAmounts.length ? totalSum(currentAmounts) : 0,
+  };
+}
+
+export function totalContractBalance(
+  data: Project[],
+  project_id: string,
+  code: string,
+  period: string
+) {
+  const currentContractAmount = totalContractAmount(
+    data,
+    project_id,
+    code,
+    period
+  ).currentAmount;
+  const previousContractAmount = totalContractAmount(
+    data,
+    project_id,
+    code,
+    period
+  ).previousAmount;
+
+  const currentContractPayment = totalContractPayments(
+    data,
+    project_id,
+    code,
+    period
+  ).currentAmount;
+  const previousContractPayment = totalContractPayments(
+    data,
+    project_id,
+    code,
+    period
+  ).previousAmount;
+
+  return {
+    previousAmount:
+      period !== "All Time"
+        ? previousContractAmount - previousContractPayment
+        : 0,
+    currentAmount: currentContractAmount - currentContractPayment,
   };
 }
 
@@ -134,15 +253,55 @@ export function activeContractors(data: Project[], project_id: string) {
 export function topContractors(data: Payment[], project_id: string) {
   const payments = data.filter((item) => item.id === project_id);
 
-  const contractors: Contractor[] = []
+  const contractors: Contractor[] = [];
 
-  payments.forEach(item => {
-    item.contractors && contractors.push(item.contractors)
-  })
-  const contractorCounts = chartFormatCount(contractors, "name")
-  const sort = sortByNumOrBool(contractorCounts, "value", "desc")
+  payments.forEach((item) => {
+    item.contractors && contractors.push(item.contractors);
+  });
+  const contractorCounts = chartFormatCount(contractors, "name");
+  const sort = sortByNumOrBool(contractorCounts, "value", "desc");
 
-  return sort[0].name
+  return sort[0].name;
 }
 
+// GETS ALL THE ACTIVE CONTRACTORS UNDER A PROJECT
+export function highestPaymentAmount(
+  data: Project[],
+  project_id: string,
+  code: string,
+  period: string
+) {
+  const payments = data.find((item) => item.id === project_id)?.payments;
 
+  const filter = payments?.filter(
+    (item) =>
+      item.is_paid &&
+      item.payment_amounts &&
+      item.payment_amounts[0]?.code === code
+  );
+
+  const prevAmounts: number[] = [];
+  const currentAmounts: number[] = [];
+
+  filter?.forEach((item) => {
+    if (item?.payment_amounts) {
+      if (period !== "All Time") {
+        versusLast(item?.date, period).prev &&
+          prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
+
+        versusLast(item?.date, period).current &&
+          currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      } else {
+        currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+      }
+    }
+  });
+
+  const prevSortDesc = prevAmounts.sort((a, b) => b - a)
+  const currentSortDesc = currentAmounts.sort((a, b) => b - a)
+
+  return {
+    previousAmount: prevAmounts.length ? prevSortDesc[0] : 0,
+    currentAmount: currentAmounts.length ? currentSortDesc[0] : 0,
+  };
+}

@@ -287,6 +287,7 @@ export function topContractors(
       if (timePeriod !== "All Time") {
         if (
           amount &&
+          item.is_paid &&
           amount.code === currency_code &&
           versusLast(item.date, timePeriod).current
         ) {

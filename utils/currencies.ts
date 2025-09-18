@@ -15,13 +15,13 @@ export function convertCurrency(labelValue: number) {
     }
   } else if (Math.abs(Number(labelValue)) >= 1.0e6) {
     if ((Math.abs(Number(labelValue)) / 1.0e6).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(1) + "B";
+      output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(1) + "M";
     } else {
       output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(2) + "M";
     }
   } else if (Math.abs(Number(labelValue)) >= 1.0e3) {
     if ((Math.abs(Number(labelValue)) / 1.0e3).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(1) + "B";
+      output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(1) + "K";
     } else {
       output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(2) + "K";
     }

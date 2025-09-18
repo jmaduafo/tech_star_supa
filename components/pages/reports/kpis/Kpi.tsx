@@ -1,11 +1,20 @@
 "use client";
 import Header2 from "@/components/fontsize/Header2";
 import Header6 from "@/components/fontsize/Header6";
+import CardSkeleton from "@/components/ui/cards/CardSkeleton";
 import KpiCard from "@/components/ui/cards/KpiCard";
 import Card from "@/components/ui/cards/MyCard";
 import Loading from "@/components/ui/loading/Loading";
 import { Amount, Project, User, Versus } from "@/types/types";
-import React, { Fragment, useState } from "react";
+import { switchPeriod } from "@/utils/dateAndTime";
+import {
+  highestPaymentAmount,
+  totalAmountPaid,
+  totalContractAmount,
+  totalContractBalance,
+  totalContractPayments,
+} from "@/utils/kpi";
+import React, { Fragment, useEffect, useState } from "react";
 
 function Kpi({
   timePeriod,
@@ -14,7 +23,7 @@ function Kpi({
   project_id,
   currency_code,
   projects,
-  currencies
+  currencies,
 }: {
   readonly timePeriod: string;
   readonly project_id: string;
@@ -23,31 +32,26 @@ function Kpi({
   readonly user: User | undefined;
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
-  
 }) {
+  const [kpi, setKpi] = useState<Versus[] | undefined>();
 
-  const [kpi, setKpi] = useState<Versus[] | undefined>([
-    {
-      currentAmount: 0,
-      previousAmount: 0,
-    },
-    {
-      currentAmount: 0,
-      previousAmount: 0,
-    },
-    {
-      currentAmount: 0,
-      previousAmount: 0,
-    },
-    {
-      currentAmount: 0,
-      previousAmount: 0,
-    },
-    {
-      currentAmount: 0,
-      previousAmount: 0,
-    },
-  ]);
+  const getData = () => {
+    if (!projects || !project_id.length || !currency_code.length) {
+      return;
+    }
+
+    setKpi([
+      totalAmountPaid(projects, project_id, currency_code, switchPeriod(timePeriod)),
+      totalContractAmount(projects, project_id, currency_code, switchPeriod(timePeriod)),
+      totalContractPayments(projects, project_id, currency_code, switchPeriod(timePeriod)),
+      totalContractBalance(projects, project_id, currency_code, switchPeriod(timePeriod)),
+      highestPaymentAmount(projects, project_id, currency_code, switchPeriod(timePeriod)),
+    ]);
+  };
+
+  useEffect(() => {
+    getData();
+  }, [project_id, currency_code, timePeriod]);
 
   const cardTitles = [
     {
@@ -75,9 +79,9 @@ function Kpi({
       className: "",
     },
     {
-      title: "Top contractor",
-      symbol: null,
-      visual: false,
+      title: "Highest Payment",
+      symbol: currency_symbol,
+      visual: true,
       className: "",
     },
   ];
@@ -88,31 +92,18 @@ function Kpi({
         ? cardTitles.map((item, i) => {
             return (
               <Fragment key={item.title}>
-                {i < 4 ? (
-                  <KpiCard
-                    period={timePeriod}
-                    item={item}
-                    index={i}
-                    arr={kpi}
-                  />
-                ) : (
-                  <Card className="flex flex-col">
-                    <Header6 text={item.title} className="capitalize" />
-                    <div className="flex justify-end items-start gap-1 mt-8">
-                      <div className="">
-                        <Header2 text={`Equalize Limited`} className="text-right" />
-                      </div>
-                    </div>
-                  </Card>
-                )}
+                <KpiCard period={timePeriod} item={item} index={i} arr={kpi} />
               </Fragment>
             );
           })
         : Array.from({ length: 5 }).map((_, i) => {
             return (
-              <Card className="h-32 w-full animate-pulse" key={`${i + 1}`}>
+              <CardSkeleton
+                className="h-32"
+                key={`${i + 1}`}
+              >
                 <Loading />
-              </Card>
+              </CardSkeleton>
             );
           })}
     </div>

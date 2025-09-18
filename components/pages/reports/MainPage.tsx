@@ -13,6 +13,7 @@ import { useAuth } from "@/context/UserContext";
 import { Amount, Project } from "@/types/types";
 import { createClient } from "@/lib/supabase/client";
 import { getUniqueObjects } from "@/utils/chartHelpers";
+import { currency_list } from "@/utils/dataTools";
 
 function MainPage() {
   const [period, setPeriod] = useState("All Time");
@@ -21,7 +22,7 @@ function MainPage() {
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
   const [selectedCurrency, setSelectedCurrency] = useState("");
-  const [currencySymbol, setCurrencySymbol] = useState("$");
+  const [currencySymbol, setCurrencySymbol] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
 
   const { userData } = useAuth();
@@ -86,6 +87,14 @@ function MainPage() {
     getData();
   }, []);
 
+  const changeCurrency = (name: string) => {
+    setSelectedCurrency(name);
+
+    const currency = currency_list.find((item) => item.code === name);
+
+    currency && setCurrencySymbol(currency.symbol);
+  };
+
   return (
     <div className="">
       <div className="flex justify-between">
@@ -119,7 +128,7 @@ function MainPage() {
             : null}
         </SelectBar>
         <SelectBar
-          valueChange={setSelectedCurrency}
+          valueChange={(name) => changeCurrency(name)}
           value={selectedCurrency}
           placeholder="Select a currency"
           label="Currencies"

@@ -4,9 +4,12 @@ import {
   Contract,
   Contractor,
   Payment,
+  Project,
   Stage,
+  StageContractor,
 } from "@/types/types";
 import { switchPeriod, versusLast } from "./dateAndTime";
+import { checkArray } from "./currencies";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -267,6 +270,46 @@ export function paymentPieStageChart(
   });
 
   return data;
+}
+
+export function contractorPieStageChart(
+  data: StageContractor[]
+) {
+  const chart: any[] = [];
+
+  data.forEach((item) => {
+    const stage = checkArray(item.stages);
+    const contractor = checkArray(item.contractors);
+
+    const index = chart.findIndex((ch) => ch.name === stage.name);
+
+    if (index !== -1) {
+      if (!chart[index].contractor_ids.includes(contractor.id)) {
+        chart[index].contractor_ids.push(contractor.id);
+      }
+    } else {
+      chart.push({ name: stage.name, contractor_ids: [contractor.id] });
+    }
+  });
+
+  const newChart: any[] = [];
+
+  chart.forEach((item) => {
+    newChart.push({
+      name: item.name,
+      contractorCount: item.contractor_ids.length,
+    });
+  });
+
+  return newChart;
+}
+
+export function contractorPieProjectChart(data: Project[]) {
+  const chart = [];
+
+  data.forEach((item) => {
+    chart.push({ name: item.name, value: item.contractors?.length });
+  });
 }
 
 export function topContractors(

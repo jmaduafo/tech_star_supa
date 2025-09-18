@@ -40,7 +40,12 @@ function Charts({
           />
         </Card>
         <Card className="col-span-2">
-          <ContractorPie user={user} timePeriod={timePeriod} />
+          <ContractorPie
+            project_id={project_id}
+            projects={projects}
+            user={user}
+            timePeriod={timePeriod}
+          />
         </Card>
         <div className="col-span-1 grid gap-4">
           <Card>

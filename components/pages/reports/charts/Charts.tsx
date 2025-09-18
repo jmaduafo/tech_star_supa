@@ -10,6 +10,7 @@ import ContractorPayments from "./ContractorPayments";
 import Card from "@/components/ui/cards/MyCard";
 import ContractorPaymentBar from "./ContractorPaymentBar";
 import LineChartDisplay from "../../dashboard/LineChartDisplay";
+import ActivitiesBar from "./ActivitiesBar";
 
 function Charts({
   timePeriod,
@@ -32,13 +33,7 @@ function Charts({
     <>
       <div className="grid grid-cols-6 gap-4 row-auto">
         <Card className="col-span-4">
-          <StatusBar
-            currency_code={currency_code}
-            project_id={project_id}
-            projects={projects}
-            user={user}
-            timePeriod={timePeriod}
-          />
+          <ActivitiesBar timePeriod={timePeriod} user={user} />
         </Card>
         <Card className="col-span-2">
           <ContractorPie
@@ -101,7 +96,13 @@ function Charts({
         <LineChartDisplay />
       </Card>
       <Card>
-        <ContractorPaymentBar />
+        <StatusBar
+          currency_code={currency_code}
+          project_id={project_id}
+          projects={projects}
+          user={user}
+          timePeriod={timePeriod}
+        />
       </Card>
     </>
   );

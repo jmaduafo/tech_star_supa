@@ -69,7 +69,7 @@ function ContractorPie({
               );
             })}
           </SelectBar>
-          <div className="mt-auto w-full h-full">
+          <div className="mt-auto w-full min-h-[35vh]">
             <PieChart2 data={data} dataKey="contractorCount" />
           </div>
           <div className="mt-auto">

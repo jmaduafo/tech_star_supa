@@ -2,6 +2,7 @@
 
 import BarChart from "@/components/ui/charts/BarChart";
 import SelectBar from "@/components/ui/input/SelectBar";
+import ChartHeading from "@/components/ui/labels/ChartHeading";
 import Loading from "@/components/ui/loading/Loading";
 import { SelectItem } from "@/components/ui/select";
 import { Contract, Contractor, Payment, Project, User } from "@/types/types";
@@ -67,23 +68,21 @@ function StatusBar({
       project_id,
       payments as Payment[],
       contractors as Contractor[],
+      switchPeriod(timePeriod),
       currency_code,
-      timePeriod,
       selectedType === "Count" ? true : false
     );
     const contractChart = contractStatusBarChart(
       project_id,
       contracts as Contract[],
       contractors as Contractor[],
-      timePeriod,
+      switchPeriod(timePeriod),
       currency_code,
       selectedType === "Count" ? true : false
     );
 
     setPaymentData(paymentChart);
     setContractData(contractChart);
-
-    console.log(contractData);
   };
 
   useEffect(() => {
@@ -126,13 +125,27 @@ function StatusBar({
         </div>
       ) : (
         <div className="">
-          <div className="flex items-center gap-2">
+          <ChartHeading
+            text="Status Chart"
+            subtext={
+              timePeriod !== "All Time"
+                ? `All ${
+                    selectedType === "Count" ? "counted" : "aggregated"
+                  } ${selectedData.toLowerCase()} per contractor within the past ${switchPeriod(
+                    timePeriod
+                  )} by status`
+                : `All ${
+                    selectedType === "Count" ? "counted" : "aggregated"
+                  } ${selectedData.toLowerCase()} per contractor by status`
+            }
+          />
+          <div className="flex items-center gap-2 mt-4">
             <SelectBar
               placeholder={"Select a chart"}
               label={"Charts"}
               value={selectedData}
               valueChange={setSelectedData}
-              className="mb-6 w-[30%]"
+              className="mb-6 max-w-[15rem]"
             >
               {["Payments", "Contracts"].map((item) => {
                 return (
@@ -147,7 +160,7 @@ function StatusBar({
               label={"Type"}
               value={selectedType}
               valueChange={setSelectedType}
-              className="mb-6 w-[30%]"
+              className="mb-6 max-w-[15rem]"
             >
               {["Count", "Value"].map((item) => {
                 return (

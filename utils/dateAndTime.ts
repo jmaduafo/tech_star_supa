@@ -90,6 +90,10 @@ export function versusLast(date: string, period: string) {
   if (period === "year") {
     previous.setFullYear(now.getFullYear() - 2);
     current.setFullYear(now.getFullYear() - 1);
+  } else if (period === "quarter") {
+    //  PREVIOUS MONTH VERSUS CURRENT MONTH
+    previous.setMonth(now.getMonth() - 12);
+    current.setMonth(now.getMonth() - 6);
   } else if (period === "month") {
     //  PREVIOUS MONTH VERSUS CURRENT MONTH
     previous.setMonth(now.getMonth() - 2);
@@ -109,6 +113,8 @@ export function versusLast(date: string, period: string) {
 export function switchPeriod(period: string) {
   if (period === "Yearly") {
     return "year"
+  } else if (period === "Quarterly") {
+    return "quarter"
   } else if (period === "Monthly") {
     return "month"
   } else if (period === "Weekly") {

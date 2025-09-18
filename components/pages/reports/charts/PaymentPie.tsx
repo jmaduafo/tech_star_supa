@@ -122,7 +122,7 @@ function PaymentPie({
   return (
     <div className="h-full">
       {!currencyData || !contractData || !contractorData || !stageData ? (
-        <div className="h-full flex justify-center item-center">
+        <div className="h-full w-full flex justify-center item-center">
           <Loading />
         </div>
       ) : (
@@ -142,7 +142,7 @@ function PaymentPie({
               );
             })}
           </SelectBar>
-          <div className="h-[35vh] w-full mt-auto">
+          <div className="min-h-[35vh] w-full mt-auto">
             <PieChart2 data={switchCharts() ?? []} dataKey="paymentCount" />
           </div>
           <div className="mt-auto">

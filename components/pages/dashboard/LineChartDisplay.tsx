@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import { chartFormatTotal, getUniqueObjects } from "@/utils/chartHelpers";
 import LineChart2 from "@/components/ui/charts/LineChart2";
 import { dateRangeFilter, sortDate } from "@/utils/sortFilter";
+import ChartHeading from "@/components/ui/labels/ChartHeading";
 
 function LineChartDisplay() {
   const [filteredData, setFilteredData] = useState<LineData[] | undefined>();
@@ -125,10 +126,9 @@ function LineChartDisplay() {
       <div className="mb-4">
         <div className="flex gap-10 justify-between items-start">
           <div>
-            <Header3 text="At a Glance" />
-            <Header6
-              className="opacity-80"
-              text={`All payments made for project ${
+            <ChartHeading
+              text="At a Glance"
+              subtext={`All payments made for project ${
                 projectData?.find((item) => item.id === projectId)?.name ?? "-"
               } within the ${range.length ? range : "..."}`}
             />
@@ -207,7 +207,12 @@ function LineChartDisplay() {
       <div className="w-full flex-1">
         {filteredData?.length && currencyCode.length ? (
           <div className="mt-8 w-full h-full">
-            <LineChart2 data={filteredData} code={currencyCode} />
+            <LineChart2
+              data={filteredData}
+              code={currencyCode}
+              dateFormat
+              format
+            />
           </div>
         ) : (
           <div className="h-full flex justify-center items-center">

@@ -153,13 +153,15 @@ function MainPage() {
           value={period}
           valueChange={setPeriod}
         >
-          {["All Time", "Yearly", "Monthly", "Weekly"].map((item) => {
-            return (
-              <SelectItem key={item} value={item}>
-                {item}
-              </SelectItem>
-            );
-          })}
+          {["All Time", "Yearly", "Quarterly", "Monthly", "Weekly"].map(
+            (item) => {
+              return (
+                <SelectItem key={item} value={item}>
+                  {item}
+                </SelectItem>
+              );
+            }
+          )}
         </SelectBar>
       </div>
       <div className="flex flex-col gap-4 mt-2">

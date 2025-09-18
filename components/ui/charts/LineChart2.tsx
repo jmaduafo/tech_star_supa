@@ -13,14 +13,20 @@ import {
 
 function LineChart2({
   data,
+  dataKey,
   code,
+  format,
+  dateFormat,
 }: {
   readonly data: ChartData[];
-  readonly code: string;
+  readonly dataKey?: string;
+  readonly code?: string;
+  readonly format?: boolean;
+  readonly dateFormat?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height="80%">
-      <LineChart data={data} accessibilityLayer>
+      <LineChart data={data}>
         <CartesianGrid vertical={false} stroke="#ececec20" />
         <XAxis
           dataKey="name"
@@ -30,16 +36,19 @@ function LineChart2({
           minTickGap={32}
           tick={{ fill: "#ececec90" }}
           tickFormatter={(value) => {
-            const date = new Date(value);
-            return date.toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            });
+            if (dateFormat) {
+              return new Date(value).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+            } else {
+              return value;
+            }
           }}
         />
         {/* <Legend /> */}
-        <Line type="monotone" dataKey="value" stroke="#ececec" />
+        <Line type="monotone" dataKey={dataKey ?? "value"} stroke="#ececec" />
         <Tooltip
           contentStyle={{
             backgroundColor: "#141414",
@@ -51,13 +60,19 @@ function LineChart2({
             color: "#ececec",
           }}
           labelFormatter={(value) => {
-            return new Date(value).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            });
+            if (dateFormat) {
+              return new Date(value).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+            } else {
+              return value;
+            }
           }}
-          formatter={(value) => `${formatCurrency(+value, code)}`}
+          formatter={(value) =>
+            format && code ? `${formatCurrency(+value, code)}` : value
+          }
         />
       </LineChart>
     </ResponsiveContainer>

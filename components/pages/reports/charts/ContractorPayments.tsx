@@ -2,6 +2,7 @@ import Header5 from "@/components/fontsize/Header5";
 import Header6 from "@/components/fontsize/Header6";
 import Paragraph from "@/components/fontsize/Paragraph";
 import SelectBar from "@/components/ui/input/SelectBar";
+import ChartHeading from "@/components/ui/labels/ChartHeading";
 import Loading from "@/components/ui/loading/Loading";
 import { SelectItem } from "@/components/ui/select";
 import { Amount, Contractor, Project, User } from "@/types/types";
@@ -64,7 +65,16 @@ function ContractorPayments({
         </div>
       ) : (
         <div className="flex flex-col h-full w-full">
-          <Header5 text={"Top Contractors"} />
+          <ChartHeading
+            text="Top Contractors"
+            subtext={
+              timePeriod !== "All Time"
+                ? `Contractors ranked on paid ${currency_code} payments over the past ${switchPeriod(
+                    timePeriod
+                  )}`
+                : `Contractors ranked by paid ${currency_code} payments`
+            }
+          />
           <div className="mt-auto max-h-[60%]">
             <div
               className={`text-lightText/70 flex items-center py-3 px-2 border-b border-b-lightText/20`}

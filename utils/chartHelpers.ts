@@ -1,4 +1,5 @@
 import {
+  Activity,
   Amount,
   ChartData,
   Contract,
@@ -10,6 +11,7 @@ import {
 } from "@/types/types";
 import { switchPeriod, versusLast } from "./dateAndTime";
 import { checkArray, formatCurrency } from "./currencies";
+import { format } from "date-fns";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -89,6 +91,32 @@ export function chartFormatTotal(
   return data;
 }
 
+export function activitiesBar(activities: Activity[], period: string) {
+  const data: any[] = [];
+
+  activities.forEach((activity) => {
+    const index = data.findIndex((item) => item.name === format(activity.created_at, "PP"));
+
+    if (index !== -1) {
+      if (period !== "All Time") {
+        versusLast(activity.created_at, period).current &&
+          data[index]["activityCount"]++;
+      } else {
+        data[index]["activityCount"]++;
+      }
+    } else {
+      if (period !== "All Time") {
+        versusLast(activity.created_at, period).current &&
+          data.push({ name: format(activity.created_at, "PP"), activityCount: 1 })
+      } else {
+        data.push({ name: format(activity.created_at, "PP"), activityCount: 1 })
+      }
+    }
+  });
+
+  return data
+}
+
 // pages/reports/charts/StatusBar
 
 export function paymentStatusBarChart(
@@ -107,6 +135,7 @@ export function paymentStatusBarChart(
     data.push({ name: contractor.name, pending: 0, paid: 0, unpaid: 0 });
 
     // FILTER BY TIME PERIOD ("year", "month", "week") AND PROJECT ID
+    // IF "ALL TIME" IS NOT SELECTED
     const paymentsFilter =
       period !== "All Time"
         ? payments.filter(
@@ -121,10 +150,10 @@ export function paymentStatusBarChart(
               item.contractor_id === contractor.id
           );
 
-    // COUNT THE PAYMENTS PAID, PENDING, OR UNPAID PER CONTRACTOR
     paymentsFilter.forEach((item) => {
       const amount = checkArray(item.payment_amounts);
       if (isCount) {
+        // COUNT THE PAYMENTS PAID, PENDING, OR UNPAID PER CONTRACTOR
         if (item.is_completed && item.is_paid && amount.code === code) {
           data[index]["paid"]++;
         } else if (
@@ -137,6 +166,7 @@ export function paymentStatusBarChart(
           data[index]["unpaid"]++;
         }
       } else {
+        // AGGREGATE THE PAYMENTS PAID, PENDING, OR UNPAID PER CONTRACTOR
         if (item.is_completed && item.is_paid && amount.code === code) {
           data[index]["paid"] += +amount.amount;
         } else if (
@@ -184,16 +214,17 @@ export function contractStatusBarChart(
               item.contractor_id === contractor.id
           );
 
-    // COUNT THE CONTRACTS COMPLETED OR STILL ONGOING
     contractFilter.forEach((item) => {
       item.contract_amounts.forEach((amount) => {
         if (isCount) {
+          // COUNT THE CONTRACTS COMPLETED OR STILL ONGOING BY CURRENCY
           if (item.is_completed && amount.code === code) {
             data[index]["completed"]++;
           } else if (!item.is_completed && amount.code === code) {
             data[index]["ongoing"]++;
           }
         } else {
+          // SUM THE CONTRACT AMOUNTS COMPLETED OR STILL ONGOING BY CURRENCY
           if (item.is_completed && amount.code === code) {
             data[index]["completed"] += +amount.amount;
           } else if (!item.is_completed && amount.code === code) {

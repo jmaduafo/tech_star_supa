@@ -9,7 +9,7 @@ import {
   StageContractor,
 } from "@/types/types";
 import { switchPeriod, versusLast } from "./dateAndTime";
-import { checkArray } from "./currencies";
+import { checkArray, formatCurrency } from "./currencies";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -95,7 +95,9 @@ export function paymentStatusBarChart(
   project_id: string,
   payments: Payment[],
   contractors: Contractor[],
-  period: string
+  period: string,
+  code: string,
+  isCount?: boolean
 ) {
   const data: any[] = [];
 
@@ -121,12 +123,31 @@ export function paymentStatusBarChart(
 
     // COUNT THE PAYMENTS PAID, PENDING, OR UNPAID PER CONTRACTOR
     paymentsFilter.forEach((item) => {
-      if (item.is_completed && item.is_paid) {
-        data[index]["paid"]++;
-      } else if (!item.is_paid && !item.is_completed) {
-        data[index]["pending"]++;
-      } else if (!item.is_paid && item.is_completed) {
-        data[index]["unpaid"]++;
+      const amount = checkArray(item.payment_amounts);
+      if (isCount) {
+        if (item.is_completed && item.is_paid && amount.code === code) {
+          data[index]["paid"]++;
+        } else if (
+          !item.is_paid &&
+          !item.is_completed &&
+          amount.code === code
+        ) {
+          data[index]["pending"]++;
+        } else if (!item.is_paid && item.is_completed && amount.code === code) {
+          data[index]["unpaid"]++;
+        }
+      } else {
+        if (item.is_completed && item.is_paid && amount.code === code) {
+          data[index]["paid"] += +amount.amount;
+        } else if (
+          !item.is_paid &&
+          !item.is_completed &&
+          amount.code === code
+        ) {
+          data[index]["pending"] += +amount.amount;
+        } else if (!item.is_paid && item.is_completed && amount.code === code) {
+          data[index]["unpaid"] += +amount.amount;
+        }
       }
     });
   });
@@ -138,7 +159,9 @@ export function contractStatusBarChart(
   project_id: string,
   contracts: Contract[],
   contractors: Contractor[],
-  period: string
+  period: string,
+  code: string,
+  isCount?: boolean
 ) {
   const data: any[] = [];
 
@@ -163,11 +186,21 @@ export function contractStatusBarChart(
 
     // COUNT THE CONTRACTS COMPLETED OR STILL ONGOING
     contractFilter.forEach((item) => {
-      if (item.is_completed) {
-        data[index]["completed"]++;
-      } else {
-        data[index]["ongoing"]++;
-      }
+      item.contract_amounts.forEach((amount) => {
+        if (isCount) {
+          if (item.is_completed && amount.code === code) {
+            data[index]["completed"]++;
+          } else if (!item.is_completed && amount.code === code) {
+            data[index]["ongoing"]++;
+          }
+        } else {
+          if (item.is_completed && amount.code === code) {
+            data[index]["completed"] += +amount.amount;
+          } else if (!item.is_completed && amount.code === code) {
+            data[index]["ongoing"] += +amount.amount;
+          }
+        }
+      });
     });
   });
 
@@ -272,9 +305,7 @@ export function paymentPieStageChart(
   return data;
 }
 
-export function contractorPieStageChart(
-  data: StageContractor[]
-) {
+export function contractorPieStageChart(data: StageContractor[]) {
   const chart: any[] = [];
 
   data.forEach((item) => {
@@ -337,7 +368,7 @@ export function topContractors(
           data[i]["paymentAmount"] += +amount?.amount;
         }
       } else {
-        if (amount && amount.code === currency_code) {
+        if (amount && item.is_paid && amount.code === currency_code) {
           data[i]["paymentAmount"] += +amount?.amount;
         }
       }

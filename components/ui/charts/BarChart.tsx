@@ -10,44 +10,56 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
+import { COLORS } from "@/utils/dataTools";
+import { formatCurrency } from "@/utils/currencies";
 
 function BarChart({
   data,
   dataArray,
+  format,
+  code,
 }: {
   readonly data: any[];
-  readonly dataArray: ColorData[];
+  readonly dataArray: string[];
+  readonly format?: boolean;
+  readonly code?: string;
 }) {
   return (
     <ResponsiveContainer width="100%" height="100%" className={"w-full h-full"}>
       <BarContainer data={data} accessibilityLayer>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(236, 236, 236, 0.3)"/>
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="rgba(236, 236, 236, 0.3)"
+        />
         <XAxis dataKey="name" stroke="rgba(236, 236, 236, 0.8)" />
-        <YAxis stroke="rgba(236, 236, 236, 0.8)" allowDecimals={false} hide/>
+        <YAxis stroke="rgba(236, 236, 236, 0.8)" allowDecimals={false} hide />
         <Tooltip
           contentStyle={{
             backgroundColor: "#141414",
             borderRadius: "5px",
             padding: "6px 12px",
-            border: "none",
-            zIndex: 1000
+            border: "none"
           }}
-          cursor={{ fill: '#ececec30' }} // Changes color of screen behind the cells
+          cursor={{ fill: "#ececec30" }} // Changes color of screen behind the cells
           labelStyle={{ color: "#ececec", fontSize: "15px" }}
           itemStyle={{
             color: "#ececec90",
             fontSize: "14px",
             marginTop: "-4px",
           }}
+          formatter={(value) =>
+            format && code ? `${formatCurrency(+value, code)}` : value
+          }
+          
         />
-        <Legend iconSize={8} wrapperStyle={{ textTransform: "capitalize"}}/>
-        {dataArray.map((item) => {
+        <Legend iconSize={8} wrapperStyle={{ textTransform: "capitalize" }} />
+        {dataArray.map((item, i) => {
           return (
             <Bar
-              key={item.name}
-              dataKey={item.name}
+              key={item}
+              dataKey={item}
               activeBar={false}
-              fill={item.color}
+              fill={COLORS[i % COLORS.length]}
               radius={[8, 8, 0, 0]}
             />
           );

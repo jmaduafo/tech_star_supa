@@ -24,8 +24,10 @@ function StatusBar({
   user,
   project_id,
   projects,
+  currency_code,
 }: {
   readonly timePeriod: string;
+  readonly currency_code: string;
   readonly user: User | undefined;
   readonly project_id: string;
   readonly projects: Project[] | undefined;
@@ -40,21 +42,22 @@ function StatusBar({
   const [contractData, setContractData] = useState<Status[] | undefined>();
 
   const [selectedData, setSelectedData] = useState("Payments");
+  const [selectedType, setSelectedType] = useState("Count");
 
   const getData = async () => {
     if (!user || !project_id.length || !projects) {
       return;
     }
 
-    const project = projects.find(item => item.id === project_id)
+    const project = projects.find((item) => item.id === project_id);
 
     if (!project) {
-        return
+      return;
     }
 
-    const contractors = project.contractors
-    const contracts = project.contracts
-    const payments = project.payments
+    const contractors = project.contractors;
+    const contracts = project.contracts;
+    const payments = project.payments;
 
     setAllContractors(contractors);
     setAllContracts(contracts);
@@ -64,17 +67,23 @@ function StatusBar({
       project_id,
       payments as Payment[],
       contractors as Contractor[],
-      timePeriod
+      currency_code,
+      timePeriod,
+      selectedType === "Count" ? true : false
     );
     const contractChart = contractStatusBarChart(
       project_id,
       contracts as Contract[],
       contractors as Contractor[],
-      timePeriod
+      timePeriod,
+      currency_code,
+      selectedType === "Count" ? true : false
     );
 
     setPaymentData(paymentChart);
     setContractData(contractChart);
+
+    console.log(contractData);
   };
 
   useEffect(() => {
@@ -87,7 +96,9 @@ function StatusBar({
         project_id,
         allContracts,
         allContractors,
-        switchPeriod(timePeriod)
+        switchPeriod(timePeriod),
+        currency_code,
+        selectedType === "Count" ? true : false
       );
 
       setContractData(contractChart);
@@ -98,12 +109,14 @@ function StatusBar({
         project_id,
         allPayments,
         allContractors,
-        switchPeriod(timePeriod)
+        switchPeriod(timePeriod),
+        currency_code,
+        selectedType === "Count" ? true : false
       );
 
       setPaymentData(paymentChart);
     }
-  }, [timePeriod, project_id]);
+  }, [timePeriod, project_id, selectedType, currency_code]);
 
   return (
     <div className="h-full w-full">
@@ -113,38 +126,52 @@ function StatusBar({
         </div>
       ) : (
         <div className="">
-          <SelectBar
-            placeholder={"Select a chart"}
-            label={"Charts"}
-            value={selectedData}
-            valueChange={setSelectedData}
-            className="mb-6 w-[30%]"
-          >
-            {["Payments", "Contracts"].map((item) => {
-              return (
-                <SelectItem value={item} key={item}>
-                  {item}
-                </SelectItem>
-              );
-            })}
-          </SelectBar>
+          <div className="flex items-center gap-2">
+            <SelectBar
+              placeholder={"Select a chart"}
+              label={"Charts"}
+              value={selectedData}
+              valueChange={setSelectedData}
+              className="mb-6 w-[30%]"
+            >
+              {["Payments", "Contracts"].map((item) => {
+                return (
+                  <SelectItem value={item} key={item}>
+                    {item}
+                  </SelectItem>
+                );
+              })}
+            </SelectBar>
+            <SelectBar
+              placeholder={"Select a type"}
+              label={"Type"}
+              value={selectedType}
+              valueChange={setSelectedType}
+              className="mb-6 w-[30%]"
+            >
+              {["Count", "Value"].map((item) => {
+                return (
+                  <SelectItem value={item} key={item}>
+                    {item}
+                  </SelectItem>
+                );
+              })}
+            </SelectBar>
+          </div>
           <div className="h-[40vh] w-full">
             {selectedData === "Payments" ? (
               <BarChart
                 data={paymentData as any[]}
-                dataArray={[
-                  { name: "paid", color: "#ececec" },
-                  { name: "pending", color: "#d6d3d1" },
-                  { name: "unpaid", color: "#a8a29e" },
-                ]}
+                dataArray={["paid", "pending", "unpaid"]}
+                format={selectedType !== "Count"}
+                code={currency_code}
               />
             ) : (
               <BarChart
                 data={contractData as any[]}
-                dataArray={[
-                  { name: "ongoing", color: "#ececec" },
-                  { name: "completed", color: "#a8a29e" },
-                ]}
+                dataArray={["completed", "ongoing"]}
+                format={selectedType !== "Count"}
+                code={currency_code}
               />
             )}
           </div>

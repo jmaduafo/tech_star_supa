@@ -33,6 +33,7 @@ function Charts({
       <div className="grid grid-cols-6 gap-4 row-auto">
         <Card className="col-span-4">
           <StatusBar
+            currency_code={currency_code}
             project_id={project_id}
             projects={projects}
             user={user}

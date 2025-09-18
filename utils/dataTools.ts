@@ -26,8 +26,8 @@ export const images = [
 ];
 
 export const COLORS = [
-  "#fafaf9",
-  "#e7e5e4",
+  "#ececec",
+  // "#e7e5e4",
   "#d6d3d1",
   "#a8a29e",
   "#78716c",
@@ -36,7 +36,7 @@ export const COLORS = [
   "#292524",
   "#1c1917",
   "#0c0a09",
-  "#000",
+  "#141414",
 ];
 
 export const days = [

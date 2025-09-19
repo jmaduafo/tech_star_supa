@@ -8,7 +8,12 @@ import {
   ProjectReport,
   User,
 } from "@/types/types";
-import { convertCurrency, formatCurrency, totalSum } from "@/utils/currencies";
+import {
+  checkArray,
+  convertCurrency,
+  formatCurrency,
+  totalSum,
+} from "@/utils/currencies";
 import { formatDate } from "@/utils/dateAndTime";
 import { ColumnDef } from "@tanstack/react-table";
 import Banner from "../Banner";
@@ -464,6 +469,33 @@ export const contractorColumns: ColumnDef<Contractor>[] = [
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="flex items-center gap-1"
           >
+            Project
+            <ArrowUpDown className="h-4 w-4" />
+          </button>
+        </div>
+      );
+    },
+    accessorFn: (row) => (row?.projects ? row?.projects?.name : ""),
+    id: "project",
+    cell: ({ row }) => {
+      const contractor = row.getValue("projects");
+      const project = checkArray(contractor);
+
+      return (
+        <div>
+          {project.name > 20 ? project.name.slice(0, 15) + "..." : project.name}
+        </div>
+      );
+    },
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="">
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
             Status
             <ArrowUpDown className="h-4 w-4" />
           </button>
@@ -525,16 +557,17 @@ export const contractorColumns: ColumnDef<Contractor>[] = [
       return (
         <div className="">
           <button
-            // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="flex items-center gap-1"
           >
             Contracts
-            {/* <ArrowUpDown className="h-4 w-4" /> */}
+            <ArrowUpDown className="h-4 w-4" />
           </button>
         </div>
       );
     },
-    accessorKey: "contracts",
+    accessorFn: (row) => (row?.contracts ? row?.contracts?.length : ""),
+    id: "contracts",
     cell: ({ row }) => {
       const data: string = row.getValue("contracts");
 
@@ -546,16 +579,17 @@ export const contractorColumns: ColumnDef<Contractor>[] = [
       return (
         <div className="">
           <button
-            // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="flex items-center gap-1"
           >
             Payments
-            {/* <ArrowUpDown className="h-4 w-4" /> */}
+            <ArrowUpDown className="h-4 w-4" />
           </button>
         </div>
       );
     },
-    accessorKey: "payments",
+    accessorFn: (row) => (row?.payments ? row?.payments?.length : ""),
+    id: "payments",
     cell: ({ row }) => {
       const data: string = row.getValue("payments");
 

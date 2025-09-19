@@ -28,9 +28,6 @@ function ContractPaymentArea({
       return;
     }
 
-    console.log(project_id);
-    console.log(currency_code);
-
     const chart = contractPaymentsAreaChart(
       projects,
       project_id,

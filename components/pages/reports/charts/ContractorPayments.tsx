@@ -1,12 +1,11 @@
-import Header5 from "@/components/fontsize/Header5";
+"use client"
+
 import Header6 from "@/components/fontsize/Header6";
 import Paragraph from "@/components/fontsize/Paragraph";
-import SelectBar from "@/components/ui/input/SelectBar";
 import ChartHeading from "@/components/ui/labels/ChartHeading";
 import Loading from "@/components/ui/loading/Loading";
-import { SelectItem } from "@/components/ui/select";
-import { Amount, Contractor, Project, User } from "@/types/types";
-import { chartFormatTotal, topContractors } from "@/utils/chartHelpers";
+import { Contractor, Project, User } from "@/types/types";
+import { topContractors } from "@/utils/chartHelpers";
 import { formatCurrency } from "@/utils/currencies";
 import { switchPeriod } from "@/utils/dateAndTime";
 import { sortByNumOrBool } from "@/utils/sortFilter";

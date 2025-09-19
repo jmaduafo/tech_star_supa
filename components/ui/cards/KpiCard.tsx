@@ -7,7 +7,7 @@ import PercentBanner from "../banners/PercentBanner";
 import { Versus } from "@/types/types";
 
 type Kpi = {
-  readonly item: { title: string; symbol: string | null; visual: boolean; className: string };
+  readonly item: { title: string; symbol: string | null; visual: boolean; className?: string };
   readonly arr: Versus[];
   readonly index: number;
   readonly period?: string;

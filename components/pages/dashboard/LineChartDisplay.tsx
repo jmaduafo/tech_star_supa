@@ -7,13 +7,19 @@ import { Amount, LineData, Project } from "@/types/types";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { useAuth } from "@/context/UserContext";
-import { createClient } from "@/lib/supabase/client";
 import { chartFormatTotal, getUniqueObjects } from "@/utils/chartHelpers";
 import LineChart2 from "@/components/ui/charts/LineChart2";
 import { dateRangeFilter, sortDate } from "@/utils/sortFilter";
 import ChartHeading from "@/components/ui/labels/ChartHeading";
+import { checkArray } from "@/utils/currencies";
 
-function LineChartDisplay() {
+function LineChartDisplay({
+  projects,
+  currencies,
+}: {
+  readonly projects: Project[] | undefined;
+  readonly currencies: Amount[] | undefined;
+}) {
   const [filteredData, setFilteredData] = useState<LineData[] | undefined>();
   const [projectData, setProjectData] = useState<Project[] | undefined>();
   const [currencyList, setCurrencyList] = useState<Amount[] | undefined>();
@@ -21,58 +27,41 @@ function LineChartDisplay() {
 
   const [projectId, setProjectId] = useState("");
   const [range, setRange] = useState("last 1 year");
-  const [currencyCode, setCurrencyCode] = useState("");
+  const [currencyCode, setCurrencyCode] = useState(
+    ""
+  );
 
   const { userData } = useAuth();
-  const supabase = createClient();
 
   const getData = async () => {
     try {
-      if (!userData) {
+      if (!userData || !projects || !currencies) {
         return;
       }
 
-      const [projects, payments] = await Promise.all([
-        supabase
-          .from("projects")
-          .select("id, name")
-          .eq("team_id", userData.team_id)
-          .order("created_at", { ascending: true })
-          .throwOnError(),
-        supabase
-          .from("payments")
-          .select(
-            "id, date, team_id, is_paid, payment_amounts (id, name, amount, code, symbol), projects ( id, name)"
-          )
-          .eq("team_id", userData.team_id)
-          .is("is_paid", true)
-          .throwOnError(),
-      ]);
-
-      setProjectData(projects.data as Project[]);
-      setProjectId(projects.data[0].id);
+      setProjectData(projects);
+      setProjectId(projects[0].id);
 
       const paymentAmounts: Amount[] = [];
       const chart: LineData[] = [];
 
-      payments.data.forEach((item) => {
-        const payment = Array.isArray(item.payment_amounts)
-          ? item.payment_amounts[0]
-          : item.payment_amounts;
+      projects.forEach(project => {
+        project.payments?.forEach(payment => {
 
-        const project = Array.isArray(item.projects)
-          ? item.projects[0]
-          : item.projects;
-
-        chart.push({
-          name: item.date,
-          value: +payment.amount,
-          project_id: project.id,
-          code: payment.code,
-        });
-
-        paymentAmounts.push({ ...payment });
-      });
+          const amount = checkArray(payment.payment_amounts)
+    
+          if (amount) {
+            chart.push({
+              name: payment.date,
+              value: +amount.amount,
+              project_id: project.id,
+              code: amount.code,
+            });
+    
+            payment.is_paid && paymentAmounts.push({ ...amount });
+          }
+        })
+      })
 
       const uniqueCurrency = getUniqueObjects(paymentAmounts, "code");
 
@@ -84,7 +73,7 @@ function LineChartDisplay() {
       // FILTER BY THE FIRST PROJECT AND THE FIRST CODE LISTED
       const filterChart = sortedChart.filter(
         (item) =>
-          item.project_id === projects.data[0].id &&
+          item.project_id === projects[0].id &&
           item.code === uniqueCurrency[0].code &&
           dateRangeFilter(item.name, range)
       );
@@ -104,7 +93,7 @@ function LineChartDisplay() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [projects, currencies]);
 
   const filterPayments = () => {
     if (paymentData) {
@@ -118,6 +107,10 @@ function LineChartDisplay() {
       setFilteredData(chartFormatTotal(filterChart, "name", "value"));
     }
   };
+
+  useEffect(() => {
+    filterPayments();
+  }, [projectId, currencyCode, range]);
 
   return (
     <div className="h-[45vh] flex flex-col">
@@ -191,14 +184,14 @@ function LineChartDisplay() {
               );
             })}
           </SelectBar>
-          <div className="flex gap-1.5">
+          {/* <div className="flex gap-1.5">
             <CheckedButton
               clickedFn={filterPayments}
               disabledLogic={
                 !projectId.length || !range.length || !currencyCode.length
               }
             />
-          </div>
+          </div> */}
         </div>
       </div>
 

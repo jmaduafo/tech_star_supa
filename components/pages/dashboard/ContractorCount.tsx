@@ -1,34 +1,41 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { User } from "@/types/types";
-import { createClient } from "@/lib/supabase/client";
+import { Amount, Project, User } from "@/types/types";
 import CountCard from "@/components/ui/cards/CountCard";
 
-function ContractorCount({ user }: { readonly user: User | undefined }) {
+function ContractorCount({
+  projects,
+  currencies,
+  user
+}: {
+  readonly projects: Project[] | undefined;
+  readonly currencies: Amount[] | undefined;
+  readonly user: User | undefined;
+}) {
   const [count, setCount] = useState<number | undefined>();
 
-  const supabase = createClient();
-
-  const getUser = async () => {
+  const getData = async () => {
     try {
-      if (!user) {
+      if (!user || !projects) {
         return;
       }
 
-      const { data } = await supabase
-        .from("contractors")
-        .select("id")
-        .eq("team_id", user.team_id)
-        .throwOnError();
+      const contractors = []
 
-      setCount(data.length);
+      projects.forEach(project => {
+        project.contractors?.forEach(contractor => {
+          contractors.push(contractor)
+        })
+      })
+
+      setCount(contractors.length)
     } catch (err: any) {
-      console.error(err.message);
+      console.error(err.message)
     }
   };
 
   useEffect(() => {
-    getUser();
+    getData();
   }, [user]);
 
   return <CountCard count={count} title="Total contractor"/>;

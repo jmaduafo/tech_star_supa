@@ -3,32 +3,31 @@ import TextButton from "@/components/ui/buttons/TextButton";
 import React, { useEffect, useState } from "react";
 import NotAvailable from "@/components/ui/NotAvailable";
 import Loading from "@/components/ui/loading/Loading";
-import { ChartData, User } from "@/types/types";
-import { createClient } from "@/lib/supabase/client";
+import { Amount, ChartData, Project, User } from "@/types/types";
 import PieChart2 from "@/components/ui/charts/PieChart2";
 
-function PieChartDisplay({ user }: { readonly user: User | undefined }) {
+function PieChartDisplay({
+  projects,
+  currencies,
+  user,
+}: {
+  readonly projects: Project[] | undefined;
+  readonly currencies: Amount[] | undefined;
+  readonly user: User | undefined;
+}) {
   const [data, setData] = useState<ChartData[] | undefined>();
 
-  const supabase = createClient();
-
   const getData = async () => {
-    if (!user) {
+    if (!user || !projects) {
       return;
     }
 
-    const { data } = await supabase
-      .from("projects")
-      .select("id, name, contractors (id, name)")
-      .eq("team_id", user.team_id)
-      .throwOnError();
-
     const chart: ChartData[] = [];
 
-    data.forEach((item) => {
+    projects.forEach((item) => {
       chart.push({ name: item.name, value: item.contractors?.length ?? 0 });
     });
-    
+
     setData(chart);
   };
 

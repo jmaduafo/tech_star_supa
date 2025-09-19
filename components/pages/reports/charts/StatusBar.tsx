@@ -70,7 +70,7 @@ function StatusBar({
       contractors as Contractor[],
       switchPeriod(timePeriod),
       currency_code,
-      selectedType === "Count" ? true : false
+      selectedType === "Count"
     );
     const contractChart = contractStatusBarChart(
       project_id,
@@ -78,7 +78,7 @@ function StatusBar({
       contractors as Contractor[],
       switchPeriod(timePeriod),
       currency_code,
-      selectedType === "Count" ? true : false
+      selectedType === "Count"
     );
 
     setPaymentData(paymentChart);
@@ -97,7 +97,7 @@ function StatusBar({
         allContractors,
         switchPeriod(timePeriod),
         currency_code,
-        selectedType === "Count" ? true : false
+        selectedType === "Count"
       );
 
       setContractData(contractChart);
@@ -110,7 +110,7 @@ function StatusBar({
         allContractors,
         switchPeriod(timePeriod),
         currency_code,
-        selectedType === "Count" ? true : false
+        selectedType === "Count"
       );
 
       setPaymentData(paymentChart);

@@ -2,7 +2,6 @@
 import Header5 from "@/components/fontsize/Header5";
 import Paragraph from "@/components/fontsize/Paragraph";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import TextButton from "@/components/ui/buttons/TextButton";
 import {
   Dialog,
   DialogClose,
@@ -13,15 +12,22 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
-import { Activity, User } from "@/types/types";
+import { Activity, Amount, Project, User } from "@/types/types";
 import { getInitials } from "@/utils/initials";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "timeago.js";
 import ViewLabel from "@/components/ui/labels/ViewLabel";
 
-function Activities({ user }: { readonly user: User | undefined }) {
-  const [allActivitiesOpen, setAllActivitiesOpen] = useState(false);
+function Activities({
+  projects,
+  currencies,
+  user,
+}: {
+  readonly projects: Project[] | undefined;
+  readonly currencies: Amount[] | undefined;
+  readonly user: User | undefined;
+}) {
   const [singleActivityOpen, setsingleActivityOpen] = useState(false);
 
   const [data, setData] = useState<Activity[] | undefined>();
@@ -41,8 +47,6 @@ function Activities({ user }: { readonly user: User | undefined }) {
         .eq("team_id", user.team_id)
         .order("created_at", { ascending: false })
         .throwOnError();
-
-      console.log(data);
       setData(data);
     } catch (err: any) {
       console.error(err.message);
@@ -57,11 +61,6 @@ function Activities({ user }: { readonly user: User | undefined }) {
     <div className="flex flex-col h-full">
       <div className="flex justify-between mb-20 xl:mb-0">
         <Header5 text="Recent Activities" />
-        <TextButton
-          text={"View all"}
-          iconDirection={"right"}
-          actionButton={() => setAllActivitiesOpen(true)}
-        />
       </div>
       <div className="mt-auto">
         {data ? (

@@ -5,104 +5,81 @@ import { SelectItem } from "@/components/ui/select";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { Amount, Project, User, Versus } from "@/types/types";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
-import { createClient } from "@/lib/supabase/client";
 import Card from "@/components/ui/cards/MyCard";
-import { getUniqueObjects } from "@/utils/chartHelpers";
 import KpiCard from "@/components/ui/cards/KpiCard";
 import Loading from "@/components/ui/loading/Loading";
-import { activeContractors, averageContract, totalAmountPaid, totalPayments } from "@/utils/kpi";
+import {
+  activeContractors,
+  averageContract,
+  totalAmountPaid,
+  totalPayments,
+} from "@/utils/kpi";
 
-function AmountDisplay({ user }: { readonly user: User | undefined }) {
+function AmountDisplay({
+  projects,
+  currencies,
+  user,
+}: {
+  readonly projects: Project[] | undefined;
+  readonly currencies: Amount[] | undefined;
+  readonly user: User | undefined;
+}) {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
-  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedProject, setSelectedProject] = useState(
+    projects ? projects[0].id : ""
+  );
   const [selectedPeriod, setSelectedPeriod] = useState("year");
-  const [selectedCurrency, setSelectedCurrency] = useState("");
-  const [currencySymbol, setCurrencySymbol] = useState("");
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    currencies ? currencies[0].code : ""
+  );
+  const [currencySymbol, setCurrencySymbol] = useState(
+    currencies ? currencies[0].symbol : ""
+  );
 
   const [kpi, setKpi] = useState<Versus[] | undefined>();
-
-  const supabase = createClient();
 
   // GETS ALL PROJECT AND CONTRACTOR NAMES BASED ON THE USER'S TEAM ID
   async function allData() {
     try {
-      if (!user) {
+      if (!user || !projects || !currencies) {
         return;
       }
 
-      const [projects, contracts, payments] = await Promise.all([
-        supabase
-          .from("projects")
-          .select(
-            "id, name, payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts ( id, date, contract_amounts ( * )), contractors (id, name, is_available, start_month, start_year)"
-          )
-          .eq("team_id", user.team_id)
-          .throwOnError(),
-        supabase
-          .from("contract_amounts")
-          .select("*, contracts ( id, is_completed, team_id)")
-          .eq("contracts.team_id", user.team_id)
-          .throwOnError(),
-        supabase
-          .from("payment_amounts")
-          .select("*, payments ( id, is_completed, is_paid, team_id)")
-          .eq("payments.team_id", user.team_id)
-          .throwOnError(),
-      ]);
+      setAllProjects(projects as unknown as Project[]);
+      setCurrenciesList(currencies);
 
-      const allCurrencies: Amount[] = [];
+      if (selectedCurrency.length) {
+        const currency = currency_list.find(
+          (item) => item.code === selectedCurrency
+        );
 
-      contracts.data.forEach((item) => {
-        allCurrencies.push({
-          code: item.code,
-          symbol: item.symbol,
-          name: item.name,
-          amount: item.amount,
-        });
-      });
-
-      payments.data.forEach((item) => {
-        allCurrencies.push({
-          code: item.code,
-          symbol: item.symbol,
-          name: item.name,
-          amount: item.amount,
-        });
-      });
-
-      setAllProjects(projects.data as unknown as Project[]);
-
-      const uniqueCurrency = getUniqueObjects(allCurrencies, "code");
-      setCurrenciesList(uniqueCurrency);
-
-      setSelectedProject(projects.data[0].id);
-      setSelectedCurrency(uniqueCurrency[0].code);
-      setCurrencySymbol(uniqueCurrency[0].symbol);
+        currency && setCurrencySymbol(currency.symbol);
+      }
 
       setKpi([
         totalAmountPaid(
-          projects.data as unknown as Project[],
-          projects.data[0].id,
-          uniqueCurrency[0].code,
+          projects as unknown as Project[],
+          selectedProject.length ? selectedProject : projects[0].id,
+          selectedCurrency.length ? selectedCurrency : currencies[0].code,
           selectedPeriod
         ),
         totalPayments(
-          projects.data as unknown as Project[],
-          projects.data[0].id,
-          uniqueCurrency[0].code,
+          projects as unknown as Project[],
+          selectedProject.length ? selectedProject : projects[0].id,
+          selectedCurrency.length ? selectedCurrency : currencies[0].code,
           selectedPeriod
         ),
         averageContract(
-          projects.data as unknown as Project[],
-          projects.data[0].id,
-          uniqueCurrency[0].code,
+          projects as unknown as Project[],
+          selectedProject.length ? selectedProject : projects[0].id,
+          selectedCurrency.length ? selectedCurrency : currencies[0].code,
           selectedPeriod
         ),
         activeContractors(
-          projects.data as unknown as Project[],
-          projects.data[0].id
+          projects as unknown as Project[],
+          selectedProject.length ? selectedProject : projects[0].id
         ),
       ]);
     } catch (err: any) {
@@ -112,40 +89,40 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
 
   useEffect(() => {
     allData();
-  }, [user]);
+  }, [projects, selectedProject, selectedCurrency, selectedPeriod]);
 
-  function runKPI() {
-    if (!allProjects && !selectedCurrency.length && !selectedProject.length) {
-      return;
-    }
+  // function runKPI() {
+  //   if (!allProjects && !selectedCurrency.length && !selectedProject.length) {
+  //     return;
+  //   }
 
-    const currency = currency_list.find(
-      (item) => item.code === selectedCurrency
-    );
-    setCurrencySymbol(currency ? currency.symbol : "");
+  //   const currency = currency_list.find(
+  //     (item) => item.code === selectedCurrency
+  //   );
+  //   setCurrencySymbol(currency ? currency.symbol : "");
 
-    setKpi([
-      totalAmountPaid(
-        allProjects as unknown as Project[],
-        selectedProject,
-        selectedCurrency,
-        selectedPeriod
-      ),
-      totalPayments(
-        allProjects as unknown as Project[],
-        selectedProject,
-        selectedCurrency,
-        selectedPeriod
-      ),
-      averageContract(
-        allProjects as unknown as Project[],
-        selectedProject,
-        selectedCurrency,
-        selectedPeriod
-      ),
-      activeContractors(allProjects as unknown as Project[], selectedProject),
-    ]);
-  }
+  //   setKpi([
+  //     totalAmountPaid(
+  //       allProjects as unknown as Project[],
+  //       selectedProject,
+  //       selectedCurrency,
+  //       selectedPeriod
+  //     ),
+  //     totalPayments(
+  //       allProjects as unknown as Project[],
+  //       selectedProject,
+  //       selectedCurrency,
+  //       selectedPeriod
+  //     ),
+  //     averageContract(
+  //       allProjects as unknown as Project[],
+  //       selectedProject,
+  //       selectedCurrency,
+  //       selectedPeriod
+  //     ),
+  //     activeContractors(allProjects as unknown as Project[], selectedProject),
+  //   ]);
+  // }
 
   const cardTitle = [
     {
@@ -227,12 +204,12 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
             );
           })}
         </SelectBar>
-        <div className="flex gap-1.5">
+        {/* <div className="flex gap-1.5">
           <CheckedButton
             clickedFn={runKPI}
             disabledLogic={!selectedCurrency.length || !selectedProject.length}
           />
-        </div>
+        </div> */}
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-2">
         {kpi
@@ -245,8 +222,11 @@ function AmountDisplay({ user }: { readonly user: User | undefined }) {
             })
           : Array.from({ length: 4 }).map((_, i) => {
               return (
-                <Card className="h-32 w-full animate-pulse flex justify-center items-center" key={`${i + 1}`}>
-                  <Loading/>
+                <Card
+                  className="h-32 w-full animate-pulse flex justify-center items-center"
+                  key={`${i + 1}`}
+                >
+                  <Loading />
                 </Card>
               );
             })}

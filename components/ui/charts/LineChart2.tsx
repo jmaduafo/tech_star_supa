@@ -10,6 +10,8 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
+import { renderLegend } from "./legendStyle";
+import { ContentType } from "recharts/types/component/DefaultLegendContent";
 
 function LineChart2({
   data,
@@ -47,7 +49,7 @@ function LineChart2({
             }
           }}
         />
-        {/* <Legend /> */}
+        <Legend content={renderLegend as ContentType}/>
         <Line type="monotone" dataKey={dataKey ?? "value"} stroke="#ececec" />
         <Tooltip
           contentStyle={{

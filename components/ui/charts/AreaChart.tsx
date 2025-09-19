@@ -1,5 +1,5 @@
 import { formatCurrency } from "@/utils/currencies";
-import { COLORS } from "@/utils/dataTools";
+import { AREA_COLORS } from "@/utils/dataTools";
 import React from "react";
 import {
   Area,
@@ -11,6 +11,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { ContentType } from "recharts/types/component/DefaultLegendContent";
+import { renderLegend } from "./legendStyle";
 
 function AreaChart({
   data,
@@ -23,6 +25,7 @@ function AreaChart({
   readonly code?: string;
   readonly format?: boolean;
 }) {
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChartContainer
@@ -42,13 +45,17 @@ function AreaChart({
                 x2="0"
                 y2="1"
               >
-                <stop offset="5%" stopColor={COLORS[i]} stopOpacity={0.8} />
-                <stop offset="95%" stopColor={COLORS[i]} stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor={AREA_COLORS[i]}
+                  stopOpacity={0.8}
+                />
+                <stop offset="95%" stopColor={AREA_COLORS[i]} stopOpacity={0} />
               </linearGradient>
             );
           })}
         </defs>
-        <Legend />
+        <Legend content={renderLegend as ContentType} />
         <XAxis
           dataKey="name"
           tickLine={false}
@@ -79,7 +86,7 @@ function AreaChart({
               key={key}
               type="monotone"
               dataKey={key}
-              stroke={COLORS[i]}
+              stroke={AREA_COLORS[i]}
               fillOpacity={1}
               fill={`url(#color${key})`}
             />

@@ -1,8 +1,6 @@
 "use client";
 
-import Header5 from "@/components/fontsize/Header5";
-import Header6 from "@/components/fontsize/Header6";
-import LineChart2 from "@/components/ui/charts/LineChart2";
+import BarChart from "@/components/ui/charts/BarChart";
 import ChartHeading from "@/components/ui/labels/ChartHeading";
 import Loading from "@/components/ui/loading/Loading";
 import { createClient } from "@/lib/supabase/client";
@@ -47,7 +45,7 @@ function ActivitiesBar({
 
   useEffect(() => {
     if (data) {
-      const chart = activitiesBar(data as Activity[], switchPeriod(timePeriod));
+      const chart = activitiesBar(data, switchPeriod(timePeriod));
 
       setChartData(chart);
     }
@@ -74,7 +72,7 @@ function ActivitiesBar({
             />
           </div>
           <div className="mt-auto h-[35vh]">
-            <LineChart2 data={chartData} dataKey="activityCount" />
+            <BarChart data={chartData} dataArray={["activityCount"]} maxSize={40}/>
           </div>
         </div>
       )}

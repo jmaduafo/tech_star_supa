@@ -37,6 +37,18 @@ export const COLORS = [
   "#000000",
 ];
 
+export const AREA_COLORS = [
+  "#ececec",
+  // "#cbcbcb",
+  "#ababab",
+  // "#8c8c8c",
+  "#6f6f6f",
+  // "#525252",
+  "#383838",
+  "#1f1f1f",
+  "#141414",
+];
+
 export const days = [
   "Sunday",
   "Monday",

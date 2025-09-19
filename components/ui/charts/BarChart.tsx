@@ -1,4 +1,3 @@
-import { ColorData } from "@/types/types";
 import React from "react";
 import {
   BarChart as BarContainer,
@@ -12,32 +11,41 @@ import {
 } from "recharts";
 import { COLORS } from "@/utils/dataTools";
 import { formatCurrency } from "@/utils/currencies";
+import { renderLegend } from "./legendStyle";
+import { ContentType } from "recharts/types/component/DefaultLegendContent";
 
 function BarChart({
   data,
   dataArray,
   format,
   code,
+  maxSize
 }: {
   readonly data: any[];
   readonly dataArray: string[];
   readonly format?: boolean;
   readonly code?: string;
+  readonly maxSize?: number;
 }) {
   return (
     <ResponsiveContainer width="100%" height="100%" className={"w-full h-full"}>
       <BarContainer data={data} accessibilityLayer>
-        <CartesianGrid
-          vertical={false} stroke="#ececec20"
+        <CartesianGrid vertical={false} stroke="#ececec20" />
+        <XAxis
+          dataKey="name"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          minTickGap={32}
+          tick={{ fill: "#ececec90" }}
         />
-        <XAxis dataKey="name" stroke="rgba(236, 236, 236, 0.8)" />
         <YAxis stroke="rgba(236, 236, 236, 0.8)" allowDecimals={false} hide />
         <Tooltip
           contentStyle={{
             backgroundColor: "#141414",
             borderRadius: "5px",
             padding: "6px 12px",
-            border: "none"
+            border: "none",
           }}
           cursor={{ fill: "#ececec30" }} // Changes color of screen behind the cells
           labelStyle={{ color: "#ececec", fontSize: "15px" }}
@@ -49,9 +57,8 @@ function BarChart({
           formatter={(value) =>
             format && code ? `${formatCurrency(+value, code)}` : value
           }
-          
         />
-        <Legend iconSize={8} wrapperStyle={{ textTransform: "capitalize" }} />
+        <Legend content={renderLegend as ContentType} />
         {dataArray.map((item, i) => {
           return (
             <Bar
@@ -59,7 +66,8 @@ function BarChart({
               dataKey={item}
               activeBar={false}
               fill={COLORS[i % COLORS.length]}
-              radius={[8, 8, 0, 0]}
+              radius={[2, 2, 0, 0]}
+              maxBarSize={maxSize ?? undefined}
             />
           );
         })}

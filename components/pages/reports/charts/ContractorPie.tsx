@@ -1,7 +1,6 @@
 "use client";
 
 import Header6 from "@/components/fontsize/Header6";
-import CardSkeleton from "@/components/ui/cards/CardSkeleton";
 import PieChart2 from "@/components/ui/charts/PieChart2";
 import SelectBar from "@/components/ui/input/SelectBar";
 import Loading from "@/components/ui/loading/Loading";
@@ -23,7 +22,8 @@ function ContractorPie({
   readonly user: User | undefined;
 }) {
   const [value, setValue] = useState("Stages");
-  const [data, setData] = useState<any[] | undefined>();
+  const [data, setData] = useState<StageContractor[] | undefined>();
+  const [chartData, setChartData] = useState<any[] | undefined>();
 
   const supabase = createClient();
 
@@ -38,17 +38,27 @@ function ContractorPie({
       .eq("contractors.team_id", user.team_id)
       .throwOnError();
 
+    setData(data as StageContractor[]);
+    console.log(data)
+
     const chart = contractorPieStageChart(data as StageContractor[]);
-    setData(chart);
+    setChartData(chart);
   };
 
   useEffect(() => {
     getData();
-  }, [user, project_id]);
+  }, [user, projects]);
+
+  useEffect(() => {
+    if (data) {
+      const chart = contractorPieStageChart(data);
+      setChartData(chart);
+    }
+  }, [project_id, value]);
 
   return (
     <div className="h-full">
-      {!data ? (
+      {!chartData ? (
         <div className="h-full w-full flex justify-center items-center">
           <Loading />
         </div>
@@ -70,10 +80,10 @@ function ContractorPie({
             })}
           </SelectBar>
           <div className="mt-auto w-full min-h-[35vh]">
-            <PieChart2 data={data} dataKey="contractorCount" />
+            <PieChart2 data={chartData} dataKey="contractorCount" />
           </div>
           <div className="mt-auto">
-            <Header6 text={`Contractors Count vs ${value}`}/>
+            <Header6 text={`Contractors Count vs ${value}`} />
           </div>
         </div>
       )}

@@ -27,16 +27,14 @@ export const images = [
 
 export const COLORS = [
   "#ececec",
-  // "#e7e5e4",
-  "#d6d3d1",
-  "#a8a29e",
-  "#78716c",
-  "#57534e",
-  "#44403c",
-  "#292524",
-  "#1c1917",
-  "#0c0a09",
-  "#141414",
+  "#cbcbcb",
+  "#ababab",
+  "#8c8c8c",
+  "#6f6f6f",
+  "#525252",
+  "#383838",
+  "#1f1f1f",
+  "#000000",
 ];
 
 export const days = [

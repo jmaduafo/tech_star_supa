@@ -169,6 +169,7 @@ export function contractPaymentsAreaChart(
     if (period !== "All Time") {
       versusLast(payment.date, period).current &&
         amount.code === code &&
+        payment.is_paid &&
         payment.contract_id &&
         contractPayments.push({
           name: format(payment.date, "PP"),
@@ -177,6 +178,7 @@ export function contractPaymentsAreaChart(
     } else {
       amount.code === code &&
         payment.contract_id &&
+        payment.is_paid &&
         contractPayments.push({
           name: format(payment.date, "PP"),
           amount: +amount.amount,

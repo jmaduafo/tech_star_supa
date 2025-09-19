@@ -9,7 +9,6 @@ import PaymentPie from "./PaymentPie";
 import ContractorPayments from "./ContractorPayments";
 import Card from "@/components/ui/cards/MyCard";
 import ContractPaymentArea from "./ContractPaymentArea";
-import LineChartDisplay from "../../dashboard/LineChartDisplay";
 import ActivitiesBar from "./ActivitiesBar";
 
 function Charts({
@@ -31,11 +30,11 @@ function Charts({
 }) {
   return (
     <>
-      <div className="grid grid-cols-6 gap-4 row-auto">
-        <Card className="col-span-4">
+      <div className="grid md:grid-cols-4 xl:grid-cols-6 gap-4 row-auto">
+        <Card className="md:col-span-4 xl:col-span-4">
           <ActivitiesBar timePeriod={timePeriod} user={user} />
         </Card>
-        <Card className="col-span-2">
+        <Card className="md:col-span-3 xl:col-span-2">
           <ContractorPie
             project_id={project_id}
             projects={projects}
@@ -43,7 +42,7 @@ function Charts({
             timePeriod={timePeriod}
           />
         </Card>
-        <div className="col-span-1 grid gap-4">
+        <div className="md:col-span-1 grid gap-4">
           <Card>
             <PaidCount
               project_id={project_id}
@@ -72,7 +71,7 @@ function Charts({
             />
           </Card>
         </div>
-        <Card className="col-span-2">
+        <Card className="md:col-span-2 lg:col-span-2 xl:col-span-2">
           <PaymentPie
             project_id={project_id}
             projects={projects}
@@ -81,7 +80,7 @@ function Charts({
             timePeriod={timePeriod}
           />
         </Card>
-        <Card className="col-span-3">
+        <Card className="md:col-span-2 xl:col-span-3">
           <ContractorPayments
             project_id={project_id}
             projects={projects}

@@ -1,8 +1,8 @@
 "use client";
 
-import Header6 from "@/components/fontsize/Header6";
 import PieChart2 from "@/components/ui/charts/PieChart2";
 import SelectBar from "@/components/ui/input/SelectBar";
+import PieChartHeading from "@/components/ui/labels/PieChartHeading";
 import Loading from "@/components/ui/loading/Loading";
 import { SelectItem } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
@@ -39,7 +39,6 @@ function ContractorPie({
       .throwOnError();
 
     setData(data as StageContractor[]);
-    console.log(data)
 
     const chart = contractorPieStageChart(data as StageContractor[]);
     setChartData(chart);
@@ -83,7 +82,10 @@ function ContractorPie({
             <PieChart2 data={chartData} dataKey="contractorCount" />
           </div>
           <div className="mt-auto">
-            <Header6 text={`Contractors Count vs ${value}`} />
+            <PieChartHeading
+              text={`Contractors vs ${value}`}
+              subtext={`Showing count of contractors under each ${value.slice(0, -1).toLowerCase()}`}
+            />
           </div>
         </div>
       )}

@@ -1,13 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Header3 from "@/components/fontsize/Header3";
 import TextButton from "@/components/ui/buttons/TextButton";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
 import { Amount, LineData, Project } from "@/types/types";
 import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import NotAvailable from "@/components/ui/NotAvailable";
-import Header6 from "@/components/fontsize/Header6";
 import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import { chartFormatTotal, getUniqueObjects } from "@/utils/chartHelpers";

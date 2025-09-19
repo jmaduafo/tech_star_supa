@@ -42,7 +42,7 @@ function MainPage() {
     </div>
   ) : (
     <section>
-      <MainTitle title={"All Payments"} data={data} />
+      <MainTitle title={"Payment Log"} data={data} />
       <div className="mt-10">
         <DataTable
           columns={paymentColumns}

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Kpi from "./kpis/Kpi";
-import Tables from "./tables/Tables";
 import Charts from "./charts/Charts";
 import Header1 from "@/components/fontsize/Header1";
 import SelectBar from "@/components/ui/input/SelectBar";
@@ -175,15 +174,6 @@ function MainPage() {
           user={userData}
         />
         <Charts
-          project_id={selectedProject}
-          currency_code={selectedCurrency}
-          currency_symbol={currencySymbol}
-          projects={allProjects}
-          currencies={currenciesList}
-          timePeriod={period}
-          user={userData}
-        />
-        <Tables
           project_id={selectedProject}
           currency_code={selectedCurrency}
           currency_symbol={currencySymbol}

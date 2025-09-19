@@ -1,9 +1,7 @@
 "use client";
-import Header2 from "@/components/fontsize/Header2";
-import Header6 from "@/components/fontsize/Header6";
+
 import CardSkeleton from "@/components/ui/cards/CardSkeleton";
 import KpiCard from "@/components/ui/cards/KpiCard";
-import Card from "@/components/ui/cards/MyCard";
 import Loading from "@/components/ui/loading/Loading";
 import { Amount, Project, User, Versus } from "@/types/types";
 import { switchPeriod } from "@/utils/dateAndTime";
@@ -58,31 +56,31 @@ function Kpi({
       title: "Total payment amount",
       symbol: currency_symbol,
       visual: true,
-      className: "md:col-span-2 lg:col-span-1",
+      className: "md:col-span-2 xl:col-span-1",
     },
     {
       title: "Total contract amount",
       symbol: currency_symbol,
       visual: true,
-      className: "",
+      className: "md:col-span-1 xl:col-span-1",
     },
     {
       title: "Contract payment amount",
       symbol: currency_symbol,
       visual: true,
-      className: "",
+      className: "md:col-span-1 xl:col-span-1",
     },
     {
       title: "Contract balance",
       symbol: currency_symbol,
       visual: true,
-      className: "",
+      className: "md:col-span-1 xl:col-span-1",
     },
     {
       title: "Highest Payment",
       symbol: currency_symbol,
       visual: true,
-      className: "",
+      className: "md:col-span-1 xl:col-span-1",
     },
   ];
 

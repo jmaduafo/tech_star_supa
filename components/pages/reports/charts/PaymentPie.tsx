@@ -20,7 +20,7 @@ import {
 } from "@/utils/chartHelpers";
 import { SelectItem } from "@/components/ui/select";
 import React, { useEffect, useState } from "react";
-import { PieChart } from "recharts";
+import PieChartHeading from "@/components/ui/labels/PieChartHeading";
 
 function PaymentPie({
   timePeriod,
@@ -49,13 +49,13 @@ function PaymentPie({
 
     const project = projects.find((item) => item.id === project_id);
 
-    if (!project || !project.payments) {
+    if (!project) {
       return;
     }
 
     const currency: Amount[] = [];
 
-    project.payments.forEach((item) => {
+    project.payments?.forEach((item) => {
       const amount = Array.isArray(item.payment_amounts)
         ? item.payment_amounts[0]
         : item.payment_amounts;
@@ -146,7 +146,10 @@ function PaymentPie({
             <PieChart2 data={switchCharts() ?? []} dataKey="paymentCount" />
           </div>
           <div className="mt-auto">
-            <p>Paid Payments Count by {value !== "Currency" ? value.slice(0,-1) : value}</p>
+            <PieChartHeading
+              text={`Paid Payments by ${value !== "Currency" ? value.slice(0,-1) : value}`}
+              subtext={`Showing count of paid payments under each ${value !== "Currency" ? value.slice(0,-1).toLowerCase() : value}`}
+            />
           </div>
         </div>
       )}

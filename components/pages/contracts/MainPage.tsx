@@ -44,7 +44,7 @@ function MainPage() {
     </div>
   ) : (
     <section>
-      <MainTitle title={"All Contracts"} data={data} />
+      <MainTitle title={"Contract Log"} data={data} />
       <div className="mt-10">
         <DataTable
           columns={contractColumns}

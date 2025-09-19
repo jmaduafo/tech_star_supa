@@ -7,7 +7,7 @@ import PercentBanner from "../banners/PercentBanner";
 import { Versus } from "@/types/types";
 
 type Kpi = {
-  readonly item: { title: string; symbol: string | null; visual: boolean };
+  readonly item: { title: string; symbol: string | null; visual: boolean; className: string };
   readonly arr: Versus[];
   readonly index: number;
   readonly period?: string;
@@ -15,7 +15,7 @@ type Kpi = {
 
 function KpiCard({ item, arr, index, period }: Kpi) {
   return (
-    <Card className="flex flex-col min-h-32">
+    <Card className={`${item.className} flex flex-col min-h-32`}>
       <Header6 text={item.title} className="capitalize" />
       <div className="flex justify-end items-start gap-1 mt-auto">
         <div className="flex items-start gap-1">

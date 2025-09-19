@@ -26,6 +26,7 @@ import {
   AnalysisTextLinkIcon,
   UserGroup03Icon,
   ContractsIcon,
+  UserSquareIcon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import ProfileCard from "../cards/ProfileCard";
@@ -82,6 +83,11 @@ function AppSidebar() {
           title: "Contracts",
           url: "/tables/contracts",
           icon: <HugeiconsIcon icon={ContractsIcon} size={16} strokeWidth={1} />,
+        },
+        {
+          title: "Contractors",
+          url: "/tables/contractors",
+          icon: <HugeiconsIcon icon={UserSquareIcon} size={16} strokeWidth={1} />,
         },
       ],
     },

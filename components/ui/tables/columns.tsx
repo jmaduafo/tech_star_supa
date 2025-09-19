@@ -1,6 +1,13 @@
 "use client";
 
-import { Amount, Contract, Payment, ProjectReport, User } from "@/types/types";
+import {
+  Amount,
+  Contract,
+  Contractor,
+  Payment,
+  ProjectReport,
+  User,
+} from "@/types/types";
 import { convertCurrency, formatCurrency, totalSum } from "@/utils/currencies";
 import { formatDate } from "@/utils/dateAndTime";
 import { ColumnDef } from "@tanstack/react-table";
@@ -144,7 +151,7 @@ export const contractColumns: ColumnDef<Contract>[] = [
       );
     },
   },
-   // HIDDEN COLUMNS FOR FILTERING
+  // HIDDEN COLUMNS FOR FILTERING
   {
     accessorKey: "project_id",
     header: "Project",
@@ -337,14 +344,19 @@ export const paymentColumns: ColumnDef<Payment>[] = [
 
       return (
         <div className="text-right">
-          {data?.payment_amounts && data?.payment_amounts[0]?.amount &&
+          {data?.payment_amounts &&
+          data?.payment_amounts[0]?.amount &&
           data?.payment_amounts[0]?.amount !== "Unlimited"
             ? formatCurrency(
                 +data?.payment_amounts[0]?.amount,
                 data?.payment_amounts[0]?.code
               )
-            : `${data?.payment_amounts && data?.payment_amounts[0]?.symbol} Unlimited`}
-          {data?.payment_amounts && data?.payment_amounts?.length > 1 ? ", ..." : ""}
+            : `${
+                data?.payment_amounts && data?.payment_amounts[0]?.symbol
+              } Unlimited`}
+          {data?.payment_amounts && data?.payment_amounts?.length > 1
+            ? ", ..."
+            : ""}
         </div>
       );
     },
@@ -400,6 +412,154 @@ export const paymentColumns: ColumnDef<Payment>[] = [
           <PaymentAction data={payment} is_contract={!!payment?.contract_id} />
         </div>
       );
+    },
+  },
+];
+
+// PAYMENT DATA COLUMN
+export const contractorColumns: ColumnDef<Contractor>[] = [
+  {
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    accessorKey: "id",
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="">
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
+            Name
+            <ArrowUpDown className="h-4 w-4" />
+          </button>
+        </div>
+      );
+    },
+    accessorKey: "name",
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="">
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
+            Status
+            <ArrowUpDown className="h-4 w-4" />
+          </button>
+        </div>
+      );
+    },
+    accessorKey: "status",
+    cell: ({ row }) => {
+      const contractor = row.original;
+
+      return (
+        <Banner text={contractor.is_available ? "ongoing" : "unavailable"} />
+      );
+    },
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="">
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
+            Location
+            <ArrowUpDown className="h-4 w-4" />
+          </button>
+        </div>
+      );
+    },
+    accessorKey: "country",
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="">
+          <button
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
+            Description
+            <ArrowUpDown className="h-4 w-4" />
+          </button>
+        </div>
+      );
+    },
+    accessorKey: "description",
+    cell: ({ row }) => {
+      const desc: string = row.getValue("description");
+
+      return (
+        <div className="">
+          {desc.length > 40 ? desc.substring(0, 41) + "..." : desc}{" "}
+        </div>
+      );
+    },
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="">
+          <button
+            // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
+            Contracts
+            {/* <ArrowUpDown className="h-4 w-4" /> */}
+          </button>
+        </div>
+      );
+    },
+    accessorKey: "contracts",
+    cell: ({ row }) => {
+      const data: string = row.getValue("contracts");
+
+      return <div className="">{data.length} </div>;
+    },
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="">
+          <button
+            // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="flex items-center gap-1"
+          >
+            Payments
+            {/* <ArrowUpDown className="h-4 w-4" /> */}
+          </button>
+        </div>
+      );
+    },
+    accessorKey: "payments",
+    cell: ({ row }) => {
+      const data: string = row.getValue("payments");
+
+      return <div className="">{data.length} </div>;
     },
   },
 ];

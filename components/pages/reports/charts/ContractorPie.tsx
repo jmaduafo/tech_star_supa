@@ -7,7 +7,11 @@ import Loading from "@/components/ui/loading/Loading";
 import { SelectItem } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import { Project, StageContractor, User } from "@/types/types";
-import { contractorPieStageChart } from "@/utils/chartHelpers";
+import {
+  contractorPieLocationChart,
+  contractorPieStageChart,
+  contractorPieStartYearChart,
+} from "@/utils/chartHelpers";
 import React, { useEffect, useState } from "react";
 
 function ContractorPie({
@@ -21,7 +25,7 @@ function ContractorPie({
   readonly projects: Project[] | undefined;
   readonly user: User | undefined;
 }) {
-  const [value, setValue] = useState("Stages");
+  const [value, setValue] = useState("Stage");
   const [data, setData] = useState<StageContractor[] | undefined>();
   const [chartData, setChartData] = useState<any[] | undefined>();
 
@@ -36,6 +40,8 @@ function ContractorPie({
       .from("stage_contractors")
       .select(" id, stages ( id, name ), contractors ( id, name )")
       .eq("contractors.team_id", user.team_id)
+      .eq("contractors.project_id", project_id)
+      .eq("stages.project_id", project_id)
       .throwOnError();
 
     setData(data as StageContractor[]);
@@ -49,9 +55,17 @@ function ContractorPie({
   }, [user, projects]);
 
   useEffect(() => {
-    if (data) {
-      const chart = contractorPieStageChart(data);
-      setChartData(chart);
+    if (data && projects && project_id) {
+      if (value === "Stage") {
+        const chart = contractorPieStageChart(data);
+        setChartData(chart);
+      } else if (value === "Location") {
+        const chart = contractorPieLocationChart(projects, project_id);
+        setChartData(chart);
+      } else if (value === "Start Year") {
+        const chart = contractorPieStartYearChart(projects, project_id);
+        setChartData(chart);
+      }
     }
   }, [project_id, value]);
 
@@ -70,7 +84,7 @@ function ContractorPie({
             valueChange={setValue}
             className="w-full"
           >
-            {["Stages", "Projects"].map((item) => {
+            {["Stage", "Location", "Start Year"].map((item) => {
               return (
                 <SelectItem key={item} value={item}>
                   {item}
@@ -79,12 +93,12 @@ function ContractorPie({
             })}
           </SelectBar>
           <div className="mt-auto w-full min-h-[35vh]">
-            <PieChart2 data={chartData} dataKey="contractorCount" />
+            <PieChart2 data={chartData} dataKey="count" />
           </div>
           <div className="mt-auto">
             <PieChartHeading
               text={`Contractors vs ${value}`}
-              subtext={`Showing count of contractors under each ${value.slice(0, -1).toLowerCase()}`}
+              subtext={`Count of contractors based on ${value.toLowerCase()}`}
             />
           </div>
         </div>

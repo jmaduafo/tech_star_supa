@@ -11,7 +11,6 @@ import { Project, Amount } from "@/types/types";
 import { getUniqueObjects } from "@/utils/chartHelpers";
 
 function MainPage() {
-
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
@@ -29,7 +28,7 @@ function MainPage() {
           supabase
             .from("projects")
             .select(
-              "id, name, contractors ( *, payments ( *, payment_amounts ( * ) ) ), stages ( * ), contracts ( *, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
+              "id, name, contractors ( id, name, is_available ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
             )
             .eq("team_id", userData.team_id)
             .order("created_at", { ascending: false })
@@ -50,7 +49,7 @@ function MainPage() {
             .throwOnError(),
         ]);
 
-      setAllProjects(projects.data);
+      setAllProjects(projects.data as unknown as Project[]);
 
       setCurrenciesList(
         getUniqueObjects(
@@ -64,16 +63,16 @@ function MainPage() {
   };
 
   useEffect(() => {
-    getData()
-  }, [])
+    getData();
+  }, []);
 
   return (
     <div className="flex flex-col gap-4">
-      <DashboardGrid projects={allProjects} currencies={currenciesList}/>
+      <DashboardGrid projects={allProjects} currencies={currenciesList} />
       <Card className="">
-        <LineChartDisplay projects={allProjects} currencies={currenciesList}/>
+        <LineChartDisplay projects={allProjects} currencies={currenciesList} />
       </Card>
-      <PaymentDisplay projects={allProjects} currencies={currenciesList}/>
+      <PaymentDisplay projects={allProjects} currencies={currenciesList} />
     </div>
   );
 }

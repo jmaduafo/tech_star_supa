@@ -9,10 +9,9 @@ import {
   Stage,
   StageContractor,
 } from "@/types/types";
-import { switchPeriod, versusLast } from "./dateAndTime";
-import { checkArray, formatCurrency } from "./currencies";
+import { versusLast } from "./dateAndTime";
+import { checkArray } from "./currencies";
 import { format } from "date-fns";
-import { sortByNumOrBool, sortByString } from "./sortFilter";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -463,19 +462,49 @@ export function contractorPieStageChart(data: StageContractor[]) {
   chart.forEach((item) => {
     newChart.push({
       name: item.name,
-      contractorCount: item.contractor_ids.length,
+      count: item.contractor_ids.length,
     });
   });
 
   return newChart;
 }
 
-export function contractorPieProjectChart(data: Project[]) {
-  const chart = [];
+export function contractorPieLocationChart(data: Project[], project_id: string) {
+  const chart: any[] = [];
 
-  data.forEach((item) => {
-    chart.push({ name: item.name, value: item.contractors?.length });
+
+  const contractors = data.find(item => item.id === project_id)?.contractors
+
+  contractors?.forEach((contractor) => {
+    const index = chart.findIndex(item => item.name === contractor.country)
+
+    if (index !== -1) {
+      chart[index]["count"]++
+    } else {
+      chart.push({ name: contractor.country, count: 1})
+    }
   });
+
+  return chart
+}
+
+export function contractorPieStartYearChart(data: Project[], project_id: string) {
+  const chart: any[] = [];
+
+
+  const contractors = data.find(item => item.id === project_id)?.contractors
+
+  contractors?.forEach((contractor) => {
+    const index = chart.findIndex(item => item.name === contractor.start_year)
+
+    if (index !== -1) {
+      chart[index]["count"]++
+    } else {
+      chart.push({ name: contractor.start_year, count: 1})
+    }
+  });
+
+  return chart
 }
 
 export function topContractors(

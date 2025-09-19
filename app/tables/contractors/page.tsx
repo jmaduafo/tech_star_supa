@@ -1,4 +1,4 @@
-import MainPage from '@/components/pages/tables/payments/MainPage'
+import MainPage from '@/components/pages/tables/contractors/MainPage'
 import React from 'react'
 
 function page() {

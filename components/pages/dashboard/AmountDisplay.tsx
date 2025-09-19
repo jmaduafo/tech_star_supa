@@ -4,7 +4,6 @@ import { currency_list } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { Amount, Project, User, Versus } from "@/types/types";
-import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import Card from "@/components/ui/cards/MyCard";
 import KpiCard from "@/components/ui/cards/KpiCard";
 import Loading from "@/components/ui/loading/Loading";
@@ -28,14 +27,14 @@ function AmountDisplay({
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
   const [selectedProject, setSelectedProject] = useState(
-    projects ? projects[0].id : ""
+    ""
   );
   const [selectedPeriod, setSelectedPeriod] = useState("year");
   const [selectedCurrency, setSelectedCurrency] = useState(
-    currencies ? currencies[0].code : ""
+    ""
   );
   const [currencySymbol, setCurrencySymbol] = useState(
-    currencies ? currencies[0].symbol : ""
+    ""
   );
 
   const [kpi, setKpi] = useState<Versus[] | undefined>();
@@ -50,9 +49,21 @@ function AmountDisplay({
       setAllProjects(projects as unknown as Project[]);
       setCurrenciesList(currencies);
 
+      if (!selectedProject.length) {
+        setSelectedProject(projects[0].id)
+      }
+
       if (selectedCurrency.length) {
         const currency = currency_list.find(
           (item) => item.code === selectedCurrency
+        );
+
+        currency && setCurrencySymbol(currency.symbol);
+      } else {
+        setSelectedCurrency(currencies[0].code)
+
+        const currency = currency_list.find(
+          (item) => item.code === currencies[0].code
         );
 
         currency && setCurrencySymbol(currency.symbol);
@@ -90,39 +101,6 @@ function AmountDisplay({
   useEffect(() => {
     allData();
   }, [projects, selectedProject, selectedCurrency, selectedPeriod]);
-
-  // function runKPI() {
-  //   if (!allProjects && !selectedCurrency.length && !selectedProject.length) {
-  //     return;
-  //   }
-
-  //   const currency = currency_list.find(
-  //     (item) => item.code === selectedCurrency
-  //   );
-  //   setCurrencySymbol(currency ? currency.symbol : "");
-
-  //   setKpi([
-  //     totalAmountPaid(
-  //       allProjects as unknown as Project[],
-  //       selectedProject,
-  //       selectedCurrency,
-  //       selectedPeriod
-  //     ),
-  //     totalPayments(
-  //       allProjects as unknown as Project[],
-  //       selectedProject,
-  //       selectedCurrency,
-  //       selectedPeriod
-  //     ),
-  //     averageContract(
-  //       allProjects as unknown as Project[],
-  //       selectedProject,
-  //       selectedCurrency,
-  //       selectedPeriod
-  //     ),
-  //     activeContractors(allProjects as unknown as Project[], selectedProject),
-  //   ]);
-  // }
 
   const cardTitle = [
     {
@@ -204,12 +182,6 @@ function AmountDisplay({
             );
           })}
         </SelectBar>
-        {/* <div className="flex gap-1.5">
-          <CheckedButton
-            clickedFn={runKPI}
-            disabledLogic={!selectedCurrency.length || !selectedProject.length}
-          />
-        </div> */}
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-2">
         {kpi

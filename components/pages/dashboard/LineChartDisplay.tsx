@@ -4,7 +4,6 @@ import TextButton from "@/components/ui/buttons/TextButton";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
 import { Amount, LineData, Project } from "@/types/types";
-import CheckedButton from "@/components/ui/buttons/CheckedButton";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { useAuth } from "@/context/UserContext";
 import { chartFormatTotal, getUniqueObjects } from "@/utils/chartHelpers";
@@ -184,14 +183,6 @@ function LineChartDisplay({
               );
             })}
           </SelectBar>
-          {/* <div className="flex gap-1.5">
-            <CheckedButton
-              clickedFn={filterPayments}
-              disabledLogic={
-                !projectId.length || !range.length || !currencyCode.length
-              }
-            />
-          </div> */}
         </div>
       </div>
 

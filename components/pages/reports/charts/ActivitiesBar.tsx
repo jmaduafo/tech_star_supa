@@ -61,7 +61,7 @@ function ActivitiesBar({
         </div>
       ) : (
         <div className="h-full w-full flex flex-col">
-          <div className="mb-10">
+          <div>
             <ChartHeading
               text="Past Activities"
               subtext={
@@ -73,11 +73,8 @@ function ActivitiesBar({
               }
             />
           </div>
-          <div className="mt-auto h-full">
+          <div className="mt-auto h-[35vh]">
             <LineChart2 data={chartData} dataKey="activityCount" />
-          </div>
-          <div className="mt-auto">
-            <Header6 text="line" />
           </div>
         </div>
       )}

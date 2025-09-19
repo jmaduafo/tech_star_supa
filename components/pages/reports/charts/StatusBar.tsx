@@ -139,7 +139,7 @@ function StatusBar({
                   } ${selectedData.toLowerCase()} per contractor by status`
             }
           />
-          <div className="flex items-center gap-2 mt-4">
+          <div className="flex items-center gap-2">
             <SelectBar
               placeholder={"Select a chart"}
               label={"Charts"}

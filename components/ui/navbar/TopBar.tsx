@@ -74,7 +74,7 @@ function SettingButton({ user }: { readonly user: User | undefined }) {
     <Dialog open={mainOpen} onOpenChange={setMainOpen}>
       <DialogTrigger asChild>
         <button
-          className="bg-darkText rounded-full p-2 hover:opacity-70 duration-300"
+          className="text-darkText bg-lightText/70 rounded-full p-2 hover:bg-lightText duration-300"
           title="Setting"
         >
           <HiMiniCog8Tooth className="w-4 h-4" />

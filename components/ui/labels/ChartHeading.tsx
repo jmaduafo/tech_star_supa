@@ -12,7 +12,7 @@ function ChartHeading({
   readonly className?: string;
 }) {
   return (
-    <div className={className}>
+    <div className={`mb-4 ${className}`}>
       <Header4 text={text} />
       <Header6 text={subtext} className="text-lightText/70 mt-0.5" />
     </div>

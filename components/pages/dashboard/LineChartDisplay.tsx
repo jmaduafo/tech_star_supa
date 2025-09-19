@@ -143,7 +143,7 @@ function LineChartDisplay() {
             </div>
           ) : null}
         </div>
-        <div className="grid grid-cols-2 md:flex md:justify-between items-center gap-2 mt-2 md:max-w-[65%]">
+        <div className="grid grid-cols-2 md:flex md:justify-between items-center gap-2 md:max-w-[65%]">
           <SelectBar
             valueChange={setProjectId}
             className=""

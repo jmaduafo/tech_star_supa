@@ -28,8 +28,7 @@ function BarChart({
     <ResponsiveContainer width="100%" height="100%" className={"w-full h-full"}>
       <BarContainer data={data} accessibilityLayer>
         <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="rgba(236, 236, 236, 0.3)"
+          vertical={false} stroke="#ececec20"
         />
         <XAxis dataKey="name" stroke="rgba(236, 236, 236, 0.8)" />
         <YAxis stroke="rgba(236, 236, 236, 0.8)" allowDecimals={false} hide />

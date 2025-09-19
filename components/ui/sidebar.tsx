@@ -282,7 +282,7 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="outline"
       size="icon"
-      className={cn("size-8 rounded-full", className)}
+      className={cn("size-8 rounded-full duration-300", className)}
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();

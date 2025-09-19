@@ -12,6 +12,7 @@ import {
 import { switchPeriod, versusLast } from "./dateAndTime";
 import { checkArray, formatCurrency } from "./currencies";
 import { format } from "date-fns";
+import { sortByNumOrBool, sortByString } from "./sortFilter";
 
 // TAKES IN AN ARRAY AND RETURNS THE ITEM WITH THE HIGHEST FREQUENCY
 export const mostFrequent = (array: string[] | number[]) => {
@@ -95,7 +96,9 @@ export function activitiesBar(activities: Activity[], period: string) {
   const data: any[] = [];
 
   activities.forEach((activity) => {
-    const index = data.findIndex((item) => item.name === format(activity.created_at, "PP"));
+    const index = data.findIndex(
+      (item) => item.name === format(activity.created_at, "PP")
+    );
 
     if (index !== -1) {
       if (period !== "All Time") {
@@ -107,14 +110,113 @@ export function activitiesBar(activities: Activity[], period: string) {
     } else {
       if (period !== "All Time") {
         versusLast(activity.created_at, period).current &&
-          data.push({ name: format(activity.created_at, "PP"), activityCount: 1 })
+          data.push({
+            name: format(activity.created_at, "PP"),
+            activityCount: 1,
+          });
       } else {
-        data.push({ name: format(activity.created_at, "PP"), activityCount: 1 })
+        data.push({
+          name: format(activity.created_at, "PP"),
+          activityCount: 1,
+        });
       }
     }
   });
 
-  return data
+  return data;
+}
+
+export function contractPaymentsAreaChart(
+  projects: Project[],
+  project_id: string,
+  code: string,
+  period: string
+) {
+  const project = projects.find((item) => item.id === project_id);
+
+  if (!project) {
+    return;
+  }
+
+  const contracts = project.contracts;
+  const payments = project.payments;
+
+  const contractAmounts: any[] = [];
+  const contractPayments: any[] = [];
+
+  contracts?.forEach((contract) => {
+    contract.contract_amounts.forEach((amount) => {
+      if (period !== "All Time") {
+        versusLast(contract.date, period).current &&
+          amount.code === code &&
+          contractAmounts.push({
+            name: format(contract.date, "PP"),
+            amount: +amount.amount,
+          });
+      } else {
+        amount.code === code &&
+          contractAmounts.push({
+            name: format(contract.date, "PP"),
+            amount: +amount.amount,
+          });
+      }
+    });
+  });
+
+  payments?.forEach((payment) => {
+    const amount = checkArray(payment.payment_amounts);
+
+    if (period !== "All Time") {
+      versusLast(payment.date, period).current &&
+        amount.code === code &&
+        payment.contract_id &&
+        contractPayments.push({
+          name: format(payment.date, "PP"),
+          amount: +amount.amount,
+        });
+    } else {
+      amount.code === code &&
+        payment.contract_id &&
+        contractPayments.push({
+          name: format(payment.date, "PP"),
+          amount: +amount.amount,
+        });
+    }
+  });
+
+  const newData: any[] = [];
+
+  contractAmounts.forEach((contract) => {
+    const index = newData.findIndex((item) => item.name === contract.name);
+
+    if (index !== -1) {
+      newData[index]["contracts"] += contract.amount;
+    } else {
+      newData.push({
+        name: contract.name,
+        contracts: contract.amount,
+        payments: 0,
+      });
+    }
+  });
+
+  contractPayments.forEach((payment) => {
+    const index = newData.findIndex((item) => item.name === payment.name);
+
+    if (index !== -1) {
+      newData[index]["payments"] += payment.amount;
+    } else {
+      newData.push({
+        name: payment.name,
+        contracts: 0,
+        payments: payment.amount,
+      });
+    }
+  });
+
+  // return sorted by date
+
+  return newData.sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime())
 }
 
 // pages/reports/charts/StatusBar

@@ -8,7 +8,7 @@ import ContractorPie from "./ContractorPie";
 import PaymentPie from "./PaymentPie";
 import ContractorPayments from "./ContractorPayments";
 import Card from "@/components/ui/cards/MyCard";
-import ContractorPaymentBar from "./ContractorPaymentBar";
+import ContractPaymentArea from "./ContractPaymentArea";
 import LineChartDisplay from "../../dashboard/LineChartDisplay";
 import ActivitiesBar from "./ActivitiesBar";
 
@@ -93,7 +93,13 @@ function Charts({
         </Card>
       </div>
       <Card>
-        <LineChartDisplay />
+        <ContractPaymentArea
+          project_id={project_id}
+          projects={projects}
+          currency_code={currency_code}
+          currency_symbol={currency_symbol}
+          timePeriod={timePeriod}
+        />
       </Card>
       <Card>
         <StatusBar

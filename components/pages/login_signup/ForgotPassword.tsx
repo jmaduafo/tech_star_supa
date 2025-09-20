@@ -10,12 +10,10 @@ import {
 import Input from "@/components/ui/input/CustomInput";
 import { createClient } from "@/lib/supabase/client";
 import Submit from "@/components/ui/buttons/Submit";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
+import { toast } from "sonner";
+import { isValidEmail } from "@/utils/validation";
 
 function ForgotPassword() {
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -25,18 +23,47 @@ function ForgotPassword() {
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
-    setError(null);
+
+    if (!form.email.length) {
+      toast.error("Something went wrong", {
+        description: "No entries must be left empty",
+      });
+
+      setIsLoading(false);
+      return;
+    } else if (!isValidEmail(form.email)) {
+      toast.error("Something went wrong", {
+        description: "Email does not match standard format",
+      });
+
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
       const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
-      if (error) throw error;
-      setSuccess(true);
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-      setSuccess(false);
+
+      if (error) {
+        toast.error("Something went wrong", {
+          description: error.message,
+          duration: Infinity,
+        });
+
+        return;
+      }
+
+      toast.success("Password reset email sent", {
+        description:
+          "Please check your email and follow the instructions to change your password",
+        duration: Infinity,
+      });
+    } catch (error: any) {
+      toast.error("Something went wrong", {
+        description: error.message,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -45,14 +72,16 @@ function ForgotPassword() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="mt-2 text-sm text-lightText/70">Forgot password?</button>
+        <button className="mt-2 text-sm text-lightText/70">
+          Forgot password?
+        </button>
       </DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px]"
         aria-describedby="forgot password"
       >
         <DialogHeader>
-          <DialogTitle>Forgot password</DialogTitle>
+          <DialogTitle>Forgot password?</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleForgotPassword}>
           {/* EMAIL */}
@@ -65,30 +94,9 @@ function ForgotPassword() {
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </Input>
-          {/* ERROR MESSAGE */}
-          {error ? (
-            <Alert variant="destructive" className="mt-3">
-              <AlertCircleIcon />
-              <AlertTitle>Something went wrong</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          {/* SUCCESS  MESSAGE */}
-          {success ? (
-            <Alert className="mt-3">
-              <CheckCircle2Icon />
-              <AlertTitle>Success</AlertTitle>
-              <AlertDescription>
-                Please check your email and follow the instructions to change
-                your password
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="mt-3 flex justify-end">
-              <Submit loading={isLoading} disabledLogic={isLoading} />
-            </div>
-          )}
+          <div className="mt-3 flex justify-end">
+            <Submit loading={isLoading} disabledLogic={isLoading} />
+          </div>
         </form>
       </DialogContent>
     </Dialog>

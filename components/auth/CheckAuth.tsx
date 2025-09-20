@@ -1,7 +1,6 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
 import React, { useEffect, useMemo, useState } from "react";
-import MainPage from "../pages/login_signup/MainPage";
 import AuthContainer from "./AuthContainer";
 import { images } from "@/utils/dataTools";
 import { toast, Toaster } from "sonner";
@@ -42,7 +41,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
         if (event === "SIGNED_IN" && pathname === "/") {
           // handle initial session
           route.push("/dashboard");
-        } else if (event === "SIGNED_OUT" && pathname !== "/") {
+        } else if (event === "SIGNED_OUT" && pathname !== "/" && pathname !== "/reset-password") {
           // handle sign out event
           [window.localStorage, window.sessionStorage].forEach((storage) => {
             Object.entries(storage).forEach(([key]) => {
@@ -50,6 +49,8 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
             });
           });
           route.push("/");
+        } else {
+          return
         }
       }
     );
@@ -86,7 +87,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
 
   return (
     <>
-      {session && pathname !== "/" ? (
+      {session && pathname !== "/" && pathname !== "/reset-password" ? (
         <SidebarProvider>
           <AppSidebar />
           <main
@@ -107,7 +108,7 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
           }}
           className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
         >
-          <MainPage />
+          {children}
         </main>
       )}
       <Toaster closeButton />

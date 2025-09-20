@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import ForgotPassword from "./ForgotPassword";
 import { createClient } from "@/lib/supabase/client";
+import { isValidEmail, isValidPassword } from "@/utils/validation";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -24,13 +25,37 @@ function Login() {
     const supabase = createClient();
     setIsLoading(true);
 
+    if (!email.length || !password.length) {
+      toast.error("Something went wrong", {
+        description: "No entries must be left empty",
+      });
+
+      setIsLoading(false);
+      return;
+    } else if (!isValidEmail(email)) {
+      toast.error("Something went wrong", {
+        description: "Email does not match standard format",
+      });
+
+      setIsLoading(false);
+      return;
+    } else if (!isValidPassword(password)) {
+      toast.error("Something went wrong", {
+        description:
+          "Password length is too short. Must be at least 6 characters",
+      });
+
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -40,7 +65,7 @@ function Login() {
       // Update this route to redirect to an authenticated route. The user already has an active session.
       router.push("/dashboard");
     } catch (error: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: error.message,
       });
     } finally {

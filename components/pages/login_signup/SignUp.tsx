@@ -9,15 +9,6 @@ import { HiEye, HiEyeSlash } from "react-icons/hi2";
 import Submit from "@/components/ui/buttons/Submit";
 import { createClient } from "@/lib/supabase/client";
 import { isValidEmail, isValidPassword } from "@/utils/validation";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import Paragraph from "@/components/fontsize/Paragraph";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle2Icon } from "lucide-react";
 
 function SignUp() {
   // createAdmin => the action function
@@ -28,12 +19,10 @@ function SignUp() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [viewPass, setViewPass] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log("hi");
 
     const supabase = createClient();
 
@@ -43,21 +32,21 @@ function SignUp() {
       !email.length ||
       !password.length
     ) {
-      toast("Something went wrong", {
-        description: "All entries must not be left empty",
+      toast.error("Something went wrong", {
+        description: "No entries must be left empty",
       });
 
       setIsLoading(false);
       return;
     } else if (!isValidEmail(email)) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: "Email does not match standard format",
       });
 
       setIsLoading(false);
       return;
     } else if (!isValidPassword(password)) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description:
           "Password length is too short. Must be at least 6 characters",
       });
@@ -77,7 +66,7 @@ function SignUp() {
         });
 
       if (signUpError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: signUpError.message,
         });
 
@@ -89,7 +78,7 @@ function SignUp() {
       const userId = signUpData.user?.id;
 
       if (!userId) {
-        console.log("No user found");
+        console.error("No user found");
       }
 
       // CREATE NEW TEAM USING NEWLY CREATED USER ID
@@ -100,7 +89,7 @@ function SignUp() {
         .single();
 
       if (teamError) {
-        console.log(teamError.message);
+        console.error(teamError.message);
         return;
       }
 
@@ -127,7 +116,8 @@ function SignUp() {
       });
 
       if (userError) {
-        console.log(userError.message);
+        
+        console.error(userError.message);
         return;
       }
 
@@ -141,13 +131,17 @@ function SignUp() {
         });
 
       if (memberError) {
-        console.log(memberError.message);
+        console.error(memberError.message);
         return;
       }
 
-      setIsSuccess(true);
+      toast.success("Your account was created!", {
+        description:
+          "Please check your email and follow the instructions to confirm your account before signing in",
+        duration: Infinity
+      });
     } catch (error: unknown) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description:
           error instanceof Error ? error.message : "An error occurred",
       });
@@ -163,18 +157,6 @@ function SignUp() {
         className="mt-4 text-darkText"
         text="Create an account to streamline your workflow and manage projects with ease."
       />
-      {isSuccess ? <div></div> : null}
-      <AlertDialog>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Sign up success</AlertDialogTitle>
-          </AlertDialogHeader>
-          <Paragraph
-            text="You've successfully signed up. Please check your email to
-                confirm your account before signing in."
-          />
-        </AlertDialogContent>
-      </AlertDialog>
       <form className="mt-10" onSubmit={handleSignUp}>
         <div className="flex flex-col sm:flex-row gap-3">
           <div>
@@ -259,26 +241,15 @@ function SignUp() {
             }
           />
         </div>
-        {isSuccess ? (
-          <Alert className="mt-3">
-            <CheckCircle2Icon />
-            <AlertTitle>Success! Your account was created</AlertTitle>
-            <AlertDescription>
-              Please check your email and follow the instructions to confirm
-              your account before signing in
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <div className="mt-[4em] flex justify-end">
-            <Submit
-              loading={isLoading}
-              width="w-[50px]"
-              width_height="w-[100px] h-[50px]"
-              arrow_width_height="w-8 h-8"
-              disabledLogic={isLoading}
-            />
-          </div>
-        )}
+        <div className="mt-[4em] flex justify-end">
+          <Submit
+            loading={isLoading}
+            width="w-[50px]"
+            width_height="w-[100px] h-[50px]"
+            arrow_width_height="w-8 h-8"
+            disabledLogic={isLoading}
+          />
+        </div>
       </form>
     </div>
   );

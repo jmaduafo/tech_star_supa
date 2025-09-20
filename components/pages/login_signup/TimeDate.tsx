@@ -77,7 +77,7 @@ function TimeDate({
           <Clock2
             strokeWidth={1.2}
             className={
-              timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6.5vw] h-[6.5vw]"
+              timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6vw] h-[6vw]"
             }
           />
         </div>
@@ -94,7 +94,7 @@ function TimeDate({
       </div>
       <p
         className={`text-center font-medium tracking-tight ${
-          dateFontSize === "dashboard" ? "text-[18px]" : "text-[28px]"
+          dateFontSize === "dashboard" ? "text-[18px]" : "text-[2.3vw]"
         }`}
       >
         {date}

@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children }: { readonly children: React.ReactNode }) {
   // ✅ create client once per app lifecycle
   const [queryClient] = useState(() => new QueryClient());
 

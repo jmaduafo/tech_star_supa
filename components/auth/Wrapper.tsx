@@ -3,44 +3,32 @@ import { createClient } from "@/lib/supabase/server";
 import { UserProvider } from "@/context/UserContext";
 import Loader from "@/components/ui/loading/Loader";
 import { Suspense } from "react";
-import MainPage from "../pages/login_signup/MainPage";
-import { images } from "@/utils/dataTools";
-import { Toaster } from "sonner";
 
 export default async function ClientWrapper({
   children,
 }: {
   readonly children: React.ReactNode;
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Get logged-in user
   const {
     data: { user },
-  } = await (await supabase).auth.getUser();
-
-  if (!user) {
-    return (
-      <>
-        <main
-          style={{
-            backgroundImage: `url(${images[0].image})`,
-          }}
-          className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
-        >
-          <MainPage />
-        </main>
-        <Toaster />
-      </>
-    );
-  }
+  } = await supabase.auth.getUser();
 
   // Get user profile from DB
-  const { data: profile } = await (await supabase)
-    .from("users")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  let profile = {};
+
+  if (user) {
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single()
+      .throwOnError();
+
+    profile = data;
+  }
 
   return (
     <UserProvider value={{ user, userData: profile }}>

@@ -59,7 +59,7 @@ function Activities({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-between mb-20 xl:mb-0">
+      <div className="flex justify-between mb-20">
         <Header5 text="Recent Activities" />
       </div>
       <div className="mt-auto">

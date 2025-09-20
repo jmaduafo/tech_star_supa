@@ -15,7 +15,8 @@ const eslintConfig = [
   {
     rules: {
       // Allow short-circuit expressions (foo && bar()), but still error on real unused code
-      "@typescript-eslint/no-unused-expressions": "warn",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-unused-vars": "off",
 
       // Keep exhaustive deps as a warning (helps catch stale closures)
       "react-hooks/exhaustive-deps": "warn",

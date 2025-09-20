@@ -149,6 +149,7 @@ export type Contractor = {
   projects: Project;
   payments: Payment[];
   contracts: Contract[];
+  stage_contractors: StageContractor[];
   comment?: string | null;
   is_available: boolean;
   created_at: string;

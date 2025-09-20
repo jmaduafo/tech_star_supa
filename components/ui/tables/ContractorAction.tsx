@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../alert-dialog";
-import { formatCurrency } from "@/utils/currencies";
+import { checkArray, formatCurrency } from "@/utils/currencies";
 import { formatDate } from "date-fns";
 import { Ellipsis } from "lucide-react";
 import Banner from "../Banner";
@@ -120,6 +120,7 @@ const ViewAction = ({
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   readonly data: Contractor | undefined;
 }) => {
+
   const contractorCurrencies = () => {
     if (!data) {
       return;
@@ -136,6 +137,26 @@ const ViewAction = ({
     });
 
     return [...new Set(amounts)];
+  };
+
+  const contractorStages = () => {
+    if (!data) {
+      return;
+    }
+
+    const stage_con = data.stage_contractors;
+
+    const stages: string[] = [];
+
+    stage_con?.forEach((contract) => {
+      const stage = checkArray(contract.stages)
+
+      if (stage) {
+        stages.push(stage.name)
+      }
+    });
+
+    return [...new Set(stages)];
   };
 
   return (
@@ -204,7 +225,28 @@ const ViewAction = ({
               </ViewLabel>
             ) : null}
             {/* STAGES THAT THEY ARE WORKING IN */}
-
+            {contractorStages() ? (
+              <ViewLabel label="Stages" custom>
+                <div className="flex gap-1">
+                  {contractorStages()?.map((item, i) => {
+                    return (
+                      <p key={item} className="">
+                        {item}
+                        <span
+                          className={`${
+                            i + 1 !== contractorStages()?.length
+                              ? "inline-block"
+                              : "hidden"
+                          }`}
+                        >
+                          ,
+                        </span>
+                      </p>
+                    );
+                  })}
+                </div>
+              </ViewLabel>
+            ) : null}
             {/* COMMENT */}
             <ViewLabel label={"Comment"} content={data?.comment ?? "N/A"} />
             {/* STATUS */}

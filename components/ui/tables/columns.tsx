@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
 import { getInitials } from "@/utils/initials";
 import ContractAction from "./ContractAction";
 import PaymentAction from "./PaymentAction";
+import ContractorAction from "./ContractorAction";
 
 // CONTRACT DATA COLUMN
 export const contractColumns: ColumnDef<Contract>[] = [
@@ -478,8 +479,8 @@ export const contractorColumns: ColumnDef<Contractor>[] = [
     accessorFn: (row) => (row?.projects ? row?.projects?.name : ""),
     id: "project",
     cell: ({ row }) => {
-      const contractor = row.getValue("projects");
-      const project = checkArray(contractor);
+      const contractor = row.original;
+      const project = checkArray(contractor?.projects);
 
       return (
         <div>
@@ -569,9 +570,10 @@ export const contractorColumns: ColumnDef<Contractor>[] = [
     accessorFn: (row) => (row?.contracts ? row?.contracts?.length : ""),
     id: "contracts",
     cell: ({ row }) => {
-      const data: string = row.getValue("contracts");
+      const contractor = row.original;
+      const data = contractor?.contracts;
 
-      return <div className="">{data.length} </div>;
+      return <div className="">{data?.length} </div>;
     },
   },
   {
@@ -591,9 +593,25 @@ export const contractorColumns: ColumnDef<Contractor>[] = [
     accessorFn: (row) => (row?.payments ? row?.payments?.length : ""),
     id: "payments",
     cell: ({ row }) => {
-      const data: string = row.getValue("payments");
+      const contractor = row.original;
+      const data = contractor.payments;
 
-      return <div className="">{data.length} </div>;
+      const filter = data ? data?.filter(item => item.is_paid) : []
+
+      return <div className="">{filter.length}</div>;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const data = row.original;
+
+      return (
+        <div className="flex justify-around">
+          
+          <ContractorAction data={data} />
+        </div>
+      );
     },
   },
 ];

@@ -23,7 +23,7 @@ function MainPage() {
     const { data } = await supabase
       .from("payments")
       .select(
-        "*, contracts (contract_code), projects (name), contractors (name), stages ( id, name), payment_amounts (*)"
+        "*, contracts (contract_code, contract_amounts (*)), projects (name), contractors (name), stages ( id, name), payment_amounts (*)"
       )
       .eq("team_id", userData.team_id)
       .order("date", { ascending: false })

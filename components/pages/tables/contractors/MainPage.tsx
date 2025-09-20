@@ -23,7 +23,7 @@ function MainPage() {
     const { data } = await supabase
       .from("contractors")
       .select(
-        "*, projects ( name ), payments (id, payment_amounts (*)), contracts (id, contract_amounts (*)), stage_contractors (*, stages ( id, name ))"
+        "*, projects ( name ), payments (id, is_paid, payment_amounts (*)), contracts (id, contract_amounts (*)), stage_contractors (*, stages ( id, name ))"
       )
       .eq("team_id", userData.team_id)
       .order("start_year", { ascending: false })
@@ -35,7 +35,7 @@ function MainPage() {
   useEffect(() => {
     getData();
   }, [userData]);
-  
+
   return !data ? (
     <div className="py-16 flex justify-center">
       <Loading className="w-10 h-10" />
@@ -55,7 +55,7 @@ function MainPage() {
         />
       </div>
     </section>
-  )
+  );
 }
 
 export default MainPage;

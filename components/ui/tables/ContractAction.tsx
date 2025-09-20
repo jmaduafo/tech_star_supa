@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ import CustomInput from "../input/CustomInput";
 import ObjectArray from "../input/ObjectArray";
 import SelectBar from "../input/SelectBar";
 import { contractorStages } from "@/utils/stagesFilter";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,7 +82,7 @@ function ContractAction({ data }: { readonly data: Contract | undefined }) {
         .eq("team_id", userData.team_id)
         .throwOnError();
 
-      setStages(contractorStages(stagesData));
+      setStages(contractorStages(stagesData as Stage[]));
     } catch (err: any) {
       console.error(err.message);
     }
@@ -118,6 +119,9 @@ function ContractAction({ data }: { readonly data: Contract | undefined }) {
                 Edit
               </DropdownMenuItem>
             ) : null}
+            {userData?.team_id === data?.team_id ? (
+              <DropdownMenuSeparator />
+            ) : null}
             {userData?.role === "admin" &&
             userData?.team_id === data?.team_id ? (
               <DropdownMenuItem
@@ -125,6 +129,7 @@ function ContractAction({ data }: { readonly data: Contract | undefined }) {
                   setDeleteOpen(true);
                   setDropDownOpen(false);
                 }}
+                className="text-red-500"
               >
                 Delete
               </DropdownMenuItem>
@@ -233,7 +238,7 @@ const ViewAction = ({
             {/* UPDATED AT */}
             {data?.updated_at ? (
               <ViewLabel
-                label={"Updated at"}
+                label={"Updated"}
                 content={formatAgo(data?.updated_at)}
               />
             ) : null}
@@ -394,7 +399,7 @@ const EditAction = ({
     const result = ContractSchema.safeParse(values);
 
     if (!result.success) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: result.error.issues[0].message,
       });
 
@@ -435,7 +440,7 @@ const EditAction = ({
         .eq("id", data.id);
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -449,7 +454,7 @@ const EditAction = ({
         .eq("contract_id", data.id);
 
       if (deleteError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: deleteError.message,
         });
 
@@ -468,7 +473,7 @@ const EditAction = ({
         .insert(newAmounts);
 
       if (amountError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: amountError.message,
         });
 
@@ -485,20 +490,20 @@ const EditAction = ({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Contract was updated successfully",
       });
 
       setOpen(false);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
     } finally {
@@ -782,7 +787,7 @@ const DeleteAction = ({
         .eq("id", data.id);
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -799,18 +804,18 @@ const DeleteAction = ({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Contract was deleted successfully",
       });
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
     } finally {

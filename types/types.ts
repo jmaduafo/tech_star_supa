@@ -128,8 +128,8 @@ export type Stage = {
 export type StageContractor = {
   id?: string;
   stage_id?: string;
-  stages: Stage[] | Stage;
-  contractors: Contractor[] | Contractor;
+  stages?: Stage[] | Stage;
+  contractors?: Contractor[] | Contractor;
   contractor_id: string;
   created_at?: number;
   updated_at?: number | null;

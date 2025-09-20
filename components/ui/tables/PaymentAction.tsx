@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,7 @@ function PaymentAction({
         .eq("team_id", userData.team_id)
         .throwOnError();
 
-      setStages(contractorStages(stagesData));
+      setStages(contractorStages(stagesData as Stage[]));
     } catch (err: any) {
       console.error(err.message);
     }
@@ -123,6 +124,9 @@ function PaymentAction({
                 Edit
               </DropdownMenuItem>
             ) : null}
+            {userData?.team_id === data?.team_id ? (
+              <DropdownMenuSeparator />
+            ) : null}
             {userData?.role === "admin" &&
             userData?.team_id === data?.team_id ? (
               <DropdownMenuItem
@@ -130,6 +134,7 @@ function PaymentAction({
                   setDeleteOpen(true);
                   setDropDownOpen(false);
                 }}
+                className="text-red-500"
               >
                 Delete
               </DropdownMenuItem>
@@ -287,29 +292,29 @@ const EditAction = ({
   const { userData } = useAuth();
   const supabase = createClient();
 
-  const getContract = async () => {
-    try {
-      if (!userData || !data || !data.contract_id) {
-        return;
-      }
+  // const getContract = async () => {
+  //   try {
+  //     if (!userData || !data || !data.contract_id) {
+  //       return;
+  //     }
 
-      const { data: contractData } = await supabase
-        .from("contracts")
-        .select(
-          `*, projects (name), contractors (name), stages ( id, name ), contract_amounts (*)`
-        )
-        .eq("project_id", data.project_id)
-        .eq("contractor_id", data.contractor_id)
-        .eq("id", data.contract_id)
-        .eq("team_id", userData.team_id)
-        .single()
-        .throwOnError();
+  //     const { data: contractData } = await supabase
+  //       .from("contracts")
+  //       .select(
+  //         `*, projects (name), contractors (name), stages ( id, name ), contract_amounts (*)`
+  //       )
+  //       .eq("project_id", data.project_id)
+  //       .eq("contractor_id", data.contractor_id)
+  //       .eq("id", data.contract_id)
+  //       .eq("team_id", userData.team_id)
+  //       .single()
+  //       .throwOnError();
 
-      setContract(contractData as Contract);
-    } catch (err: any) {
-      console.error(err.message);
-    }
-  };
+  //     setContract(contractData as Contract);
+  //   } catch (err: any) {
+  //     console.error(err.message);
+  //   }
+  // };
 
   // UPDATES EVERY TIME THE PAYMENT IS UPDATED SO THAT THE EDIT
   // INPUTS REFLECTS APPROPRIATELY AFTER THE DATA CHANGES
@@ -333,7 +338,7 @@ const EditAction = ({
     setCurrencyInputs(data?.payment_amounts ?? []);
     setBankInputs(data?.bank_name ? [data.bank_name] : []);
 
-    getContract();
+    // getContract();
   }, [data]);
 
   function handleAddCurrency() {

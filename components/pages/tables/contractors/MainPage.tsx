@@ -26,7 +26,7 @@ function MainPage() {
         "*, projects ( name ), payments (id, is_paid, payment_amounts (*)), contracts (id, contract_amounts (*)), stage_contractors (*, stages ( id, name ))"
       )
       .eq("team_id", userData.team_id)
-      .order("start_year", { ascending: false })
+      .order("relevance", { ascending: false })
       .throwOnError();
 
     setData(data as Contractor[]);

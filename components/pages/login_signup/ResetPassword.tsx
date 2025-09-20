@@ -20,13 +20,13 @@ function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
 
-   useEffect(() => {
+  useEffect(() => {
     // Supabase automatically picks up the session from the hash (#access_token)
     supabase.auth.getSession().then(({ data }) => {
       console.log("Current session:", data.session); // 👈 should be set
     });
   }, []);
-  
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -61,8 +61,13 @@ function ResetPassword() {
 
         return;
       }
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/");
+
+      toast.success("Password reset successfully", {
+        description:
+          "You will be redirected back to the login page in a few seconds",
+      });
+
+      setTimeout(() => router.push("/"), 4000)
     } catch (error: any) {
       toast.error("An error occurred", {
         description: error.message,

@@ -78,7 +78,7 @@ function AdvancedSearch({
 
   return (
     <section>
-      <div className="flex items-start gap-3 z-50">
+      <div className="flex items-start gap-1.5 z-50">
         <div className="flex-1">
           <Searchbar
             setOpen={setOpen}

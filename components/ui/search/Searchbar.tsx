@@ -50,7 +50,7 @@ function Searchbar({
           onKeyDown={handleSearch}
           type="text"
           placeholder="Search by name or location"
-          className="placeholder-dark50 text-sm py-0"
+          className="placeholder-darkText/70 text-sm py-0"
         />
       </div>
       <div className="h-full px-2 py-0.5 flex gap-1.5 justify-center items-center bg-lightText/70 text-darkText rounded-md">

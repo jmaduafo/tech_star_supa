@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import MainTitle from "@/components/ui/labels/MainTitle";
 import { sortByNumOrBool, sortByString } from "@/utils/sortFilter";
+import BulkAdd from "@/components/ui/buttons/BulkAdd";
 
 function MainPage() {
   const [filteredContractors, setFilteredContractors] = useState<
@@ -40,9 +41,15 @@ function MainPage() {
   const [searchValue, setSearchValue] = useState("");
   const [projectName, setProjectName] = useState("");
 
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [data, setData] = useState<Record<string, string>[]>([]);
+
   const [isLoading, setIsLoading] = useState(false);
-  const [ sortLoading, setSortLoading ] = useState(false)
+  const [sortLoading, setSortLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+
   const [open, setOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const { userData } = useAuth();
   const supabase = createClient();
@@ -111,9 +118,9 @@ function MainPage() {
   }, [project_id]);
 
   function filterContractors() {
-    setSortLoading(true)
+    setSortLoading(true);
 
-    try {      
+    try {
       const sort = searchParams.get("sort");
       const type = searchParams.get("type") as "asc" | "desc";
       const query = searchParams.get("query");
@@ -150,16 +157,17 @@ function MainPage() {
       }
       if (sort === "name") {
         setFilteredContractors(
-          (prev) =>
-            prev && sortByString(prev, "name", type)
+          (prev) => prev && sortByString(prev, "name", type)
         );
       }
     } catch (err: any) {
       console.log(err.message);
     } finally {
-      setSortLoading(false)
+      setSortLoading(false);
     }
   }
+
+  const handleUpload = async () => {};
 
   useEffect(() => {
     filterContractors();
@@ -297,7 +305,7 @@ function MainPage() {
 
   return (
     <div>
-      <MainTitle title="All Contractors" data={filteredContractors} />
+      <MainTitle title="Contractors" data={filteredContractors} />
 
       {/* BREADCRUMB DISPLAY */}
       <div className="mb-8 mt-4">
@@ -315,7 +323,7 @@ function MainPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5">
         <div className="flex-1">
           <AdvancedSearch
             user={userData}
@@ -433,9 +441,25 @@ function MainPage() {
             </div>
           </form>
         </AddButton>
+        <BulkAdd
+          mode="contractor"
+          setHeaders={setHeaders}
+          headers={headers}
+          setItems={setData}
+          items={data}
+          desc="Upload contractor data here"
+          title={"contractor files"}
+          setOpen={setUploadOpen}
+          open={uploadOpen}
+          handleSubmit={handleUpload}
+          loading={uploadLoading}
+        />
       </div>
       <div className="mt-10">
-        <ContractorDisplay allContractors={filteredContractors} loading={sortLoading} />
+        <ContractorDisplay
+          allContractors={filteredContractors}
+          loading={sortLoading}
+        />
       </div>
     </div>
   );

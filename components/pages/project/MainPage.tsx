@@ -240,8 +240,8 @@ function MainPage() {
 
   return (
     <div>
-      <MainTitle title="All Projects" data={filteredProjects} />
-      <div className="flex items-center gap-3">
+      <MainTitle title="Projects" data={filteredProjects} />
+      <div className="flex items-center gap-1.5">
         <div className="flex-1">
           <AdvancedSearch
             user={userData}

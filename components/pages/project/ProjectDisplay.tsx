@@ -114,7 +114,7 @@ function ProjectDisplay({
                       />
                       {item.updated_at ? (
                         <p className="text-sm font-light">
-                          Last modified:{" "}
+                          Modified:{" "}
                           <span className="italic">
                             {formatAgo(item.updated_at)}
                           </span>

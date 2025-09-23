@@ -209,7 +209,7 @@ export const ContractorFileSchema = z.object({
   description: z
     .string()
     .min(1, { message: "You must input a contractor description" }),
-  country: z.string().min(1, { message: "You must select a country location" }),
+  country: z.string().min(1, { message: "You must input a country location" }),
   start_year: z.coerce.number().int().gte(1960).lte(new Date().getFullYear()),
   start_month: z
     .string()

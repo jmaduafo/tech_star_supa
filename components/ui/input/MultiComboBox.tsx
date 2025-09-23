@@ -45,6 +45,7 @@ function MultiComboBox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          // onClick={() => setOpen(true)}
           className="w-full justify-between py-6"
         >
           {/* Styling of the selected items for users to view */}
@@ -81,12 +82,18 @@ function MultiComboBox({
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
-        <Command>
+      <PopoverContent
+        className="w-full p-0 z-[3000] relative"
+        align="start"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <Command className="">
           <CommandInput placeholder="Search items..." className="h-9" />
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup className="cursor-pointer">
               {/* Display of all options in the combobox */}
               {array
                 ? array.map((item, i) => (
@@ -159,6 +166,7 @@ const ToggleItem = ({
 
   return (
     <CommandItem
+      className="cursor-pointer"
       value={item.label}
       onSelect={(val) => {
         handleToggle(val, item.value);

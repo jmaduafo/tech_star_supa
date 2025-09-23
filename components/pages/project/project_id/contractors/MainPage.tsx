@@ -4,7 +4,7 @@ import Submit from "@/components/ui/buttons/Submit";
 import CustomInput from "@/components/ui/input/CustomInput";
 import SelectBar from "@/components/ui/input/SelectBar";
 import AdvancedSearch from "@/components/ui/search/AdvancedSearch";
-import { country_list } from "@/utils/dataTools";
+import { country_list, months } from "@/utils/dataTools";
 import { SelectItem } from "@/components/ui/select";
 import Input from "@/components/ui/input/Input";
 import React, { useEffect, useState } from "react";
@@ -199,6 +199,8 @@ function MainPage() {
     city: "",
     country: "",
     description: "",
+    start_month: "",
+    start_year: "",
     relevance: [2.5],
     is_available: true,
     comment: "",
@@ -213,6 +215,8 @@ function MainPage() {
       name: form.name.trim(),
       city: form.city.length ? form.city.trim() : null,
       country: form.country,
+      start_month: form.start_month,
+      start_year: +form.start_year,
       desc: form.description.trim(),
       relevance: form.relevance[0],
       is_available: form.is_available,
@@ -231,8 +235,17 @@ function MainPage() {
       return;
     }
 
-    const { name, city, comment, country, desc, relevance, is_available } =
-      result.data;
+    const {
+      name,
+      city,
+      comment,
+      start_month,
+      start_year,
+      country,
+      desc,
+      relevance,
+      is_available,
+    } = result.data;
 
     try {
       if (!userData || !project_id || !projectName.length) {
@@ -247,7 +260,10 @@ function MainPage() {
         relevance,
         is_available,
         comment,
+        start_year,
+        start_month,
         project_id,
+
         team_id: userData.team_id,
       });
 
@@ -286,6 +302,8 @@ function MainPage() {
         name: "",
         city: "",
         country: "",
+        start_month: "",
+        start_year: "",
         description: "",
         relevance: [2.5],
         is_available: true,
@@ -384,6 +402,41 @@ function MainPage() {
                 })}
               </SelectBar>
             </CustomInput>
+            {/* START MONTH */}
+            <CustomInput
+              htmlFor={"month"}
+              label={"Start Month *"}
+              className="mt-3"
+            >
+              <SelectBar
+                placeholder="Select contractor start month"
+                value={form.start_month}
+                valueChange={(val) => setForm({ ...form, start_month: val })}
+                label="Months"
+                className="w-full mt-1"
+                name="month"
+              >
+                {months.map((item) => {
+                  return (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  );
+                })}
+              </SelectBar>
+            </CustomInput>
+            {/* START YEAR */}
+            <Input
+              label="Start year *"
+              htmlFor="start_year"
+              name="start_year"
+              type="text"
+              id="start_year"
+              value={form.start_year}
+              onChange={(e) => setForm({ ...form, start_year: e.target.value })}
+              className="mt-3"
+            />
+            {/* CONTRACTOR DESCRIPTION */}
             <CustomInput label="Description *" htmlFor="desc" className="mt-3">
               <input
                 className="form"

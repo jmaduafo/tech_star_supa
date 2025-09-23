@@ -28,7 +28,7 @@ import Loading from "@/components/ui/loading/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Contractor, MultiSelect, Stage, StageContractor } from "@/types/types";
-import { country_list } from "@/utils/dataTools";
+import { country_list, months } from "@/utils/dataTools";
 import { ContractorSchema } from "@/zod/validation";
 import {
   AlertDialog,
@@ -152,6 +152,7 @@ function DropDown({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [viewContractorOpen, setViewContractorOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [stagesList, setStagesList] = useState<MultiSelect[] | undefined>();
@@ -259,6 +260,8 @@ function DropDown({
         open={assignOpen}
         setOpen={setAssignOpen}
         list={stagesList}
+        listOpen={listOpen}
+        setListOpen={setListOpen}
       />
       {/* VIEW CONTRACTORS DROPDOWN OPTION */}
       <ViewContractor
@@ -283,11 +286,15 @@ function AssignStage({
   open,
   setOpen,
   list,
+  listOpen,
+  setListOpen,
 }: {
   readonly list: MultiSelect[] | undefined;
   readonly contractor: Contractor | undefined;
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  readonly listOpen: boolean;
+  readonly setListOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [stageList, setStageList] = useState<MultiSelect[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -432,7 +439,7 @@ function AssignStage({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" id="radix-dialog-content">
         <DialogHeader>
           <DialogTitle>Assign stage</DialogTitle>
           <DialogDescription>
@@ -616,6 +623,8 @@ function Actions({
     city: contractor?.city ?? "",
     country: contractor?.country,
     relevance: contractor?.relevance ? [contractor?.relevance] : [2.5],
+    start_year: contractor?.start_year ? contractor.start_year?.toString() : "",
+    start_month: contractor?.start_month ?? "",
     description: contractor?.description ?? "",
     comment: contractor?.comment ?? "",
     is_available: contractor?.is_available ?? false,
@@ -637,6 +646,8 @@ function Actions({
       city: form.city.length ? form.city : null,
       country: form.country,
       desc: form.description,
+      start_year: +form.start_year,
+      start_month: form.start_month,
       relevance: form.relevance[0],
       comment: form.comment.length ? form.comment : null,
       is_available: form.is_available,
@@ -654,8 +665,17 @@ function Actions({
       return;
     }
 
-    const { name, city, country, relevance, desc, comment, is_available } =
-      result.data;
+    const {
+      name,
+      city,
+      country,
+      relevance,
+      start_year,
+      start_month,
+      desc,
+      comment,
+      is_available,
+    } = result.data;
 
     try {
       if (!contractor) {
@@ -669,6 +689,8 @@ function Actions({
           city,
           country,
           relevance,
+          start_month,
+          start_year,
           description: desc,
           comment,
           is_available,
@@ -828,6 +850,40 @@ function Actions({
                 })}
               </SelectBar>
             </CustomInput>
+            {/* START MONTH */}
+            <CustomInput
+              htmlFor={"month"}
+              label={"Start Month *"}
+              className="mt-3"
+            >
+              <SelectBar
+                placeholder="Select contractor start month"
+                value={form.start_month}
+                valueChange={(val) => setForm({ ...form, start_month: val })}
+                label="Months"
+                className="w-full mt-1"
+                name="month"
+              >
+                {months.map((item) => {
+                  return (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  );
+                })}
+              </SelectBar>
+            </CustomInput>
+            {/* START YEAR */}
+            <Input
+              label="Start year *"
+              htmlFor="start_year"
+              name="start_year"
+              type="text"
+              id="start_year"
+              value={form.start_year}
+              onChange={(e) => setForm({ ...form, start_year: e.target.value })}
+              className="mt-3"
+            />
             {/* CONTRACTOR DESCRIPTION */}
             <CustomInput label="Description *" htmlFor="desc" className="mt-3">
               <input

@@ -28,11 +28,9 @@ export const MemberSchema = z.object({
   last_name: z.string().min(1, {
     message: "Last name must be filled in",
   }),
-  email: z
-    .string()
-    .min(1, {
-      message: "Email must be filled in",
-    }),
+  email: z.string().min(1, {
+    message: "Email must be filled in",
+  }),
   password: z
     .string()
     .min(6, {
@@ -156,6 +154,21 @@ export const StagesSchema = z.object({
   is_completed: z.boolean(),
 });
 
+const months = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+] as const;
+
 export const ContractorSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name" }),
   relevance: z
@@ -171,8 +184,48 @@ export const ContractorSchema = z.object({
     .string()
     .min(1, { message: "You must input a contractor description" }),
   country: z.string().min(1, { message: "You must select a country location" }),
+  start_year: z.number().gte(1960).lte(new Date().getFullYear()),
+  start_month: z
+    .string()
+    .min(1, { message: "Expecting a valid month" }),
   is_available: z.boolean(),
   comment: z.nullable(z.string()),
+});
+
+export const ContractorFileSchema = z.object({
+  name: z.string().min(1, { message: "You must enter a name" }),
+  relevance: z.coerce
+    .number()
+    .min(0, {
+      message: "Level of relevance should be greater than or equal to 0",
+    })
+    .max(5, {
+      message: "Level of relevance should be less than or equal to 5",
+    }),
+  city: z
+    .string()
+    .transform((val) => (val.trim() === "" ? null : val))
+    .nullable(),
+  description: z
+    .string()
+    .min(1, { message: "You must input a contractor description" }),
+  country: z.string().min(1, { message: "You must select a country location" }),
+  start_year: z.coerce.number().int().gte(1960).lte(new Date().getFullYear()),
+  start_month: z
+    .string()
+    .transform((val) => val.charAt(0).toUpperCase() + val.slice(1).trim()) // normalize input
+    .refine(
+      (val) =>
+        months.includes(val.toLowerCase().trim() as (typeof months)[number]),
+      {
+        message: "Must be a valid month name (e.g., January, february)",
+      }
+    ),
+  is_available: z.boolean(),
+  comment: z
+    .string()
+    .transform((val) => (val.trim() === "" ? null : val))
+    .nullable(),
 });
 
 export const ContractSchema = z.object({

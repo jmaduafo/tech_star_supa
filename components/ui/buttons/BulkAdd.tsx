@@ -20,17 +20,8 @@ import {
   DropzoneContent,
   DropzoneEmptyState,
 } from "../shadcn-io/dropzone";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import Header6 from "@/components/fontsize/Header6";
-import { optionalS } from "@/utils/optionalS";
-import { ContractorSchema, PaymentSchema } from "@/zod/validation";
+import { ContractorFileSchema, PaymentSchema } from "@/zod/validation";
 import Paragraph from "@/components/fontsize/Paragraph";
 import Submit from "./Submit";
 import BulkAddHoverCard from "../cards/BulkAddHoverCard";
@@ -70,24 +61,29 @@ function BulkAdd({
   const { userData } = useAuth();
 
   const [files, setFiles] = useState<File[] | undefined>();
-  const [skipped, setSkipped] = useState(0);
+  const [skipped, setSkipped] = useState<any[]>([]);
 
-  const validateRows = (rows: Record<string, string>[]) => {
+  const validateRows = (rows: Record<string, string>[], headers: string[]) => {
     const schema =
-      mode.toLowerCase() === "contractor" ? ContractorSchema : PaymentSchema;
+      mode.toLowerCase() === "contractor"
+        ? ContractorFileSchema
+        : PaymentSchema;
     const validRows: Record<string, string>[] = [];
-    let skipped = 0;
+    const invalidRows: any[] = [];
 
-    rows.forEach((row) => {
+    rows.forEach((row, i) => {
       const result = schema.safeParse(row);
       if (result.success) {
         validRows.push(result.data as unknown as Record<string, string>);
       } else {
-        skipped++;
+        invalidRows.push({
+          error: result.error.issues[0].message,
+          row: i + 1,
+        });
       }
     });
 
-    return { validRows, skipped };
+    return { validRows, invalidRows };
   };
 
   const handleFileUpload = async (files: File[]) => {
@@ -99,10 +95,10 @@ function BulkAdd({
 
     const handleParsed = (rows: Record<string, string>[]) => {
       const headers = Object.keys(rows[0] || {});
-      const { validRows, skipped } = validateRows(rows);
+      const { validRows, invalidRows } = validateRows(rows, headers);
       setHeaders(headers);
       setItems(validRows);
-      setSkipped(skipped);
+      setSkipped(invalidRows);
     };
 
     if (fileExtension === "csv") {
@@ -173,7 +169,7 @@ function BulkAdd({
         description: "Month contractor started with project",
         validation: "The full written month",
         dummy: "August",
-        dummy2: "September",
+        dummy2: "september",
       },
       {
         schema: "start_year",
@@ -190,6 +186,14 @@ function BulkAdd({
         validation: "Whole or decimal number from 0 to 5",
         dummy: "3",
         dummy2: "4.5",
+      },
+      {
+        schema: "is_available",
+        type: "boolean",
+        description: "Notes if contractor is involved in project",
+        validation: "Must be TRUE or FALSE",
+        dummy: "TRUE",
+        dummy2: "FALSE",
       },
       {
         schema: "comment",
@@ -217,6 +221,18 @@ function BulkAdd({
       return requirements.contractor;
     } else if (mode.toLowerCase() === "payment") {
       return requirements.payment;
+    }
+  }
+
+  function showBool(value: string) {
+    if (typeof value === "boolean") {
+      if (value === true) {
+        return "TRUE";
+      } else {
+        return "FALSE";
+      }
+    } else {
+      return value;
     }
   }
 
@@ -262,14 +278,26 @@ function BulkAdd({
             <DropzoneEmptyState />
             <DropzoneContent />
           </Dropzone>
-          {skipped > 0 && (
-            <div className="flex items-center gap-1 mb-2 mt-1 text-red-600">
-              <CircleAlert strokeWidth={1.2} className="w-4 h-4" />
-              <Paragraph
-                text={`${skipped} row(s) were skipped due to validation
-              errors.`}
+          {skipped.length > 0 && (
+            <div className="flex flex-col gap-1 mb-2 mt-1 text-red-600">
+              {skipped.slice(0, 3).map((item, i) => {
+                return (
+                  <div
+                    key={i + 1}
+                    className="flex gap-2 items-center"
+                  >
+                    <CircleAlert strokeWidth={1.2} className="w-4 h-4" />
+                    <Paragraph
+                      text={`${item.error} at row ${item.row}`}
+                      className=""
+                    />
+                  </div>
+                );
+              })}
+              {skipped.length - 3 > 0 && <Paragraph
+                text={`... ${skipped.length - 3} more errors`}
                 className=""
-              />
+              />}
             </div>
           )}
           {headers.length && items.length ? (
@@ -277,46 +305,40 @@ function BulkAdd({
               <div className="mb-1">
                 <Header6 text="Preview" className="text-darkText/80" />
               </div>
-              <div className="w-full overflow-auto h-[20vh]">
-                <Table className=" text-darkText/65">
-                  <TableHeader className="">
-                    <TableRow>
-                      {headers.map((header) => (
-                        <TableHead
-                          key={header}
-                          className="px-2 py-1 font-medium capitalize text-darkText/80"
-                        >
-                          {header}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.slice(0, 10).map((row, i) => (
-                      <TableRow key={i + 1}>
-                        {headers.map((header) => (
-                          <TableCell key={header} className="px-2 py-1.5">
-                            {row[header]}
-                          </TableCell>
+              <div className="scrollHorizontal overflow-x-auto mt-1 border border-darkText/10">
+                <div className="flex">
+                  {headers.map((header) => {
+                    return (
+                      <div key={header}>
+                        <div className="flex items-center px-2 h-8 min-w-28 border-t border-r border-r-darkText/20 border-t-darkText/20 bg-lightText/30">
+                          <Paragraph
+                            text={header}
+                            className="whitespace-nowrap font-medium text-darkText/80"
+                          />
+                        </div>
+                        {items.slice(0, 10).map((row, i) => (
+                          <div
+                            key={i + 1}
+                            className=" flex items-center px-2 h-8 min-w-28 border-t border-r border-r-darkText/20 border-t-darkText/20 bg-lightText/30"
+                          >
+                            <Paragraph
+                              text={showBool(row[header])}
+                              className="whitespace-nowrap text-darkText/75"
+                            />
+                          </div>
                         ))}
-                      </TableRow>
-                    ))}
-                    {items.length > 10 ? (
-                      <TableRow className="justify-center">
-                        <TableCell className="text-sm">
-                          {items.length - 10} more row
-                          {optionalS(items.length - 10)}
-                        </TableCell>
-                      </TableRow>
-                    ) : null}
-                  </TableBody>
-                </Table>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <Submit
-                buttonClick={handleSubmit}
-                loading={loading}
-                disabledLogic={loading}
-              />
+              <div className="flex justify-end mt-4">
+                <Submit
+                  buttonClick={handleSubmit}
+                  loading={loading}
+                  disabledLogic={loading}
+                />
+              </div>
             </div>
           ) : (
             <div className="mt-4">

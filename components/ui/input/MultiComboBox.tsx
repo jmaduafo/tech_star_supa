@@ -83,11 +83,9 @@ function MultiComboBox({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-full p-0 z-[3000] relative"
+        className="w-full p-0 mb-3 z-[3000] overflow-visible"
         align="start"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onCloseAutoFocus={(e) => e.preventDefault()}
-        onPointerDown={(e) => e.stopPropagation()}
+        portal={false}
       >
         <Command className="">
           <CommandInput placeholder="Search items..." className="h-9" />

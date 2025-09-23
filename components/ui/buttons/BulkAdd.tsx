@@ -43,6 +43,7 @@ type BulkAddProps = {
   readonly loading: boolean;
   readonly handleSubmit: () => void;
   readonly mode: string;
+  readonly maxSize?: number;
 };
 
 function BulkAdd({
@@ -57,6 +58,7 @@ function BulkAdd({
   headers,
   setHeaders,
   loading,
+  maxSize,
   handleSubmit,
 }: BulkAddProps) {
   const { userData } = useAuth();
@@ -254,7 +256,14 @@ function BulkAdd({
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Import {title} </DialogTitle>
+          <DialogTitle>
+            <span className="flex items-center gap-2 ">
+              Import {title}{" "}
+              <span className="text-sm px-3 bg-darkText text-lightText rounded-full">
+                Max. {maxSize ?? 50} rows
+              </span>
+            </span>
+          </DialogTitle>
           <DialogDescription className="">{desc}</DialogDescription>
         </DialogHeader>
         <div className="overflow-x-auto">

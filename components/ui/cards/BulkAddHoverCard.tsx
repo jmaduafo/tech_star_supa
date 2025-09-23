@@ -12,11 +12,16 @@ type Hover = {
     type: string;
     validation: string;
   }[];
+  readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  readonly open: boolean;
 };
-function BulkAddHoverCard({ mode, requirements }: Hover) {
+function BulkAddHoverCard({ mode, requirements, setOpen, open }: Hover) {
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
+    <HoverCard open={open} onOpenChange={setOpen}>
+      <HoverCardTrigger
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+      >
         <Button variant="link" className="" size={"sm"}>
           <HelpCircle className="" strokeWidth={1.5} />
         </Button>

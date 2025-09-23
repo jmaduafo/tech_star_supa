@@ -25,6 +25,7 @@ import { ContractorFileSchema, PaymentSchema } from "@/zod/validation";
 import Paragraph from "@/components/fontsize/Paragraph";
 import Submit from "./Submit";
 import BulkAddHoverCard from "../cards/BulkAddHoverCard";
+import { optionalS } from "@/utils/optionalS";
 
 type BulkAddProps = {
   //   readonly children: React.ReactNode;
@@ -63,6 +64,8 @@ function BulkAdd({
   const [files, setFiles] = useState<File[] | undefined>();
   const [skipped, setSkipped] = useState<any[]>([]);
 
+  const [hoverOpen, setHoverOpen] = useState(false);
+
   const validateRows = (rows: Record<string, string>[], headers: string[]) => {
     const schema =
       mode.toLowerCase() === "contractor"
@@ -78,7 +81,7 @@ function BulkAdd({
       } else {
         invalidRows.push({
           error: result.error.issues[0].message,
-          row: i + 1,
+          row: i + 2,
         });
       }
     });
@@ -260,6 +263,8 @@ function BulkAdd({
             <BulkAddHoverCard
               mode={mode}
               requirements={switchRequirements() ?? []}
+              open={hoverOpen}
+              setOpen={setHoverOpen}
             />
           </div>
           {/* DRAG AND DROP OR UPLOAD FILE */}
@@ -282,10 +287,7 @@ function BulkAdd({
             <div className="flex flex-col gap-1 mb-2 mt-1 text-red-600">
               {skipped.slice(0, 3).map((item, i) => {
                 return (
-                  <div
-                    key={i + 1}
-                    className="flex gap-2 items-center"
-                  >
+                  <div key={i + 1} className="flex gap-2 items-center">
                     <CircleAlert strokeWidth={1.2} className="w-4 h-4" />
                     <Paragraph
                       text={`${item.error} at row ${item.row}`}
@@ -294,18 +296,20 @@ function BulkAdd({
                   </div>
                 );
               })}
-              {skipped.length - 3 > 0 && <Paragraph
-                text={`... ${skipped.length - 3} more errors`}
-                className=""
-              />}
+              {skipped.length - 3 > 0 && (
+                <Paragraph
+                  text={`... ${skipped.length - 3} more errors`}
+                  className=""
+                />
+              )}
             </div>
           )}
-          {headers.length && items.length ? (
+          {headers.length && items.length && items.length <= 50 ? (
             <div className="mt-4">
               <div className="mb-1">
                 <Header6 text="Preview" className="text-darkText/80" />
               </div>
-              <div className="scrollHorizontal overflow-x-auto mt-1 border border-darkText/10">
+              <div className="relative scrollHorizontal overflow-x-auto mt-1 border border-darkText/10">
                 <div className="flex">
                   {headers.map((header) => {
                     return (
@@ -331,14 +335,28 @@ function BulkAdd({
                     );
                   })}
                 </div>
+                {items.length > 10 && items.length <= 50 ? (
+                  <div className="sticky left-0">
+                    <div className="flex items-center px-2 h-8 border-t border-r border-r-darkText/20 border-t-darkText/20 bg-lightText/30">
+                      <Paragraph
+                        text={`${items.length - 10} more row${optionalS(
+                          items.length - 10
+                        )}`}
+                        className="whitespace-nowrap text-darkText/75"
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </div>
-              <div className="flex justify-end mt-4">
-                <Submit
-                  buttonClick={handleSubmit}
-                  loading={loading}
-                  disabledLogic={loading}
-                />
-              </div>
+              {items.length <= 50 ? (
+                <div className="flex justify-end mt-4">
+                  <Submit
+                    buttonClick={handleSubmit}
+                    loading={loading}
+                    disabledLogic={loading}
+                  />
+                </div>
+              ) : null}
             </div>
           ) : (
             <div className="mt-4">

@@ -36,7 +36,7 @@ function ContractorCount({
 
   useEffect(() => {
     getData();
-  }, [user]);
+  }, [user, projects]);
 
   return <CountCard count={count} title="Total contractor"/>;
 }

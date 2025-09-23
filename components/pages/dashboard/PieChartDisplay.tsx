@@ -33,7 +33,7 @@ function PieChartDisplay({
 
   useEffect(() => {
     getData();
-  }, [user]);
+  }, [user, projects]);
 
   const chartRender = data?.length ? (
     <div className="w-full h-full">

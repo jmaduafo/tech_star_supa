@@ -56,13 +56,14 @@ import { Button } from "@/components/ui/button";
 import ViewLabel from "@/components/ui/labels/ViewLabel";
 import { contractorStages } from "@/utils/stagesFilter";
 import MultiComboBox from "@/components/ui/input/MultiComboBox";
+import CardSkeleton from "@/components/ui/cards/CardSkeleton";
 
 function ContractorDisplay({
   allContractors,
-  loading
+  loading,
 }: {
   readonly allContractors: Contractor[] | undefined;
-  readonly loading?: boolean
+  readonly loading?: boolean;
 }) {
   const notAvailable =
     allContractors && allContractors.length === 0 ? (
@@ -76,7 +77,9 @@ function ContractorDisplay({
           ? Array.from({ length: 6 }).map((_, i) => {
               return (
                 <Fragment key={`skeleton_${i + 1}`}>
-                  <Skeleton className="h-[25vh] rounded-[3vw] bg-lightText/25 backdrop-blur-2xl" />
+                  <CardSkeleton className="h-[27vh]">
+                    <div></div>
+                  </CardSkeleton>
                 </Fragment>
               );
             })
@@ -208,7 +211,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setAssignOpen(true);
-                    setDropdownOpen(false)
+                    setDropdownOpen(false);
                   }}
                 >
                   Assign stages
@@ -222,7 +225,7 @@ function DropDown({
             <DropdownMenuItem
               onClick={() => {
                 setViewContractorOpen(true);
-                setDropdownOpen(false)
+                setDropdownOpen(false);
               }}
             >
               View
@@ -232,7 +235,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setEditOpen(true);
-                    setDropdownOpen(false)
+                    setDropdownOpen(false);
                   }}
                 >
                   Edit
@@ -240,7 +243,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setDeleteOpen(true);
-                    setDropdownOpen(false)                    
+                    setDropdownOpen(false);
                   }}
                 >
                   Delete
@@ -290,7 +293,7 @@ function AssignStage({
   const [isLoading, setIsLoading] = useState(false);
 
   const supabase = createClient();
-  const { userData } = useAuth()
+  const { userData } = useAuth();
 
   const getData = async () => {
     try {
@@ -622,7 +625,7 @@ function Actions({
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const supabase = createClient();
-  const { userData } = useAuth()
+  const { userData } = useAuth();
 
   // EDIT CONTRACTOR FUNCTIONALITY
   const editContractor = async (e: React.FormEvent) => {

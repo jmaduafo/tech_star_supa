@@ -28,7 +28,7 @@ function ProjectCount({
 
   useEffect(() => {
     getData();
-  }, [user]);
+  }, [user, projects]);
 
   return <CountCard count={count} showLink title="Total project" />;
 }

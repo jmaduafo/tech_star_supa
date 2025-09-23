@@ -10,7 +10,7 @@ function CardSkeleton({
 }) {
   return (
     <Skeleton
-      className={`px-8 py-6 w-full h-full rounded-[40px] bg-light15 backdrop-blur-[100px] flex justify-center items-center ${className}`}
+      className={`px-8 py-6 w-full rounded-[40px] bg-light15 backdrop-blur-[100px] flex justify-center items-center ${className}`}
     >
       {children}
     </Skeleton>

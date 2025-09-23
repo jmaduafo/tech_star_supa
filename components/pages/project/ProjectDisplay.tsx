@@ -5,7 +5,6 @@ import Card from "@/components/ui/cards/MyCard";
 import { EllipsisVertical } from "lucide-react";
 import Banner from "@/components/ui/Banner";
 import Header4 from "@/components/fontsize/Header4";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +48,7 @@ import { Slider } from "@/components/ui/slider";
 import { useAuth } from "@/context/UserContext";
 import AddStage from "./AddStage";
 import ViewStages from "./ViewStages";
+import CardSkeleton from "@/components/ui/cards/CardSkeleton";
 
 function ProjectDisplay({
   user,
@@ -73,7 +73,9 @@ function ProjectDisplay({
           ? [0, 1, 2, 3, 4, 5].map((each, i) => {
               return (
                 <Fragment key={`${each}_${i}`}>
-                  <Skeleton className="h-[25vh] rounded-[3vw] bg-lightText/25 backdrop-blur-2xl" />
+                  <CardSkeleton className="h-[27vh]">
+                    <div></div>
+                  </CardSkeleton>
                 </Fragment>
               );
             })
@@ -170,7 +172,7 @@ function DropDown({
               <DropdownMenuItem
                 onClick={() => {
                   setAddStageOpen(true);
-                  setDropDownOpen(false)
+                  setDropDownOpen(false);
                 }}
               >
                 Add stage
@@ -179,7 +181,7 @@ function DropDown({
             <DropdownMenuItem
               onClick={() => {
                 setViewStageOpen(true);
-                setDropDownOpen(false)
+                setDropDownOpen(false);
               }}
             >
               View stages
@@ -192,7 +194,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setEditOpen(true);
-                    setDropDownOpen(false)
+                    setDropDownOpen(false);
                   }}
                 >
                   Edit
@@ -200,7 +202,7 @@ function DropDown({
                 <DropdownMenuItem
                   onClick={() => {
                     setDeleteOpen(true);
-                    setDropDownOpen(false)
+                    setDropDownOpen(false);
                   }}
                 >
                   Delete
@@ -255,7 +257,7 @@ const DeleteProject = ({
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const { userData } = useAuth()
+  const { userData } = useAuth();
 
   const supabase = createClient();
 
@@ -373,7 +375,7 @@ const EditProject = ({
 
   const [editLoading, setEditLoading] = useState(false);
 
-  const { userData } = useAuth()
+  const { userData } = useAuth();
 
   useEffect(() => {
     if (project) {
@@ -464,7 +466,6 @@ const EditProject = ({
 
         return;
       }
-      
 
       toast.success("Success!", {
         description: "Project updated successfully",

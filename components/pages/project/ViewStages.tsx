@@ -41,6 +41,8 @@ import { optionalS } from "@/utils/optionalS";
 import { STAGE_ICONS } from "@/utils/dataTools";
 import Header6 from "@/components/fontsize/Header6";
 import Paragraph from "@/components/fontsize/Paragraph";
+import SelectBar from "@/components/ui/input/SelectBar";
+import { SelectItem } from "@/components/ui/select";
 
 function ViewStages({
   open,
@@ -85,6 +87,10 @@ function ViewStages({
     getData();
   }, []);
 
+  // useEffect(() => {
+  //   const channel 
+  // }, [])
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -94,14 +100,14 @@ function ViewStages({
         >
           <DialogHeader>
             {/* <span className=""> */}
-              <DialogTitle className="flex items-start gap-3 text-3xl font-normal">
-                Stages
-                {data ? (
-                  <p className="text-sm tracking-normal rounded-full px-3 bg-darkText text-lightText">
-                    {data.length} result{optionalS(data.length)}
-                  </p>
-                ) : null}
-              </DialogTitle>
+            <DialogTitle className="flex items-start gap-3 text-3xl font-normal">
+              Stages
+              {data ? (
+                <p className="text-sm tracking-normal rounded-full px-3 bg-darkText text-lightText">
+                  {data.length} result{optionalS(data.length)}
+                </p>
+              ) : null}
+            </DialogTitle>
             {/* </span> */}
             <DialogDescription>
               All stages under the project{" "}
@@ -328,6 +334,7 @@ const EditRow = ({
     name: stage?.name ?? "",
     desc: stage?.description ?? "",
     is_completed: stage?.is_completed ?? false,
+    icon: stage?.icon?.toString() ?? ""
   });
 
   const { userData } = useAuth();
@@ -340,7 +347,8 @@ const EditRow = ({
 
     const values = {
       name: form.name.trim(),
-      description: form.desc.length ? form.desc.trim() : null,
+      description: form.desc.trim(),
+      icon: +form.icon,
       is_completed: form.is_completed,
     };
 
@@ -356,7 +364,7 @@ const EditRow = ({
       return;
     }
 
-    const { name, description, is_completed } = result.data;
+    const { name, description, is_completed, icon } = result.data;
 
     try {
       if (!userData || !stage) {
@@ -369,6 +377,7 @@ const EditRow = ({
           name,
           description,
           is_completed,
+          icon,
           updated_at: new Date().toISOString(),
         })
         .eq("id", stage.id);
@@ -455,6 +464,33 @@ const EditRow = ({
               {form.desc.length} / 80
             </p>
           </div>
+          {/* ICONS */}
+          <CustomInput
+            htmlFor={"icon"}
+            label={"Choose an icon that best describes the stage *"}
+            className="mt-3"
+          >
+            <SelectBar
+              className="w-full"
+              placeholder={"Select an icon"}
+              label={"Icons"}
+              value={form.icon}
+              valueChange={(name) => setForm({ ...form, icon: name })}
+            >
+              {STAGE_ICONS.map((icon, i) => {
+                const Icon = icon.icon;
+
+                return (
+                  <SelectItem key={icon.label} value={`${i}`}>
+                    <span className="flex items-center gap-2">
+                      <Icon className="w-5 h-5" strokeWidth={1} />
+                      {icon.label}
+                    </span>
+                  </SelectItem>
+                );
+              })}
+            </SelectBar>
+          </CustomInput>
           {/* SUBMIT BUTTON */}
           <div className="flex justify-end mt-6">
             <Submit loading={isLoading} disabledLogic={isLoading} />

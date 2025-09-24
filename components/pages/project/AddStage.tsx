@@ -16,6 +16,9 @@ import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import CustomInput from "@/components/ui/input/CustomInput";
 import { Project } from "@/types/types";
+import SelectBar from "@/components/ui/input/SelectBar";
+import { STAGE_ICONS } from "@/utils/dataTools";
+import { SelectItem } from "@/components/ui/select";
 
 function AddStage({
   open,
@@ -30,6 +33,7 @@ function AddStage({
   const [form, setForm] = useState({
     name: "",
     desc: "",
+    icon: "",
   });
 
   const { userData } = useAuth();
@@ -44,6 +48,7 @@ function AddStage({
       name: form.name.trim(),
       description: form.desc.trim(),
       is_completed: false,
+      icon: +form.icon
     };
 
     const result = StagesSchema.safeParse(values);
@@ -58,7 +63,7 @@ function AddStage({
       return;
     }
 
-    const { name, description, is_completed } = result.data;
+    const { name, description, is_completed, icon } = result.data;
 
     try {
       if (!userData || !project) {
@@ -69,6 +74,7 @@ function AddStage({
         name,
         description,
         is_completed,
+        icon,
         project_id: project.id,
         team_id: userData.team_id,
       });
@@ -105,6 +111,7 @@ function AddStage({
       setForm({
         name: "",
         desc: "",
+        icon: "",
       });
     } catch (err: any) {
       toast.error("Something went wrong", {
@@ -138,7 +145,11 @@ function AddStage({
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
-          <CustomInput htmlFor={"desc"} label={"Description *"} className="mt-3">
+          <CustomInput
+            htmlFor={"desc"}
+            label={"Description *"}
+            className="mt-3"
+          >
             <input
               type={"text"}
               name={"desc"}
@@ -154,6 +165,35 @@ function AddStage({
               {form.desc.length} / 50
             </p>
           </div>
+          <CustomInput
+            htmlFor={"icon"}
+            label={"Choose an icon that best describes the stage *"}
+            className="mt-3"
+          >
+            <SelectBar
+              className="w-full"
+              placeholder={"Select an icon"}
+              label={"Icons"}
+              value={form.icon}
+              valueChange={(name) => setForm({ ...form, icon: name })}
+            >
+              {STAGE_ICONS.map((icon, i) => {
+                const Icon = icon.icon;
+
+                return (
+                  <SelectItem
+                    key={icon.label}
+                    value={`${i}`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Icon className="w-5 h-5" strokeWidth={1}/>
+                      {icon.label}
+                    </span>
+                  </SelectItem>
+                );
+              })}
+            </SelectBar>
+          </CustomInput>
           {/* SUBMIT BUTTON */}
           <div className="flex justify-end mt-6">
             <Submit loading={isLoading} disabledLogic={isLoading} />

@@ -117,7 +117,8 @@ export type Stage = {
   team_id?: string;
   project_id?: string;
   description?: string;
-  stage_number?: number;
+  icon?: number;
+  projects?: Project;
   stage_contractors?: StageContractor[];
   is_completed?: boolean;
   created_at?: number;

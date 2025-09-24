@@ -4,6 +4,7 @@ import Banner from "@/components/ui/Banner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -12,15 +13,7 @@ import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import { Project, Stage } from "@/types/types";
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Ellipsis } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +38,9 @@ import CustomInput from "@/components/ui/input/CustomInput";
 import Submit from "@/components/ui/buttons/Submit";
 import { StagesSchema } from "@/zod/validation";
 import { optionalS } from "@/utils/optionalS";
+import { STAGE_ICONS } from "@/utils/dataTools";
+import Header6 from "@/components/fontsize/Header6";
+import Paragraph from "@/components/fontsize/Paragraph";
 
 function ViewStages({
   open,
@@ -71,7 +67,7 @@ function ViewStages({
 
       const { data, error } = await supabase
         .from("stages")
-        .select("id, name, description, is_completed, created_at, updated_at")
+        .select("*, projects ( name )")
         .eq("project_id", project.id)
         .eq("team_id", userData.team_id);
 
@@ -79,7 +75,7 @@ function ViewStages({
         console.error(error.message);
       }
 
-      setData(data as Stage[]);
+      setData(data as unknown as Stage[]);
     } catch (err: any) {
       console.error(err.message);
     }
@@ -93,23 +89,29 @@ function ViewStages({
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
-          className={`sm:max-w-[600px] bg-lightText/5`}
+          className={`sm:max-w-[435px]`}
           aria-describedby="view stage popup"
         >
           <DialogHeader>
-            <div className="flex items-start gap-3">
-              <DialogTitle className="text-lightText text-3xl font-normal">
-                All stages
+            {/* <span className=""> */}
+              <DialogTitle className="flex items-start gap-3 text-3xl font-normal">
+                Stages
+                {data ? (
+                  <p className="text-sm tracking-normal rounded-full px-3 bg-darkText text-lightText">
+                    {data.length} result{optionalS(data.length)}
+                  </p>
+                ) : null}
               </DialogTitle>
-              {data ? (
-                <p className="text-[12.5px] rounded-full px-3 bg-darkText">
-                  {data.length} result{optionalS(data.length)}
-                </p>
-              ) : null}
-            </div>
+            {/* </span> */}
+            <DialogDescription>
+              All stages under the project{" "}
+              <span className="font-semibold">
+                {data && data[0].projects ? data[0].projects?.name : ""}
+              </span>
+            </DialogDescription>
           </DialogHeader>
           {!data ? (
-            <div className="flex flex-col gap-3 w-full">
+            <div className="flex flex-col gap-3 w-full mt-4">
               <Skeleton className="h-5 w-full" />
               <Skeleton className="h-5 w-[80%]" />
               <Skeleton className="h-5 w-[70%]" />
@@ -117,51 +119,38 @@ function ViewStages({
               <Skeleton className="h-5 w-[35%]" />
             </div>
           ) : (
-            <Table className="z-[1] mt-4">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>No.</TableHead>
-                  <TableHead className="w-[150px]">Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead
-                    className={`${
-                      userData?.role === "admin" ? "text-left" : "text-right"
-                    }`}
+            <div className="flex flex-col gap-3 w-full mt-4">
+              {data.map((item) => {
+                let Icon;
+                if (typeof item.icon === "number") {
+                  const IconEntry = STAGE_ICONS[item.icon]; // get object from array
+                  Icon = IconEntry?.icon;
+                }
+                return (
+                  <div
+                    key={item.id}
+                    className="text-darkText bg-lightText/40 px-2 py-2 rounded-md"
                   >
-                    Status
-                  </TableHead>
-                  {userData?.role === "admin" ? (
-                    <TableHead className="text-right">Action</TableHead>
-                  ) : null}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((item, i) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{i + 1}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.description}</TableCell>
-                    <TableCell>
-                      <div
-                        className={`flex ${
-                          userData?.role === "admin"
-                            ? "justify-start"
-                            : "justify-end"
-                        }`}
-                      >
-                        {item.is_completed ? (
-                          <Banner text={"completed"} />
-                        ) : (
-                          <Banner text={"ongoing"} />
-                        )}
+                    <div className="flex justify-between">
+                      <div className="flex items-start gap-2">
+                        <div className="w-9 h-9 flex justify-center items-center rounded-full bg-darkText text-lightText">
+                          {Icon && <Icon className="w-5 h-5" strokeWidth={1} />}
+                        </div>
+                        <div>
+                          <Header6 text={item.name} className="capitalize" />
+                          {item.description ? (
+                            <Paragraph
+                              text={item.description}
+                              className="text-darkText/70"
+                            />
+                          ) : null}
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
+                      <div className="">
                         <DropdownMenu>
                           <DropdownMenuTrigger>
                             {userData?.role === "admin" ? (
-                              <Ellipsis className="w-5 h-5" />
+                              <EllipsisVertical className="w-5 h-5" />
                             ) : null}
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="" align="start">
@@ -186,11 +175,18 @@ function ViewStages({
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                    <div className="mt-1 flex justify-end">
+                      {item.is_completed ? (
+                        <Banner text="completed" />
+                      ) : (
+                        <Banner text="ongoing" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -233,7 +229,7 @@ const DeleteRow = ({
 
   const supabase = createClient();
 
-  const { userData } = useAuth()
+  const { userData } = useAuth();
 
   const deleteRow = async () => {
     setDeleteLoading(true);

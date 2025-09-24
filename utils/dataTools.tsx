@@ -1,3 +1,35 @@
+import {
+  ClipboardList,
+  Hammer,
+  CheckCircle,
+  CalendarDays,
+  ChartNoAxesCombined,
+  UserRoundCog,
+  Megaphone,
+  Palette,
+  Coins,
+  Drill,
+  Blocks,
+  BookOpen,
+  Layers,
+} from "lucide-react";
+
+export const STAGE_ICONS = [
+  { label: "Planning", icon: ClipboardList },
+  { label: "Research", icon: BookOpen },
+  { label: "Foundation", icon: Blocks },
+  { label: "Execution", icon: Hammer },
+  { label: "Review", icon: CheckCircle },
+  { label: "Schedule", icon: CalendarDays },
+  { label: "Design", icon: Palette },
+  { label: "Construction", icon: Drill },
+  { label: "Financing", icon: Coins },
+  { label: "Management", icon: UserRoundCog },
+  { label: "Marketing", icon: Megaphone },
+  { label: "Analysis", icon: ChartNoAxesCombined },
+  { label: "Other", icon: Layers },
+];
+
 export const images = [
   {
     image: "/images/background1.jpg",

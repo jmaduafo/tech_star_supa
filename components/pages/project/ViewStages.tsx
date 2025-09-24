@@ -131,7 +131,7 @@ function ViewStages({
                     key={item.id}
                     className="text-darkText bg-lightText/40 px-2 py-2 rounded-md"
                   >
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-6">
                       <div className="flex items-start gap-2">
                         <div className="w-9 h-9 flex justify-center items-center rounded-full bg-darkText text-lightText">
                           {Icon && <Icon className="w-5 h-5" strokeWidth={1} />}

@@ -149,8 +149,11 @@ export const EditProjectSchema = z.object({
 });
 
 export const StagesSchema = z.object({
-  name: z.string().min(1, { message: "You must enter a name for this stage." }),
-  description: z.nullable(z.string()),
+  name: z.string().min(1, { message: "You must enter a name for this stage." }).max(20),
+  description: z
+    .string()
+    .min(1, { message: "You must enter a name for this stage." })
+    .max(50),
   is_completed: z.boolean(),
 });
 
@@ -185,9 +188,7 @@ export const ContractorSchema = z.object({
     .min(1, { message: "You must input a contractor description" }),
   country: z.string().min(1, { message: "You must select a country location" }),
   start_year: z.number().gte(1960).lte(new Date().getFullYear()),
-  start_month: z
-    .string()
-    .min(1, { message: "Expecting a valid month" }),
+  start_month: z.string().min(1, { message: "Expecting a valid month" }),
   is_available: z.boolean(),
   comment: z.nullable(z.string()),
 });

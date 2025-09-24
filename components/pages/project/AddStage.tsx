@@ -42,7 +42,7 @@ function AddStage({
 
     const values = {
       name: form.name.trim(),
-      description: form.desc.length ? form.desc.trim() : null,
+      description: form.desc.trim(),
       is_completed: false,
     };
 
@@ -138,20 +138,20 @@ function AddStage({
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
-          <CustomInput htmlFor={"desc"} label={"Description"} className="mt-3">
+          <CustomInput htmlFor={"desc"} label={"Description *"} className="mt-3">
             <input
               type={"text"}
               name={"desc"}
               id={"desc"}
               value={form.desc}
               onChange={(e) => setForm({ ...form, desc: e.target.value })}
-              maxLength={80}
+              maxLength={50}
               className="form"
             />
           </CustomInput>
           <div className="">
             <p className="text-right text-sm text-darkText/70">
-              {form.desc.length} / 80
+              {form.desc.length} / 50
             </p>
           </div>
           {/* SUBMIT BUTTON */}

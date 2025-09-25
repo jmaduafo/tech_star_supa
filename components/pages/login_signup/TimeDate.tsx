@@ -83,7 +83,7 @@ function TimeDate({
         </div>
         {/* TIME DISPLAY */}
         <p
-          className={`text-center leading-[1] font-semibold ${
+          className={`text-center leading-[1] font-medium ${
             timeFontSize === "dashboard" ? "text-[4vw]" : "text-[7vw]"
           }`}
         >

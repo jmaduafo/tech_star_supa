@@ -1,5 +1,5 @@
 import { Amount, Contractor, Payment, Project } from "@/types/types";
-import { totalSum } from "./currencies";
+import { checkArray, totalSum } from "./currencies";
 import { versusLast } from "./dateAndTime";
 import { chartFormatCount } from "./chartHelpers";
 import { sortByNumOrBool } from "./sortFilter";
@@ -297,11 +297,91 @@ export function highestPaymentAmount(
     }
   });
 
-  const prevSortDesc = prevAmounts.sort((a, b) => b - a)
-  const currentSortDesc = currentAmounts.sort((a, b) => b - a)
+  const prevSortDesc = prevAmounts.sort((a, b) => b - a);
+  const currentSortDesc = currentAmounts.sort((a, b) => b - a);
 
   return {
     previousAmount: prevAmounts.length ? prevSortDesc[0] : 0,
     currentAmount: currentAmounts.length ? currentSortDesc[0] : 0,
+  };
+}
+
+export function revisedContract(payments: Payment[], code: string) {
+  const contract_amount: number[] = [];
+
+  payments[0]?.contracts?.contract_amounts?.forEach((amount) => {
+    code === amount?.code && contract_amount.push(+amount?.amount);
+  });
+
+  return {
+    previousAmount: 0,
+    currentAmount: totalSum(contract_amount) ?? 0,
+  };
+}
+
+export function contractPayments(payments: Payment[], code: string) {
+  const payment_amount: number[] = [];
+
+  payments.forEach((payment) => {
+    const amount = checkArray(payment?.payment_amounts);
+
+    amount &&
+      code === amount.code &&
+      payment.is_paid &&
+      payment_amount.push(+amount.amount);
+  });
+
+  return {
+    previousAmount: 0,
+    currentAmount: totalSum(payment_amount) ?? 0,
+  };
+}
+
+export function totalBalance(payments: Payment[], code: string) {
+  const contract = revisedContract(payments, code);
+  const payment = contractPayments(payments, code);
+
+  return {
+    previousAmount: 0,
+    currentAmount:
+      contract && payment ? contract.currentAmount - payment.currentAmount : 0,
+  };
+}
+
+export function totalPending(payments: Payment[], code: string) {
+  const payment_amount: number[] = [];
+
+  payments.forEach((payment) => {
+    const amount = checkArray(payment?.payment_amounts);
+
+    amount &&
+      code === amount.code &&
+      !payment.is_completed &&
+      !payment.is_paid &&
+      payment_amount.push(+amount.amount);
+  });
+
+  return {
+    previousAmount: 0,
+    currentAmount: totalSum(payment_amount) ?? 0,
+  };
+}
+
+export function totalUnpaid(payments: Payment[], code: string) {
+  const payment_amount: number[] = [];
+
+  payments.forEach((payment) => {
+    const amount = checkArray(payment?.payment_amounts);
+
+    amount &&
+      code === amount.code &&
+      payment.is_completed &&
+      !payment.is_paid &&
+      payment_amount.push(+amount.amount);
+  });
+
+  return {
+    previousAmount: 0,
+    currentAmount: totalSum(payment_amount) ?? 0,
   };
 }

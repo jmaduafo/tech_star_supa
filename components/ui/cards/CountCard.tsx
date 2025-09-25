@@ -30,7 +30,7 @@ function CountCard({
             </div>
           ) : null}
           <div className="mt-auto">
-            <p className="text-center font-semibold text-[4vw] leading-[1] mt-2">
+            <p className="text-center font-medium text-[4vw] leading-[1] mt-2">
               {count}
             </p>
             <Paragraph

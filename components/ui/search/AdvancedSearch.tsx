@@ -1,11 +1,19 @@
 "use client";
 import React, { useState } from "react";
 import { User } from "@/types/types";
-
-import SelectBar from "@/components/ui/input/SelectBar";
-import { SelectItem } from "@/components/ui/select";
 import Searchbar from "@/components/ui/search/Searchbar";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../dropdown-menu";
+import { Button } from "../button";
+import { ListFilter } from "lucide-react";
 
 function AdvancedSearch({
   user,
@@ -78,8 +86,8 @@ function AdvancedSearch({
 
   return (
     <section>
-      <div className="flex items-start gap-1.5 z-50">
-        <div className="flex-1">
+      <div className="flex items-center gap-1.5 z-50">
+        <div className="flex-1 md:flex-none md:w-1/2">
           <Searchbar
             setOpen={setOpen}
             setValue={setValue}
@@ -88,24 +96,35 @@ function AdvancedSearch({
           />
         </div>
         <div className="">
-          <SelectBar
-            placeholder="Sort by"
-            value={sort}
-            label="Sort"
-            valueChange={(name) => handleSort(name)}
-          >
-            {sortArray.map((item) => {
-              return (
-                // Format example => name:asc => Name: A to Z
-                <SelectItem key={item.search} value={item.search}>
-                  {item.title}
-                  {item.sortStyle ? ":" : ""}
-                  {item.sortStyle ? ` ${item.sortStyle}` : ""}
-                </SelectItem>
-              );
-            })}
-            <SelectItem value={"reset"}>Reset</SelectItem>
-          </SelectBar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <ListFilter className="" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="start">
+              <DropdownMenuLabel>Sort By</DropdownMenuLabel>
+              <DropdownMenuGroup>
+                {sortArray.map((item) => {
+                  return (
+                    // Format example => name:asc => Name: A to Z
+                    <DropdownMenuItem
+                      key={item.search}
+                      onClick={() => handleSort(item.search)}
+                    >
+                      {item.title}
+                      {item.sortStyle ? ":" : ""}
+                      {item.sortStyle ? ` ${item.sortStyle}` : ""}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleSort("reset")}>
+                  Reset
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </section>

@@ -20,7 +20,7 @@ function KpiCard({ item, arr, index, period }: Kpi) {
       <div className="flex justify-end items-start gap-1 mt-auto">
         <div className="flex items-start gap-1">
           {item.symbol ? <p className="text-sm">{item.symbol}</p> : null}
-          <Header2 text={`${convertCurrency(arr[index].currentAmount)}`} />
+          <Header2 className="font-light" text={`${convertCurrency(arr[index].currentAmount)}`} />
         </div>
         {item.visual && period !== "All Time" && (
           <PercentBanner

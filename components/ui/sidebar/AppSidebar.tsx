@@ -123,7 +123,7 @@ function AppSidebar() {
             path !== "/dashboard" && route.push("/dashboard");
             setOpen(false)
           }}
-          className="flex gap-2 items-center"
+          className="flex gap-2 items-center py-2 hover:bg-lightText px-2 duration-300 rounded-md"
         >
           <span className="w-6 h-6 object-cover object-center">
             <Image src={Logo} alt="logo design" className="w-full h-full" />

@@ -41,19 +41,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../collapsible";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import Logo from "../../../public/logo/logo.png";
+import Image from "next/image";
+import Header6 from "@/components/fontsize/Header6";
 
 function AppSidebar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [collapseOpen, setCollapseOpen] = useState(false);
-  
+
   const { setOpen } = useSidebar();
-  const path = usePathname()
+  const path = usePathname();
 
   const { userData } = useAuth();
   const { data: user } = useUsers(userData?.id);
-  
+  const route = useRouter();
+
   const items = [
     {
       title: "Dashboard",
@@ -82,12 +86,16 @@ function AppSidebar() {
         {
           title: "Contracts",
           url: "/tables/contracts",
-          icon: <HugeiconsIcon icon={ContractsIcon} size={16} strokeWidth={1} />,
+          icon: (
+            <HugeiconsIcon icon={ContractsIcon} size={16} strokeWidth={1} />
+          ),
         },
         {
           title: "Contractors",
           url: "/tables/contractors",
-          icon: <HugeiconsIcon icon={UserSquareIcon} size={16} strokeWidth={1} />,
+          icon: (
+            <HugeiconsIcon icon={UserSquareIcon} size={16} strokeWidth={1} />
+          ),
         },
       ],
     },
@@ -110,7 +118,18 @@ function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <p>LOGO</p>
+        <button
+          onClick={() => { 
+            path !== "/dashboard" && route.push("/dashboard");
+            setOpen(false)
+          }}
+          className="flex gap-2 items-center"
+        >
+          <span className="w-6 h-6 object-cover object-center">
+            <Image src={Logo} alt="logo design" className="w-full h-full" />
+          </span>
+          <Header6 text="TechStar" className="font-medium" />
+        </button>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -147,7 +166,11 @@ function AppSidebar() {
                               <SidebarMenuButton
                                 asChild
                                 onClick={() => setOpen(false)}
-                                className={`${path.includes(drop.url) ? "bg-lightText" : "bg-transparent"} hover:bg-lightText duration-300`}
+                                className={`${
+                                  path.includes(drop.url)
+                                    ? "bg-lightText"
+                                    : "bg-transparent"
+                                } hover:bg-lightText duration-300`}
                                 key={drop.title}
                               >
                                 <Link href={drop.url}>
@@ -166,7 +189,11 @@ function AppSidebar() {
                     <SidebarMenuButton
                       asChild
                       onClick={() => setOpen(false)}
-                      className={`${path.includes(item.url) ? "bg-lightText" : "bg-transparent"} hover:bg-lightText duration-300`}
+                      className={`${
+                        path.includes(item.url)
+                          ? "bg-lightText"
+                          : "bg-transparent"
+                      } hover:bg-lightText duration-300`}
                     >
                       <Link href={item.url}>
                         {item.icon}

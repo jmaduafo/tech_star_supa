@@ -71,7 +71,7 @@ function MainPage() {
         .eq("project_id", project_id);
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -99,7 +99,7 @@ function MainPage() {
         .single();
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -226,7 +226,7 @@ function MainPage() {
     const result = ContractorSchema.safeParse(values);
 
     if (!result.success) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: result.error.issues[0].message,
       });
 
@@ -268,7 +268,7 @@ function MainPage() {
       });
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -287,14 +287,14 @@ function MainPage() {
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Contractor was successfully created",
       });
 
@@ -312,7 +312,7 @@ function MainPage() {
 
       setOpen(false);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
       console.log(err.message);

@@ -108,6 +108,11 @@ function ContractAction({ data }: { readonly data: Contract | undefined }) {
             >
               View details
             </DropdownMenuItem>
+            <Link
+              href={`/projects/${data?.project_id}/contractors/${data?.contractor_id}/contracts/${data?.id}/payments`}
+              >
+              <DropdownMenuItem>View payments</DropdownMenuItem>
+            </Link>
             {userData?.role === "admin" &&
             userData?.team_id === data?.team_id ? (
               <DropdownMenuItem
@@ -119,26 +124,21 @@ function ContractAction({ data }: { readonly data: Contract | undefined }) {
                 Edit
               </DropdownMenuItem>
             ) : null}
-            {userData?.team_id === data?.team_id ? (
-              <DropdownMenuSeparator />
-            ) : null}
-            {userData?.role === "admin" &&
-            userData?.team_id === data?.team_id ? (
-              <DropdownMenuItem
-                onClick={() => {
-                  setDeleteOpen(true);
-                  setDropDownOpen(false);
-                }}
-                className="text-red-500"
-              >
-                Delete
-              </DropdownMenuItem>
-            ) : null}
-            <Link
-              href={`/projects/${data?.project_id}/contractors/${data?.contractor_id}/contracts/${data?.id}/payments`}
-            >
-              <DropdownMenuItem>View payments</DropdownMenuItem>
-            </Link>
+              {userData?.team_id === data?.team_id ? (
+                <DropdownMenuSeparator />
+              ) : null}
+              {userData?.role === "admin" &&
+              userData?.team_id === data?.team_id ? (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDeleteOpen(true);
+                    setDropDownOpen(false);
+                  }}
+                  className="text-red-500"
+                >
+                  Delete
+                </DropdownMenuItem>
+              ) : null}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -123,7 +123,7 @@ function PaymentDisplay({
     const result = PaymentSchema.safeParse(values);
 
     if (!result.success) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: result.error.issues[0].message,
       });
 
@@ -165,7 +165,7 @@ function PaymentDisplay({
         .single();
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -183,7 +183,7 @@ function PaymentDisplay({
         });
 
       if (amountError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: amountError.message,
         });
 
@@ -204,14 +204,14 @@ function PaymentDisplay({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: `Payment for contract ${contract.contract_code} was added successfully`,
       });
 
@@ -233,7 +233,7 @@ function PaymentDisplay({
       setCurrencyInputs([]);
       setPaymentDate(undefined);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
     } finally {
@@ -248,9 +248,9 @@ function PaymentDisplay({
           {data ? (
             <>
               <Header3 text="All Payments" />
-              <p className="text-[13.5px]">
+              {/* <p className="text-[13.5px]">
                 {data.length} result{optionalS(data.length)}
-              </p>
+              </p> */}
             </>
           ) : null}
         </div>

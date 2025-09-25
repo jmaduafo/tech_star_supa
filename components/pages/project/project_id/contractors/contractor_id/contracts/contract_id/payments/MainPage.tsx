@@ -157,7 +157,7 @@ function MainPage() {
   }, [supabase, data, setData, contractData, setContractData]);
 
   const changeCurrency = (code: string) => {
-    setSelectedCurrency(code)
+    setSelectedCurrency(code);
 
     const currency = currency_list.find((item) => item.code === code);
 
@@ -251,43 +251,37 @@ function MainPage() {
           </Breadcrumb>
         ) : null}
       </div>
-      <div>
-        <SelectBar
-          placeholder="Select a currency"
-          label="Currencies"
-          value={selectedCurrency}
-          valueChange={(name) => changeCurrency(name)}
-        >
-          {currencyList
-            ? currencyList.map((item) => {
-                return (
-                  <SelectItem key={item.code} value={item.code}>
-                    {item.name}
-                  </SelectItem>
-                );
-              })
-            : null}
-        </SelectBar>
-      </div>
-      <div className="grid grid-cols-5 gap-4 mt-2 mb-6">
-        {kpis
-          ? contract_summary.map((item, i) => {
-              return (
-                <Fragment key={item.title}>
-                  <KpiCard item={item} arr={kpis ?? []} index={i} />
-                </Fragment>
-              );
-            })
-          : Array.from({ length: 5 }).map((_, i) => {
-              return (
-                <Fragment key={`item_${i + 1}`}>
-                  <CardSkeleton className="">
-                    <div></div>
-                  </CardSkeleton>
-                </Fragment>
-              );
-            })}
-      </div>
+      {kpis ? (
+        <div>
+          <SelectBar
+            placeholder="Select a currency"
+            label="Currencies"
+            value={selectedCurrency}
+            valueChange={(name) => changeCurrency(name)}
+          >
+            {currencyList
+              ? currencyList.map((item) => {
+                  return (
+                    <SelectItem key={item.code} value={item.code}>
+                      {item.name}
+                    </SelectItem>
+                  );
+                })
+              : null}
+          </SelectBar>
+        </div>
+      ) : null}
+      {kpis ? (
+        <div className="grid grid-cols-5 gap-4 mt-2 mb-6">
+          {contract_summary.map((item, i) => {
+            return (
+              <Fragment key={item.title}>
+                <KpiCard item={item} arr={kpis ?? []} index={i} />
+              </Fragment>
+            );
+          })}
+        </div>
+      ) : null}
       <PaymentDisplay user={userData} data={data} contract={contractData} />
     </>
   );

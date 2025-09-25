@@ -185,7 +185,7 @@ function MainPage() {
       title: "Contract payment total",
       symbol: selectedSymbol,
       visual: false,
-      className: "",
+      className: "md:col-span-2 xl:col-span-1",
     },
     {
       title: "Total balance",
@@ -272,7 +272,7 @@ function MainPage() {
         </div>
       ) : null}
       {kpis ? (
-        <div className="grid grid-cols-5 gap-4 mt-2 mb-6">
+        <div className="grid md:grid-cols-3 xl:grid-cols-5 gap-4 mt-2 mb-6">
           {contract_summary.map((item, i) => {
             return (
               <Fragment key={item.title}>

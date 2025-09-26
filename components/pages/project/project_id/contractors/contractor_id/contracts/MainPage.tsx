@@ -93,7 +93,7 @@ function MainPage() {
       ]);
 
       if (project.error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: project.error.message,
         });
 
@@ -101,7 +101,7 @@ function MainPage() {
       }
 
       if (contractor.error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: contractor.error.message,
         });
 

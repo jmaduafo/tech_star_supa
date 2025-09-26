@@ -87,9 +87,24 @@ function ViewStages({
     getData();
   }, []);
 
-  // useEffect(() => {
-  //   const channel 
-  // }, [])
+  useEffect(() => {
+    const channel = supabase
+      .channel("db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "stages",
+        },
+        (payload) => getData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, data, setData]);
 
   return (
     <>
@@ -138,7 +153,7 @@ function ViewStages({
                     className="text-darkText bg-lightText/40 px-2 py-2 rounded-md"
                   >
                     <div className="flex justify-between gap-6">
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-3">
                         <div className="w-9 h-9 flex justify-center items-center rounded-full bg-darkText text-lightText">
                           {Icon && <Icon className="w-5 h-5" strokeWidth={1} />}
                         </div>
@@ -334,7 +349,7 @@ const EditRow = ({
     name: stage?.name ?? "",
     desc: stage?.description ?? "",
     is_completed: stage?.is_completed ?? false,
-    icon: stage?.icon?.toString() ?? ""
+    icon: stage?.icon?.toString() ?? "",
   });
 
   const { userData } = useAuth();
@@ -412,6 +427,7 @@ const EditRow = ({
       });
 
       setStage(undefined);
+      setViewOpen(true)
     } catch (err: any) {
       toast.error("Something went wrong", {
         description: err.message,
@@ -448,15 +464,19 @@ const EditRow = ({
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
-          <CustomInput htmlFor={"desc"} label={"Description"} className="mt-3">
+          <CustomInput
+            htmlFor={"desc"}
+            label={"Description *"}
+            className="mt-3"
+          >
             <input
               type={"text"}
               name={"desc"}
               id={"desc"}
               value={form.desc}
               onChange={(e) => setForm({ ...form, desc: e.target.value })}
-              maxLength={80}
-              className="form"
+              maxLength={50}
+              className="form !mt-0"
             />
           </CustomInput>
           <div className="">

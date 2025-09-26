@@ -1,4 +1,3 @@
-import Header6 from "@/components/fontsize/Header6";
 import { optionalS } from "@/utils/optionalS";
 import React from "react";
 import TextButton from "../buttons/TextButton";

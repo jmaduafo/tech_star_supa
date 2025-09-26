@@ -147,7 +147,7 @@ function ContractDisplay({
     const result = ContractSchema.safeParse(values);
 
     if (!result.success) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: result.error.issues[0].message,
       });
 
@@ -190,7 +190,7 @@ function ContractDisplay({
         .single();
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -211,7 +211,7 @@ function ContractDisplay({
         .insert(amountsArray);
 
       if (amountError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: amountError.message,
         });
 
@@ -232,14 +232,14 @@ function ContractDisplay({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Contract was added successfully",
       });
 
@@ -262,7 +262,7 @@ function ContractDisplay({
       setCurrencyInputs([]);
       setContractDate(undefined);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
     } finally {

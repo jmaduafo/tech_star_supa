@@ -27,12 +27,9 @@ import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
 import { currency_list } from "@/utils/dataTools";
 import KpiCard from "@/components/ui/cards/KpiCard";
-import CardSkeleton from "@/components/ui/cards/CardSkeleton";
-import Loading from "@/components/ui/loading/Loading";
 
 function MainPage() {
   const [data, setData] = useState<Payment[] | undefined>();
-  const [contractData, setContractData] = useState<Contract | undefined>();
 
   const [currencyList, setCurrencyList] = useState<Amount[] | undefined>();
   const [kpis, setKpis] = useState<Versus[] | undefined>();
@@ -50,34 +47,20 @@ function MainPage() {
         return;
       }
 
-      const [contract, payments] = await Promise.all([
-        supabase
-          .from("contracts")
-          .select(
-            `*, projects (name), contractors (name), stages ( id, name ), contract_amounts (*)`
-          )
-          .eq("project_id", project_id)
-          .eq("contractor_id", contractor_id)
-          .eq("id", contract_id)
-          .eq("team_id", userData.team_id)
-          .single()
-          .throwOnError(),
-        supabase
-          .from("payments")
-          .select(
-            `*, projects (name), contractors (name), stages ( id, name ), contracts (contract_code, contract_amounts ( * )), payment_amounts (*)`
-          )
-          .eq("project_id", project_id)
-          .eq("contractor_id", contractor_id)
-          .eq("contract_id", contract_id)
-          .eq("team_id", userData.team_id)
-          .throwOnError(),
-      ]);
+      const { data } = await supabase
+        .from("payments")
+        .select(
+          `*, projects (name), contractors (name), stages ( id, name ), contracts (*, contract_amounts ( * )), payment_amounts (*)`
+        )
+        .eq("project_id", project_id)
+        .eq("contractor_id", contractor_id)
+        .eq("contract_id", contract_id)
+        .eq("team_id", userData.team_id)
+        .throwOnError();
 
-      setData(payments.data as Payment[]);
-      setContractData(contract.data as Contract);
+      setData(data as Payment[]);
 
-      const contract_amounts = payments.data[0]?.contracts?.contract_amounts;
+      const contract_amounts = data[0]?.contracts?.contract_amounts;
 
       if (contract_amounts) {
         setCurrencyList(contract_amounts);
@@ -85,11 +68,11 @@ function MainPage() {
         setSelectedSymbol(contract_amounts[0].symbol);
 
         setKpis([
-          revisedContract(payments.data, contract_amounts[0].code),
-          contractPayments(payments.data, contract_amounts[0].code),
-          totalBalance(payments.data, contract_amounts[0].code),
-          totalPending(payments.data, contract_amounts[0].code),
-          totalUnpaid(payments.data, contract_amounts[0].code),
+          revisedContract(data, contract_amounts[0].code),
+          contractPayments(data, contract_amounts[0].code),
+          totalBalance(data, contract_amounts[0].code),
+          totalPending(data, contract_amounts[0].code),
+          totalUnpaid(data, contract_amounts[0].code),
         ]);
       }
     } catch (err: any) {
@@ -154,7 +137,7 @@ function MainPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, data, setData, contractData, setContractData]);
+  }, [supabase, data, setData]);
 
   const changeCurrency = (code: string) => {
     setSelectedCurrency(code);
@@ -210,20 +193,23 @@ function MainPage() {
   return (
     <>
       <div className="">
-        {contractData && data ? (
-          <MainTitle title={contractData?.contract_code} data={data} />
+        {data ? (
+          <MainTitle
+            title={data[0].contracts?.contract_code ?? ""}
+            data={data}
+          />
         ) : null}
         <div className="mb-3">
-          {contractData ? (
+          {data ? (
             <Banner
-              text={contractData.is_completed ? "completed" : "ongoing"}
+              text={data[0].contracts?.is_completed ? "completed" : "ongoing"}
             />
           ) : null}
         </div>
       </div>
       {/* BREADCRUMB DISPLAY */}
       <div className="mb-8">
-        {contractData ? (
+        {data ? (
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -232,7 +218,7 @@ function MainPage() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink href={`/projects/${project_id}/contractors`}>
-                  {contractData.projects?.name}
+                  {data[0].projects?.name}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -240,12 +226,14 @@ function MainPage() {
                 <BreadcrumbLink
                   href={`/projects/${project_id}/contractors/${contractor_id}/contracts`}
                 >
-                  {contractData.contractors?.name}
+                  {data[0].contractors?.name}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>{contractData.contract_code}</BreadcrumbPage>
+                <BreadcrumbPage>
+                  {data[0].contracts?.contract_code}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -282,7 +270,11 @@ function MainPage() {
           })}
         </div>
       ) : null}
-      <PaymentDisplay user={userData} data={data} contract={contractData} />
+      <PaymentDisplay
+        user={userData}
+        data={data}
+        contract={data && (data[0]?.contracts as Contract | undefined)}
+      />
     </>
   );
 }

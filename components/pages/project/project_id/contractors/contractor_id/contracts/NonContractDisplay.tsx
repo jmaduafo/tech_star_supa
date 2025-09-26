@@ -119,7 +119,7 @@ function NonContractDisplay({
     const result = PaymentSchema.safeParse(values);
 
     if (!result.success) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: result.error.issues[0].message,
       });
 
@@ -165,7 +165,7 @@ function NonContractDisplay({
         .single();
 
       if (error) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: error.message,
         });
 
@@ -183,7 +183,7 @@ function NonContractDisplay({
         });
 
       if (amountError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: amountError.message,
         });
 
@@ -204,7 +204,7 @@ function NonContractDisplay({
         });
 
       if (activityError) {
-        toast("Something went wrong", {
+        toast.error("Something went wrong", {
           description: activityError.message,
         });
 
@@ -213,7 +213,7 @@ function NonContractDisplay({
         return;
       }
 
-      toast("Success!", {
+      toast.success("Success!", {
         description: "Stand alone payment was added successfully",
       });
 
@@ -235,7 +235,7 @@ function NonContractDisplay({
       setCurrencyInputs([]);
       setPaymentDate(undefined);
     } catch (err: any) {
-      toast("Something went wrong", {
+      toast.error("Something went wrong", {
         description: err.message,
       });
     } finally {

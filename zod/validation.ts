@@ -155,7 +155,7 @@ export const StagesSchema = z.object({
     .min(1, { message: "You must enter a name for this stage." })
     .max(50),
   is_completed: z.boolean(),
-  icon: z.number().int().min(1),
+  icon: z.number().int().min(0),
 });
 
 const months = [

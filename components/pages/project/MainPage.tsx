@@ -18,6 +18,9 @@ import { useSearchParams } from "next/navigation";
 import { Slider } from "@/components/ui/slider";
 import MainTitle from "@/components/ui/labels/MainTitle";
 import { sortByNumOrBool, sortByString } from "@/utils/sortFilter";
+import { Button } from "@/components/ui/button";
+import { LayoutGrid, List } from "lucide-react";
+import { changeView } from "@/utils/localView";
 
 function MainPage() {
   const [sort, setSort] = useState("");
@@ -39,6 +42,8 @@ function MainPage() {
   const [filteredProjects, setFilteredProjects] = useState<
     Project[] | undefined
   >([]);
+
+  const [view, setView] = useState("grid");
 
   const { userData } = useAuth();
 
@@ -69,6 +74,10 @@ function MainPage() {
 
       setAllProjects(data as Project[]);
       setFilteredProjects(data as Project[]);
+
+      const view = localStorage.getItem("tech_star_view");
+
+      view ? setView(view) : setView("grid");
     } catch (err: any) {
       console.log(err.message);
     }
@@ -251,6 +260,28 @@ function MainPage() {
             value={searchValue}
           />
         </div>
+        <div className="flex gap-1">
+          <Button
+            title="grid view"
+            variant="outline"
+            onClick={() => setView(changeView(view))}
+            className={`${
+              view === "grid" ? "bg-lightText" : "bg-lightText/60"
+            }`}
+          >
+            <LayoutGrid />
+          </Button>
+          <Button
+            title="list view"
+            variant="outline"
+            onClick={() => setView(changeView(view))}
+            className={`${
+              view === "list" ? "bg-lightText" : "bg-lightText/60"
+            }`}
+          >
+            <List />
+          </Button>
+        </div>
         <AddButton
           setOpen={setOpen}
           open={open}
@@ -367,6 +398,7 @@ function MainPage() {
           user={userData}
           allProjects={filteredProjects}
           setAllProjects={setAllProjects}
+          view={view}
         />
       </div>
     </div>

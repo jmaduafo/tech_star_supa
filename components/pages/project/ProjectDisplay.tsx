@@ -2,7 +2,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Project, User } from "@/types/types";
 import Card from "@/components/ui/cards/MyCard";
-import { EllipsisVertical } from "lucide-react";
+import { Ellipsis, EllipsisVertical } from "lucide-react";
 import Banner from "@/components/ui/Banner";
 import Header4 from "@/components/fontsize/Header4";
 import {
@@ -49,14 +49,24 @@ import { useAuth } from "@/context/UserContext";
 import AddStage from "./AddStage";
 import ViewStages from "./ViewStages";
 import CardSkeleton from "@/components/ui/cards/CardSkeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 function ProjectDisplay({
   user,
   allProjects,
   setAllProjects,
+  view,
 }: {
   readonly user: User | undefined;
   readonly allProjects: Project[] | undefined;
+  readonly view: string;
   readonly setAllProjects: React.Dispatch<
     React.SetStateAction<Project[] | undefined>
   >;
@@ -65,6 +75,9 @@ function ProjectDisplay({
     allProjects && allProjects.length === 0 ? (
       <NotAvailable text="No projects created yet" />
     ) : null;
+
+  const gridView = "";
+  const cardView = "";
 
   return (
     <section className="">
@@ -82,53 +95,108 @@ function ProjectDisplay({
           : null}
       </div>
       {allProjects?.length ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
-          {allProjects?.map((item) => {
-            return (
-              <Fragment key={item.id}>
-                <Card className="h-[27vh] z-0 hover:opacity-90 duration-300 hover:shadow-md">
-                  <div className="flex flex-col h-full">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <Link href={`/projects/${item?.id}/contractors`}>
-                          <Header4 text={item.name} className="capitalize" />
-                        </Link>
-                        <p className="text-[14px] text-light50">
-                          Since {item?.start_month?.substring(0, 3)}.{" "}
-                          {item.start_year} -{" "}
-                          {item?.city ? (
-                            <span className="italic capitalize">
-                              {item.city},{" "}
-                            </span>
+        <>
+          {view === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
+              {allProjects.map((item) => {
+                return (
+                  <Fragment key={item.id}>
+                    <Card className="h-[27vh] z-0 hover:opacity-90 duration-300 hover:shadow-md">
+                      <div className="flex flex-col h-full">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <Link href={`/projects/${item?.id}/contractors`}>
+                              <Header4
+                                text={item.name}
+                                className="capitalize"
+                              />
+                            </Link>
+                            <p className="text-[14px] text-light50">
+                              Since {item?.start_month?.substring(0, 3)}.{" "}
+                              {item.start_year} -{" "}
+                              {item?.city ? (
+                                <span className="italic capitalize">
+                                  {item.city},{" "}
+                                </span>
+                              ) : null}
+                              <span className="italic">{item.country}</span>
+                            </p>
+                          </div>
+                          <DropDown
+                            project={item}
+                            setAllProjects={setAllProjects}
+                            allProjects={allProjects}
+                            view={view}
+                          />
+                        </div>
+                        <div className="mt-auto flex items-end justify-between gap-2">
+                          <Banner
+                            text={item.is_completed ? "completed" : "ongoing"}
+                          />
+                          {item.updated_at ? (
+                            <p className="text-sm font-light">
+                              Modified:{" "}
+                              <span className="italic">
+                                {formatAgo(item.updated_at)}
+                              </span>
+                            </p>
                           ) : null}
-                          <span className="italic">{item.country}</span>
-                        </p>
+                        </div>
                       </div>
-                      <DropDown
-                        project={item}
-                        setAllProjects={setAllProjects}
-                        allProjects={allProjects}
-                      />
-                    </div>
-                    <div className="mt-auto flex items-end justify-between gap-2">
-                      <Banner
-                        text={item.is_completed ? "completed" : "ongoing"}
-                      />
-                      {item.updated_at ? (
-                        <p className="text-sm font-light">
-                          Modified:{" "}
-                          <span className="italic">
-                            {formatAgo(item.updated_at)}
-                          </span>
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </Card>
-              </Fragment>
-            );
-          })}
-        </div>
+                    </Card>
+                  </Fragment>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="">Project Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead className="w-[100px]">Start Year</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allProjects.map((item) => {
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell className="">
+                          {item.name}
+                        </TableCell>
+                        <TableCell>
+                          <Banner
+                            text={item.is_completed ? "completed" : "ongoing"}
+                          />
+                        </TableCell>
+                        <TableCell>C</TableCell>
+                        <TableCell>
+                          {item.city ? item.city + ", " : ""}
+                          {item.country}
+                        </TableCell>
+                        <TableCell>
+                          {item.start_month} {item.start_year}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropDown
+                            project={item}
+                            setAllProjects={setAllProjects}
+                            allProjects={allProjects}
+                            view={view}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </>
       ) : (
         notAvailable
       )}
@@ -142,12 +210,14 @@ function DropDown({
   project,
   allProjects,
   setAllProjects,
+  view
 }: {
   readonly project: Project | undefined;
   readonly setAllProjects: React.Dispatch<
     React.SetStateAction<Project[] | undefined>
   >;
   readonly allProjects: Project[] | undefined;
+  readonly view: string
 }) {
   const [dropDownOpen, setDropDownOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -162,10 +232,10 @@ function DropDown({
       <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
         <DropdownMenuTrigger asChild>
           <button>
-            <EllipsisVertical className="w-5 h-5" />
+            {view === "grid" ? <EllipsisVertical className="w-5 h-5" /> : <Ellipsis className="w-5 h-5" />}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align={"center"}>
           <DropdownMenuLabel>Stages</DropdownMenuLabel>
           <DropdownMenuGroup>
             {userData?.role === "admin" ? (

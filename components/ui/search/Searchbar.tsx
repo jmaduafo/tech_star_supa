@@ -39,7 +39,7 @@ function Searchbar({
 
   return (
     <div
-      className={`z-50 relative flex justify-between items-center gap-3 bg-light35 backdrop-blur-lg px-1.5 py-1 rounded-xl
+      className={`z-50 relative flex justify-between items-center gap-3 bg-lightText/35 backdrop-blur-lg px-1.5 py-1 rounded-xl
       }`}
     >
       <div ref={searchRef} className="flex items-center gap-1 flex-1">
@@ -53,7 +53,7 @@ function Searchbar({
           className="placeholder-darkText/70 text-sm py-0"
         />
       </div>
-      <div className="h-full px-2 py-0.5 flex gap-1.5 justify-center items-center bg-lightText/70 text-darkText rounded-md">
+      <div className="h-full px-2 py-0.5 flex gap-1.5 justify-center items-center bg-darkText/80 text-lightText rounded-md">
         <CornerDownLeft strokeWidth={1.2} className="w-3.5 h-3.5" />
         <Paragraph text="Enter" className="font-light" />
       </div>

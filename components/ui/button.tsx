@@ -14,7 +14,7 @@ const buttonVariants = cva(
         destructive:
           "bg-red-500 text-zinc-50 shadow-sm hover:bg-red-500/90 dark:bg-red-900 dark:text-zinc-50 dark:hover:bg-red-900/90",
         outline:
-          "placeholder-darkText border border-none bg-light60 text-darkText backdrop-blur-2xl shadow-sm hover:bg-light90 hover:text-darkText dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
+          "placeholder-darkText border border-none bg-lightText/40 text-darkText backdrop-blur-2xl shadow-sm hover:bg-light90 hover:text-darkText dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
         secondary:
           "bg-lightText/90 text-darkText shadow-sm duration-300 hover:bg-lightText dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-800/80",
         ghost: "hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",

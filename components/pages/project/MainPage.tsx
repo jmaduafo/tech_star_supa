@@ -266,7 +266,7 @@ function MainPage() {
             variant="outline"
             onClick={() => setView(changeView(view))}
             className={`${
-              view === "grid" ? "bg-lightText" : "bg-lightText/60"
+              view === "grid" ? "bg-lightText" : ""
             }`}
           >
             <LayoutGrid />
@@ -276,7 +276,7 @@ function MainPage() {
             variant="outline"
             onClick={() => setView(changeView(view))}
             className={`${
-              view === "list" ? "bg-lightText" : "bg-lightText/60"
+              view === "list" ? "bg-lightText" : ""
             }`}
           >
             <List />

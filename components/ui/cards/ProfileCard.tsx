@@ -281,7 +281,7 @@ function ProfileCard({
             )}
             {/* USER EXTRA INFO */}
             {user ? (
-              <div className="mt-5 flex bg-lightText/35 rounded-md p-3">
+              <div className="mt-5 flex bg-lightText/65 rounded-md p-3">
                 {/* HIRE TYPE */}
                 <div className="flex-1 border-r border-darkText/10">
                   <Header6

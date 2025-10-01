@@ -90,7 +90,7 @@ function ContractorDisplay({
           {allContractors?.map((item) => {
             return (
               <Fragment key={item.id}>
-                <Card className="h-[27vh] text-lightText hover:opacity-80 duration-300 hover:shadow-md">
+                <Card className="h-[27vh] hover:opacity-80 duration-300 hover:shadow-md">
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-start gap-5">
                       <div>
@@ -101,7 +101,7 @@ function ContractorDisplay({
                           <Header4 text={item.name} className="capitalize" />
                         </Link>
                         {/* CONTRACTOR LOCATION */}
-                        <p className="text-[14px] text-light50">
+                        <p className="text-[14px] text-darkText/50">
                           {item?.city ? (
                             <span className="italic capitalize">
                               {item.city},{" "}

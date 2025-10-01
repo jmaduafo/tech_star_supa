@@ -73,7 +73,7 @@ function TimeDate({
         className={`flex justify-center items-center gap-2 tracking-tighter`}
       >
         {/* TIME ICON */}
-        <div className="text-lightText duration-200">
+        <div className="text-darkText duration-200">
           <Clock2
             strokeWidth={1.2}
             className={

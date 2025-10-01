@@ -111,7 +111,7 @@ function ProjectDisplay({
                                 className="capitalize"
                               />
                             </Link>
-                            <p className="text-[14px] text-light50">
+                            <p className="text-[14px] text-darkText/50">
                               Since {item?.start_month?.substring(0, 3)}.{" "}
                               {item.start_year} -{" "}
                               {item?.city ? (
@@ -165,9 +165,9 @@ function ProjectDisplay({
                   {allProjects.map((item) => {
                     return (
                       <TableRow key={item.id}>
-                        <TableCell className="">
-                          {item.name}
-                        </TableCell>
+                        <Link href={`/projects/${item?.id}/contractors`}>
+                          <TableCell className="">{item.name}</TableCell>
+                        </Link>
                         <TableCell>
                           <Banner
                             text={item.is_completed ? "completed" : "ongoing"}
@@ -210,14 +210,14 @@ function DropDown({
   project,
   allProjects,
   setAllProjects,
-  view
+  view,
 }: {
   readonly project: Project | undefined;
   readonly setAllProjects: React.Dispatch<
     React.SetStateAction<Project[] | undefined>
   >;
   readonly allProjects: Project[] | undefined;
-  readonly view: string
+  readonly view: string;
 }) {
   const [dropDownOpen, setDropDownOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -232,7 +232,11 @@ function DropDown({
       <DropdownMenu open={dropDownOpen} onOpenChange={setDropDownOpen}>
         <DropdownMenuTrigger asChild>
           <button>
-            {view === "grid" ? <EllipsisVertical className="w-5 h-5" /> : <Ellipsis className="w-5 h-5" />}
+            {view === "grid" ? (
+              <EllipsisVertical className="w-5 h-5" />
+            ) : (
+              <Ellipsis className="w-5 h-5" />
+            )}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align={"center"}>

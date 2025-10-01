@@ -127,7 +127,7 @@ function AmountDisplay({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3">
         <SelectBar
           valueChange={setSelectedProject}
           value={selectedProject}
@@ -183,7 +183,7 @@ function AmountDisplay({
           })}
         </SelectBar>
       </div>
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-2">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mt-2">
         {kpi
           ? cardTitle.map((item, i) => {
               return (

@@ -14,7 +14,7 @@ function ChartHeading({
   return (
     <div className={`mb-4 ${className}`}>
       <Header4 text={text} />
-      <Header6 text={subtext} className="text-lightText/70 mt-0.5" />
+      <Header6 text={subtext} className="text-darkText/70 mt-0.5" />
     </div>
   );
 }

@@ -27,13 +27,14 @@ function PieChart2({ data, dataKey }: { readonly data: any[]; readonly dataKey?:
             <Cell
               key={`cell-${index + 1}`}
               fill={COLORS[index % COLORS.length]}
+              
             />
           ))}
         </Pie>
         <Legend
           wrapperStyle={{
             fontSize: 13.5,
-            color: "#ececec",
+            color: "#141414",
           }}
           content={({ payload }) => (
             <ul
@@ -64,6 +65,8 @@ function PieChart2({ data, dataKey }: { readonly data: any[]; readonly dataKey?:
                     style={{
                       width: 7,
                       height: 7,
+                      borderWidth: "1px",
+                      borderColor: "#14141410",
                       borderRadius: "20%", // circle instead of square
                       backgroundColor: entry.color,
                       marginRight: 5,
@@ -80,10 +83,11 @@ function PieChart2({ data, dataKey }: { readonly data: any[]; readonly dataKey?:
             backgroundColor: "#141414",
             borderRadius: "5px",
             border: "none",
+            color: "#ececec"
           }}
           itemStyle={{
             fontSize: "13px",
-            color: "#ececec",
+            color: "#ececec90",
           }}
         /> : null}
       </PieChart>

@@ -74,7 +74,7 @@ function Activities({
                 key={`item_${i + 1}`}
                 className={`py-2.5 px-1.5 ${
                   i + 1 !== 5 ? "border-b" : ""
-                } border-b-lightText/10 flex justify-between items-center gap-4 w-full hover:bg-lightText/10 duration-300`}
+                } border-b-darkText/10 flex justify-between items-center gap-4 w-full hover:bg-darkText/5 duration-300`}
               >
                 <div className="flex-1 hidden sm:block">
                   <Paragraph

@@ -54,7 +54,7 @@ function ContractPaymentArea({
             text="Contracts vs Contract Payments"
             subtext="Recording of contract amounts and paid contract payments over time"
           />
-          <div className="h-[35vh] w-full">
+          <div className="h-[35vh] w-full mt-8">
             <AreaChart
               data={data}
               format

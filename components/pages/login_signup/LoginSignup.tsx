@@ -9,7 +9,7 @@ function LoginSignup() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div>    
+    <div>
       <div className="">
         <FormSwitch isLogin={isLogin} setIsLogin={setIsLogin} />
       </div>

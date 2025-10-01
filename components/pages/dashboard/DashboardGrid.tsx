@@ -69,7 +69,7 @@ function DashboardGrid({
 
   return (
     <div
-      className="grid h-auto gap-4
+      className="grid h-auto gap-3
     [grid-template-areas:'greeting_greeting''calc_calc''activities_activities''activities_activities''pie_pie''pie_pie''projects_contractors']
     [grid-template-rows:auto]
     [grid-template-columns:1fr_1fr]

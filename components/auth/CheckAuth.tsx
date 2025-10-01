@@ -24,9 +24,9 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
   const pathname = usePathname();
   const route = useRouter();
 
-  const { userData } = useAuth();
+  // const { userData } = useAuth();
 
-  const { data: bgIndex } = useBackgroundImage(userData?.id);
+  // const { data: bgIndex } = useBackgroundImage(userData?.id);
   const isOnline = useNetworkStatus();
   // GETS THE CURRENT USER SESSION TO LISTEN IF USER IS
   // LOGGED IN OR NOT
@@ -91,11 +91,11 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
         <SidebarProvider>
           <AppSidebar />
           <main
-            style={{
-              backgroundImage: bgIndex
-                ? `url(${images[bgIndex]?.image})`
-                : `url(${images[0].image})`,
-            }}
+            // style={{
+            //   backgroundImage: bgIndex
+            //     ? `url(${images[bgIndex]?.image})`
+            //     : `url(${images[0].image})`,
+            // }}
             className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
           >
             <AuthContainer>{children}</AuthContainer>
@@ -103,9 +103,9 @@ function CheckAuth({ children }: { readonly children: React.ReactNode }) {
         </SidebarProvider>
       ) : (
         <main
-          style={{
-            backgroundImage: `url(${images[0].image})`,
-          }}
+          // style={{
+          //   backgroundImage: `url(${images[0].image})`,
+          // }}
           className={`h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat duration-300 overflow-y-auto`}
         >
           {children}

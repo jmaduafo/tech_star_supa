@@ -11,7 +11,7 @@ function MainTitle({
   readonly data: any[] | undefined;
 }) {
   return (
-    <div className="flex items-start gap-5 mb-4 text-lightText">
+    <div className="flex items-start gap-5 mb-4">
       {title.length ? <Header1 text={title} /> : null}
       {data ? (
         <Header6 text={`${data.length} result${optionalS(data.length)}`} />

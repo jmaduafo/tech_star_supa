@@ -253,7 +253,7 @@ function DataTable<TData, TValue>({
         {/* SEARCH ENGINE */}
         <input
           placeholder={`Filter by ${filterCategory.split("_").join(" ")}`}
-          className="searchTable flex-shrink-1 placeholder:text-light70 max-w-sm backdrop-blur-2xl"
+          className=" bg-lightText/45 rounded-lg text-sm flex-shrink-1 text-darkText placeholder:text-darkText/70 max-w-sm backdrop-blur-2xl"
           value={
             (table.getColumn(filterCategory)?.getFilterValue() as string) || ""
           }

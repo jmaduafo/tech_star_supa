@@ -58,9 +58,9 @@ export const images = [
 ];
 
 export const COLORS = [
-  "#ececec",
-  "#cbcbcb",
-  "#ababab",
+  "#d6d3d1",
+  "#a8a29e",
+  "#78716c",
   "#8c8c8c",
   "#6f6f6f",
   "#525252",
@@ -70,9 +70,9 @@ export const COLORS = [
 ];
 
 export const AREA_COLORS = [
-  "#ececec",
-  // "#cbcbcb",
-  "#ababab",
+  "#d6d3d1",
+  "#a8a29e",
+  "#78716c",
   // "#8c8c8c",
   "#6f6f6f",
   // "#525252",

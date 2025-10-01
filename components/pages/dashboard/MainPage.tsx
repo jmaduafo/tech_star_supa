@@ -67,12 +67,14 @@ function MainPage() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <DashboardGrid projects={allProjects} currencies={currenciesList} />
       <Card className="">
         <LineChartDisplay projects={allProjects} currencies={currenciesList} />
       </Card>
-      <PaymentDisplay projects={allProjects} currencies={currenciesList} />
+      <div className="mt-2">
+        <PaymentDisplay projects={allProjects} currencies={currenciesList} />
+      </div>
     </div>
   );
 }

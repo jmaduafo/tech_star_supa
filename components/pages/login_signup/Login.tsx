@@ -1,9 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import Header1 from "@/components/fontsize/Header1";
-import Header6 from "@/components/fontsize/Header6";
-import IconInput from "@/components/ui/input/IconInput";
-import { CiMail, CiLock } from "react-icons/ci";
 import { HiEye, HiEyeSlash } from "react-icons/hi2";
 import Submit from "@/components/ui/buttons/Submit";
 import { toast } from "sonner";
@@ -11,6 +7,9 @@ import { useRouter } from "next/navigation";
 import ForgotPassword from "./ForgotPassword";
 import { createClient } from "@/lib/supabase/client";
 import { isValidEmail, isValidPassword } from "@/utils/validation";
+import LogSignHeading from "@/components/ui/labels/LogSignHeading";
+import Input from "@/components/ui/input/Input";
+import CustomInput from "@/components/ui/input/CustomInput";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -75,66 +74,52 @@ function Login() {
 
   return (
     <div>
-      <Header1 text="Welcome back!" className="text-darkText" />
-      <Header6
-        className="mt-4 text-darkText"
-        text="Sign in to access your account and stay on top of  your company finances effortlessly."
+      <LogSignHeading
+        heading="Sign in to your account"
+        text="Securely access your projects and keep your work moving forward"
       />
       <form className="mt-10" onSubmit={handleLogin}>
-        <div>
-          <IconInput
-            icon={<CiMail className="w-5 h-5 sm:w-6 sm:h-6" />}
-            input={
-              <input
-                placeholder="Email"
-                type="text"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="placeholder-dark50"
-              />
-            }
-          />
-        </div>
-        <div className="mt-4">
-          <IconInput
-            icon={<CiLock className="w-5 h-5 sm:w-6 sm:h-6" />}
-            input={
-              <input
-                placeholder="Password"
-                // CHANGE THE TYPE BASED ON BUTTON CLICK
-                type={viewPass ? "text" : "password"}
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="placeholder-dark50"
-              />
-            }
-            // BUTTON TO HIDE OR VIEW PASSWORD TEXT
-            otherLogic={
-              <button
-                type="button"
-                className="text-darkText pr-3 cursor-pointer"
-                onClick={() => setViewPass((prev) => !prev)}
-              >
-                {viewPass ? (
-                  <HiEye className="w-5 h-5" />
-                ) : (
-                  <HiEyeSlash className="w-5 h-5" />
-                )}
-              </button>
-            }
-          />
-        </div>
+        <Input
+          label="Email *"
+          htmlFor="email"
+          placeholder="eg. example@email.com"
+          type="text"
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <CustomInput htmlFor={"password"} label={"Password *"} className="mt-4">
+          <div className="flex items-center bg-lightText/50 rounded-[10px] px-1">
+            <input
+              placeholder="••••••"
+              // CHANGE THE TYPE BASED ON BUTTON CLICK
+              type={viewPass ? "text" : "password"}
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="text-sm placeholder-darkText/65"
+            />
+            <button
+              type="button"
+              className="text-darkText pr-3 cursor-pointer"
+              onClick={() => setViewPass((prev) => !prev)}
+            >
+              {viewPass ? (
+                <HiEye className="w-5 h-5" />
+              ) : (
+                <HiEyeSlash className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+        </CustomInput>
+
         <div>
           <ForgotPassword />
         </div>
         <div className="mt-[4em] flex justify-end">
           <Submit
             loading={isLoading}
-            width="w-[50px]"
-            width_height="w-[100px] h-[50px]"
-            arrow_width_height="w-8 h-8"
             disabledLogic={isLoading}
           />
         </div>

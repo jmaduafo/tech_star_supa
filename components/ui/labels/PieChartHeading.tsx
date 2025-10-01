@@ -14,7 +14,7 @@ function PieChartHeading({
   return (
     <div className={`${className}`}>
       <Header6 text={text} className='text-center'/>
-      <Paragraph text={subtext} className="text-center text-lightText/70 mt-0.5" />
+      <Paragraph text={subtext} className="text-center text-darkText/70 mt-0.5" />
     </div>
   )
 }

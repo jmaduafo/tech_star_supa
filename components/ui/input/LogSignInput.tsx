@@ -26,7 +26,7 @@ function Input({
       <label htmlFor={htmlFor}>{label}</label>
       <input
         type={type}
-        className="bg-lightText/50 text-darkText rounded-[10px] px-3 py-2 text-sm placeholder-darkText/65 mt-2"
+        className="bg-lightText/50 text-darkText rounded-[10px] px-3 py-2.5 text-base placeholder-darkText/65 mt-2"
         value={value}
         onChange={onChange}
         name={name}
@@ -37,4 +37,4 @@ function Input({
   );
 }
 
-export default Input;
+export default Input

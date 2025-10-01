@@ -54,7 +54,7 @@ function Greeting({ user }: { readonly user: User | undefined }) {
           )}
           <div className="mt-3">
             {user?.role === "admin" || user?.role === "editor" ? (
-              <p className="capitalize px-3 py-[1px] text-[13.5px] rounded-full border-[1.5px] border-lightText w-fit">
+              <p className="capitalize px-3 py-[1px] text-[13.5px] rounded-full border-[1.5px] border-darkText w-fit">
                 {user.role}
               </p>
             ) : null}

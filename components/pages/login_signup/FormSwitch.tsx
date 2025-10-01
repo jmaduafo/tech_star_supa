@@ -9,11 +9,11 @@ function FormSwitch({
   readonly setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <div className="w-full bg-lightText relative rounded-full h-[60px] z-[0]">
+    <div className="w-full bg-lightText relative rounded-2xl h-[60px] z-[0]">
       <div
         className={`${
           isLogin ? "translate-x-0" : "translate-x-[100%]"
-        } duration-300 absolute h-full w-1/2 bg-darkText rounded-full`}
+        } duration-300 absolute h-full w-1/2 bg-darkText rounded-2xl`}
       ></div>
       <div className="flex h-full">
         <button

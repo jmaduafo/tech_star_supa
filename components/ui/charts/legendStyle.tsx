@@ -21,7 +21,7 @@
             <li
               key={`item-${index + 1}`}
               style={{
-                color: entry.color,
+                color: "#141414",
                 marginBottom: "5px",
                 textTransform: "capitalize",
               }}
@@ -31,6 +31,8 @@
                   display: "inline-block",
                   width: "10px",
                   height: "10px",
+                  borderWidth: "1px",
+                  borderColor: "#14141440",
                   borderRadius: 2,
                   backgroundColor: entry.color,
                   marginRight: "5px",

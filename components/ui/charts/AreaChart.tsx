@@ -62,19 +62,20 @@ function AreaChart({
           axisLine={false}
           tickMargin={8}
           minTickGap={32}
-          tick={{ fill: "#ececec90" }}
+          tick={{ fill: "#14141490" }}
         />
         <YAxis hide />
-        <CartesianGrid vertical={false} stroke="#ececec20" />
+        <CartesianGrid vertical={false} stroke="#14141420" />
         <Tooltip
           contentStyle={{
             backgroundColor: "#141414",
             borderRadius: "5px",
             border: "none",
+            color: "#ececec"
           }}
           itemStyle={{
             fontSize: "13px",
-            color: "#ececec",
+            color: "#ececec90",
           }}
           formatter={(value) =>
             format && code ? `${formatCurrency(+value, code)}` : value

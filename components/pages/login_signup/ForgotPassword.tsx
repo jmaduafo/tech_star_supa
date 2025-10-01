@@ -72,7 +72,7 @@ function ForgotPassword() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="mt-2 text-sm text-lightText/70">
+        <button className="mt-2 text-sm text-darkText/80 underline hover:text-darkText duration-300">
           Forgot password?
         </button>
       </DialogTrigger>

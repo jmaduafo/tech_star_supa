@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${urbanist.className} antialiased bg-lightText text-lightText`}
+        className={`${urbanist.className} antialiased bg-background text-darkText`}
       >
         <Providers>
           <Wrapper>{children}</Wrapper>

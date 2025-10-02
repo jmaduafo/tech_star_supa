@@ -87,7 +87,7 @@ function PieChart2({ data, dataKey }: { readonly data: any[]; readonly dataKey?:
           }}
           itemStyle={{
             fontSize: "13px",
-            color: "#ececec90",
+            color: "rgba(236, 236, 236, .8)",
           }}
         /> : null}
       </PieChart>

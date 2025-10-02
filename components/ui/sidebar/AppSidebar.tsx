@@ -42,7 +42,7 @@ import {
   CollapsibleTrigger,
 } from "../collapsible";
 import { usePathname, useRouter } from "next/navigation";
-import Logo from "../../../public/logo/logo.png";
+import Logo from "../../../public/images/logo.png";
 import Image from "next/image";
 import Header6 from "@/components/fontsize/Header6";
 

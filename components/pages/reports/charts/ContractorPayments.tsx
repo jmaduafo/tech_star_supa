@@ -92,7 +92,7 @@ function ContractorPayments({
               return (
                 <div
                   key={item.name}
-                  className={`flex items-center py-3 px-2 border-b border-b-lightText/20`}
+                  className={`flex items-center py-3 px-2 border-b border-b-darkText/20`}
                 >
                   <div className="flex-1">
                     <Header6 text={`${i + 1}`} />

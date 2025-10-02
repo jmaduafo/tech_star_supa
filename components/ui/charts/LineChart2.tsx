@@ -60,7 +60,7 @@ function LineChart2({
           }}
           itemStyle={{
             fontSize: "13px",
-            color: "#ececec90",
+            color: "rgba(236, 236, 236, .8)",
           }}
           labelFormatter={(value) => {
             if (dateFormat) {

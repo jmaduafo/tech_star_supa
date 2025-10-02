@@ -75,7 +75,7 @@ function AreaChart({
           }}
           itemStyle={{
             fontSize: "13px",
-            color: "#ececec90",
+            color: "rgba(236, 236, 236, .8)",
           }}
           formatter={(value) =>
             format && code ? `${formatCurrency(+value, code)}` : value

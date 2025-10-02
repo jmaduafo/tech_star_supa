@@ -39,7 +39,7 @@ function BarChart({
           minTickGap={32}
           tick={{ fill: "#14141490" }}
         />
-        <YAxis stroke="rgba(236, 236, 236, 0.8)" allowDecimals={false} hide />
+        <YAxis stroke="rgba(20, 20, 20, 0.8)" allowDecimals={false} hide />
         <Tooltip
           contentStyle={{
             backgroundColor: "#141414",
@@ -50,7 +50,7 @@ function BarChart({
           cursor={{ fill: "#d6d3d160" }} // Changes color of screen behind the cells
           labelStyle={{ color: "#ececec", fontSize: "15px" }}
           itemStyle={{
-            color: "#ececec90",
+            color: "rgba(236, 236, 236, .8)",
             fontSize: "14px",
             marginTop: "-4px",
           }}

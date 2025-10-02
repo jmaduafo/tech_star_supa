@@ -18,9 +18,7 @@ import { useSearchParams } from "next/navigation";
 import { Slider } from "@/components/ui/slider";
 import MainTitle from "@/components/ui/labels/MainTitle";
 import { sortByNumOrBool, sortByString } from "@/utils/sortFilter";
-import { Button } from "@/components/ui/button";
-import { LayoutGrid, List } from "lucide-react";
-import { changeView } from "@/utils/localView";
+import GridButtons from "@/components/ui/buttons/GridButtons";
 
 function MainPage() {
   const [sort, setSort] = useState("");
@@ -260,28 +258,7 @@ function MainPage() {
             value={searchValue}
           />
         </div>
-        <div className="flex gap-1">
-          <Button
-            title="grid view"
-            variant="outline"
-            onClick={() => setView(changeView(view))}
-            className={`${
-              view === "grid" ? "bg-lightText" : ""
-            }`}
-          >
-            <LayoutGrid />
-          </Button>
-          <Button
-            title="list view"
-            variant="outline"
-            onClick={() => setView(changeView(view))}
-            className={`${
-              view === "list" ? "bg-lightText" : ""
-            }`}
-          >
-            <List />
-          </Button>
-        </div>
+        <GridButtons setView={setView} view={view} />
         <AddButton
           setOpen={setOpen}
           open={open}

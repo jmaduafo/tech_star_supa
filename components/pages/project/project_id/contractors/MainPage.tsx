@@ -28,6 +28,7 @@ import {
 import MainTitle from "@/components/ui/labels/MainTitle";
 import { sortByNumOrBool, sortByString } from "@/utils/sortFilter";
 import BulkAdd from "@/components/ui/buttons/BulkAdd";
+import GridButtons from "@/components/ui/buttons/GridButtons";
 
 function MainPage() {
   const [filteredContractors, setFilteredContractors] = useState<
@@ -40,6 +41,8 @@ function MainPage() {
   const [sort, setSort] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [projectName, setProjectName] = useState("");
+
+  const [view, setView] = useState("grid");
 
   const [headers, setHeaders] = useState<string[]>([]);
   const [data, setData] = useState<Record<string, string>[]>([]);
@@ -351,6 +354,7 @@ function MainPage() {
             value={searchValue}
           />
         </div>
+        <GridButtons setView={setView} view={view}/>
         <AddButton
           setOpen={setOpen}
           open={open}
@@ -512,6 +516,7 @@ function MainPage() {
         <ContractorDisplay
           allContractors={filteredContractors}
           loading={sortLoading}
+          view={view}
         />
       </div>
     </div>

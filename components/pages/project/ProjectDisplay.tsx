@@ -149,52 +149,49 @@ function ProjectDisplay({
               })}
             </div>
           ) : (
-            <div className="">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="">Project Name</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead className="w-[100px]">Start Year</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allProjects.map((item) => {
-                    return (
-                      <TableRow key={item.id}>
-                        <Link href={`/projects/${item?.id}/contractors`}>
-                          <TableCell className="">{item.name}</TableCell>
-                        </Link>
-                        <TableCell>
-                          <Banner
-                            text={item.is_completed ? "completed" : "ongoing"}
-                          />
-                        </TableCell>
-                        <TableCell>C</TableCell>
-                        <TableCell>
-                          {item.city ? item.city + ", " : ""}
-                          {item.country}
-                        </TableCell>
-                        <TableCell>
-                          {item.start_month} {item.start_year}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropDown
-                            project={item}
-                            setAllProjects={setAllProjects}
-                            allProjects={allProjects}
-                            view={view}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="">Project Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead className="w-[100px]">Start Year</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allProjects.map((item) => {
+                  return (
+                    <TableRow key={item.id}>
+                      {/* <Link href={`/projects/${item?.id}/contractors`}> */}
+                      <TableCell className="">{item.name}</TableCell>
+                      <TableCell>
+                        <Banner
+                          text={item.is_completed ? "completed" : "ongoing"}
+                        />
+                      </TableCell>
+                      <TableCell>C</TableCell>
+                      <TableCell>
+                        {item.city ? item.city + ", " : ""}
+                        {item.country}
+                      </TableCell>
+                      <TableCell>
+                        {item.start_month} {item.start_year}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropDown
+                          project={item}
+                          setAllProjects={setAllProjects}
+                          allProjects={allProjects}
+                          view={view}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           )}
         </>
       ) : (
@@ -261,10 +258,13 @@ function DropDown({
               View stages
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          {userData?.role === "admin" ? (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <Link href={`/projects/${project?.id}/contractors`}>
+              <DropdownMenuItem>View contractors</DropdownMenuItem>
+            </Link>
+            {userData?.role === "admin" ? (
+              <>
                 <DropdownMenuItem
                   onClick={() => {
                     setEditOpen(true);
@@ -273,17 +273,19 @@ function DropDown({
                 >
                   Edit
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setDeleteOpen(true);
                     setDropDownOpen(false);
                   }}
+                  className="text-red-400"
                 >
                   Delete
                 </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </>
-          ) : null}
+              </>
+            ) : null}
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
       <AddStage

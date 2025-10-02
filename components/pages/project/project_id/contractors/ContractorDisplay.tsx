@@ -43,7 +43,7 @@ import {
 import { SelectItem } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { createClient } from "@/lib/supabase/client";
-import { EllipsisVertical } from "lucide-react";
+import { Ellipsis, EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 import Input from "@/components/ui/input/Input";
 import React, { Fragment, useEffect, useState } from "react";
@@ -57,13 +57,23 @@ import ViewLabel from "@/components/ui/labels/ViewLabel";
 import { contractorStages } from "@/utils/stagesFilter";
 import MultiComboBox from "@/components/ui/input/MultiComboBox";
 import CardSkeleton from "@/components/ui/cards/CardSkeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 function ContractorDisplay({
   allContractors,
   loading,
+  view,
 }: {
   readonly allContractors: Contractor[] | undefined;
   readonly loading?: boolean;
+  readonly view: string;
 }) {
   const notAvailable =
     allContractors && allContractors.length === 0 ? (
@@ -86,54 +96,100 @@ function ContractorDisplay({
           : null}
       </div>
       {allContractors?.length ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
-          {allContractors?.map((item) => {
-            return (
-              <Fragment key={item.id}>
-                <Card className="h-[27vh] hover:opacity-80 duration-300 hover:shadow-md">
-                  <div className="flex flex-col h-full">
-                    <div className="flex justify-between items-start gap-5">
-                      <div>
-                        {/* CONTRACTOR TITLE */}
-                        <Link
-                          href={`/projects/${item?.project_id}/contractors/${item?.id}/contracts`}
-                        >
-                          <Header4 text={item.name} className="capitalize" />
-                        </Link>
-                        {/* CONTRACTOR LOCATION */}
-                        <p className="text-[14px] text-darkText/50">
-                          {item?.city ? (
-                            <span className="italic capitalize">
-                              {item.city},{" "}
-                            </span>
+        <>
+          {view === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
+              {allContractors?.map((item) => {
+                return (
+                  <Fragment key={item.id}>
+                    <Card className="h-[27vh] hover:opacity-80 duration-300 hover:shadow-md">
+                      <div className="flex flex-col h-full">
+                        <div className="flex justify-between items-start gap-5">
+                          <div>
+                            {/* CONTRACTOR TITLE */}
+                            <Link
+                              href={`/projects/${item?.project_id}/contractors/${item?.id}/contracts`}
+                            >
+                              <Header4
+                                text={item.name}
+                                className="capitalize"
+                              />
+                            </Link>
+                            {/* CONTRACTOR LOCATION */}
+                            <p className="text-[14px] text-darkText/50">
+                              {item?.city ? (
+                                <span className="italic capitalize">
+                                  {item.city},{" "}
+                                </span>
+                              ) : null}
+                              <span className="italic">{item.country}</span>
+                            </p>
+                          </div>
+                          {/* ELLIPSIS ICON DROPDOWN MENU */}
+                          <DropDown contractor={item} view={view} />
+                        </div>
+                        <div className="mt-auto flex items-end justify-between gap-2">
+                          {/* CONTRACTOR ACTIVITY STATUS */}
+                          <Banner
+                            text={item.is_available ? "ongoing" : "unavailable"}
+                          />
+                          {/* CONTRACTOR INFO LAST UPDATED */}
+                          {item.updated_at ? (
+                            <p className="text-sm font-light">
+                              Modified:{" "}
+                              <span className="italic">
+                                {formatAgo(item.updated_at)}
+                              </span>
+                            </p>
                           ) : null}
-                          <span className="italic">{item.country}</span>
-                        </p>
+                        </div>
                       </div>
-                      {/* ELLIPSIS ICON DROPDOWN MENU */}
-                      <DropDown contractor={item} />
-                    </div>
-                    <div className="mt-auto flex items-end justify-between gap-2">
-                      {/* CONTRACTOR ACTIVITY STATUS */}
-                      <Banner
-                        text={item.is_available ? "ongoing" : "unavailable"}
-                      />
-                      {/* CONTRACTOR INFO LAST UPDATED */}
-                      {item.updated_at ? (
-                        <p className="text-sm font-light">
-                          Modified:{" "}
-                          <span className="italic">
-                            {formatAgo(item.updated_at)}
-                          </span>
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </Card>
-              </Fragment>
-            );
-          })}
-        </div>
+                    </Card>
+                  </Fragment>
+                );
+              })}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="">Project Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead className="w-[100px]">Start Year</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allContractors.map((item) => {
+                  return (
+                    <TableRow key={item.id}>
+                      {/* <Link href={`/projects/${item?.id}/contractors`}> */}
+                      <TableCell className="">{item.name}</TableCell>
+                      <TableCell>
+                        <Banner
+                          text={item.is_available ? "ongoing" : "unavailable"}
+                        />
+                      </TableCell>
+                      <TableCell>{item.description}</TableCell>
+                      <TableCell>
+                        {item.city ? item.city + ", " : ""}
+                        {item.country}
+                      </TableCell>
+                      <TableCell>
+                        {item.start_month} {item.start_year}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropDown contractor={item} view={view} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </>
       ) : (
         notAvailable
       )}
@@ -145,8 +201,10 @@ export default ContractorDisplay;
 
 function DropDown({
   contractor,
+  view,
 }: {
   readonly contractor: Contractor | undefined;
+  readonly view: string;
 }) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -202,10 +260,14 @@ function DropDown({
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <button>
-            <EllipsisVertical className="w-5 h-5" />
+            {view === "grid" ? (
+              <EllipsisVertical className="w-5 h-5" />
+            ) : (
+              <Ellipsis className="w-5 h-5" />
+            )}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="center">
           {userData?.role === "admin" ? (
             <>
               <DropdownMenuGroup>
@@ -229,28 +291,37 @@ function DropDown({
                 setDropdownOpen(false);
               }}
             >
-              View
+              View info
             </DropdownMenuItem>
-            {userData?.role === "admin" ? (
-              <>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setEditOpen(true);
-                    setDropdownOpen(false);
-                  }}
-                >
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setDeleteOpen(true);
-                    setDropdownOpen(false);
-                  }}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </>
-            ) : null}
+            <DropdownMenuGroup>
+              <Link
+                href={`/projects/${contractor?.project_id}/contractors/${contractor?.id}`}
+              >
+                <DropdownMenuItem>View contracts</DropdownMenuItem>
+              </Link>
+              {userData?.role === "admin" ? (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setEditOpen(true);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setDeleteOpen(true);
+                      setDropdownOpen(false);
+                    }}
+                    className="text-red-400"
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              ) : null}
+            </DropdownMenuGroup>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

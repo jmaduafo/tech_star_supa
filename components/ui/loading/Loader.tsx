@@ -3,7 +3,7 @@ import React from "react";
 
 function Loader() {
   return (
-    <main className="h-screen w-full flex items-center justify-center bg-background bg-lightText text-darkText">
+    <main className="h-screen w-full flex items-center justify-center bg-background text-darkText">
       {/* Loading spinner or skeleton */}
       <div className="animate-spin">
         <LoaderCircle className="w-10 h-10" strokeWidth={1.5} />

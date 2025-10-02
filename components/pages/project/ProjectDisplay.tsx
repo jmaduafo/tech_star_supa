@@ -172,9 +172,9 @@ function ProjectDisplay({
                         />
                       </TableCell>
                       <TableCell>
-                        {item.description.length > 50
+                        {item?.description && item?.description?.length > 50
                           ? item.description.slice(0, 50) + "..."
-                          : item.description}
+                          : item?.description}
                       </TableCell>
                       <TableCell>
                         {item.city ? item.city + ", " : ""}

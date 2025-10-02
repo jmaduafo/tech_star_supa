@@ -88,6 +88,16 @@ input {
   padding: 0.5rem;
 }
 
+.selectForm {
+  background-color: rgba(236, 236, 236, 0.5);
+  color: #141414;
+}
+
+.selectForm:hover {
+  background-color: rgb(236, 236, 236) !important;
+  color: #141414;
+}
+
 input.form {
   width: 100%;
   background-color: rgba(236, 236, 236, 0.5);

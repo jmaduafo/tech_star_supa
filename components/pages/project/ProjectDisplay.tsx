@@ -171,7 +171,11 @@ function ProjectDisplay({
                           text={item.is_completed ? "completed" : "ongoing"}
                         />
                       </TableCell>
-                      <TableCell>C</TableCell>
+                      <TableCell>
+                        {item.description.length > 50
+                          ? item.description.slice(0, 50) + "..."
+                          : item.description}
+                      </TableCell>
                       <TableCell>
                         {item.city ? item.city + ", " : ""}
                         {item.country}

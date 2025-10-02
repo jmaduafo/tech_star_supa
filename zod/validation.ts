@@ -104,6 +104,7 @@ export const PasswordValidation = z.object({
 export const CreateProjectSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name." }),
   country: z.string().min(1, { message: "You must select a country." }),
+  description: z.string().min(1, { message: "You must write a description of the project" }),
   city: z.nullable(z.string()),
   month: z.string().min(1, { message: "You must select a month." }),
   year: z

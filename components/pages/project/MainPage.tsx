@@ -30,6 +30,7 @@ function MainPage() {
   const [form, setForm] = useState({
     name: "",
     city: "",
+    description: "",
     relevance: [2.5],
     country: "",
     month: "",
@@ -92,6 +93,7 @@ function MainPage() {
 
     const values = {
       name: form.name.trim(),
+      description: form.description.trim(),
       city: form.city.length ? form.city.trim() : null,
       country: form.country,
       relevance: form.relevance[0],
@@ -111,7 +113,7 @@ function MainPage() {
       return;
     }
 
-    const { city, name, country, month, year } = result.data;
+    const { city, name, country, month, year, description } = result.data;
 
     try {
       if (!userData) {
@@ -123,6 +125,7 @@ function MainPage() {
         team_id: userData?.team_id,
         city,
         country,
+        description,
         start_month: month,
         start_year: year,
       });
@@ -161,6 +164,7 @@ function MainPage() {
       setForm({
         name: "",
         city: "",
+        description: "",
         country: "",
         month: "",
         relevance: [2.5],
@@ -277,6 +281,16 @@ function MainPage() {
               id="name"
             />
             <Input
+              label="Description *"
+              htmlFor="desc"
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              name={"desc"}
+              id="desc"
+              className="mt-3"
+            />
+            <Input
               label="City"
               htmlFor="city"
               type="text"
@@ -298,7 +312,7 @@ function MainPage() {
                   value={form.country}
                   valueChange={(name) => setForm({ ...form, country: name })}
                   label="Countries"
-                  className="mt-1"
+                  className="mt-1 selectForm"
                 >
                   {country_list.map((item) => {
                     return (
@@ -319,7 +333,7 @@ function MainPage() {
                   value={form.month}
                   valueChange={(name) => setForm({ ...form, month: name })}
                   label="Months"
-                  className="mt-1"
+                  className="mt-1 selectForm"
                 >
                   {months.map((item) => {
                     return (
@@ -331,6 +345,20 @@ function MainPage() {
                 </SelectBar>
               </CustomInput>
             </div>
+            <CustomInput htmlFor={"year"} label={"Year *"} className="mt-3">
+              <input
+                type="number"
+                value={form.year}
+                onChange={(e) =>
+                  setForm({ ...form, year: e.target.valueAsNumber })
+                }
+                name="year"
+                id="year"
+                className="form"
+                min={1900}
+                max={new Date().getFullYear()}
+              />
+            </CustomInput>
             <div className="mt-3">
               <label htmlFor="importance_level" className="">
                 Level of relevance (not as crucial to extremely crucial) *
@@ -348,20 +376,6 @@ function MainPage() {
                 className="mt-2"
               />
             </div>
-            <CustomInput htmlFor={"year"} label={"Year *"} className="mt-3">
-              <input
-                type="number"
-                value={form.year}
-                onChange={(e) =>
-                  setForm({ ...form, year: e.target.valueAsNumber })
-                }
-                name="year"
-                id="year"
-                className="form"
-                min={1900}
-                max={new Date().getFullYear()}
-              />
-            </CustomInput>
 
             {/* SUBMIT BUTTON */}
             <div className="flex justify-end mt-6">

@@ -98,6 +98,7 @@ export type Project = {
   name: string;
   team_id?: string;
   city?: string | null;
+  description: string;
   country?: string;
   start_month?: string;
   start_year?: number;

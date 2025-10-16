@@ -173,7 +173,7 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
                   <Fragment key={item.id}>
                     <Link
                       href={`/projects/${item.id}/contractors`}
-                      onClick={() => setValue(item.name)}
+                      onClick={() => { setValue(item.name); setSearchOpen(false) }}
                     >
                       <Paragraph
                         text={item.name}
@@ -195,7 +195,7 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
                   <Fragment key={item.id}>
                     <Link
                       href={`/projects/${item.project_id}/contractors/${item.id}/contracts`}
-                      onClick={() => setValue(item.name)}
+                      onClick={() => { setValue(item.name); setSearchOpen(false) }}
                     >
                       <Paragraph
                         text={item.name}

@@ -39,7 +39,7 @@ function Searchbar({
 
   return (
     <div
-      className={`z-50 relative flex justify-between items-center gap-3 bg-lightText/35 backdrop-blur-lg px-1.5 py-1 rounded-xl
+      className={`flex justify-between items-center gap-3 bg-lightText/35 backdrop-blur-lg px-1.5 py-1 rounded-xl
       }`}
     >
       <div ref={searchRef} className="flex items-center gap-1 flex-1">

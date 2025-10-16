@@ -61,6 +61,74 @@ export function useUsers(user_id?: string) {
   return query;
 }
 
+export function useSearch(team_id?: string) {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ["search", team_id],
+    queryFn: async () => {
+      if (!team_id) return null;
+
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, name, contractors ( id, name, project_id )")
+        .eq("team_id", team_id)
+
+      if (error) {
+        console.error("Supabase error:", error.message);
+        throw error;
+      }
+
+      return data;
+    },
+    enabled: !!team_id,         // retry once on failure
+    refetchOnWindowFocus: true,
+  });
+
+  // 🔄 Subscribe to realtime updates
+  useEffect(() => {
+    if (!team_id) return;
+
+    const channel = supabase
+      .channel("search-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "projects",
+          filter: `id=eq.${team_id}`,
+        },
+        () => {
+          query.refetch()
+          // invalidate query so it refetches fresh
+          queryClient.invalidateQueries({ queryKey: ["search", team_id] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "contractors",
+          filter: `id=eq.${team_id}`,
+        },
+        () => {
+          query.refetch()
+          // invalidate query so it refetches fresh
+          queryClient.invalidateQueries({ queryKey: ["search", team_id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [team_id, queryClient, query]);
+
+  return query;
+}
+
 export function useBackgroundImage(user_id?: string) {
   const queryClient = useQueryClient();
 

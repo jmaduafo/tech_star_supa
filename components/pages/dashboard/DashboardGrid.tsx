@@ -11,6 +11,7 @@ import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import { Amount, Project, User } from "@/types/types";
 import Activities from "./Activities";
+import TopContractors from "./TopContractors";
 
 function DashboardGrid({
   projects,
@@ -78,13 +79,18 @@ function DashboardGrid({
     sm:[grid-template-columns:1.4fr_1.2fr_1fr]
     xl:[grid-template-areas:'greeting_calc_calc_calc_calc_calc''greeting_activities_activities_activities_pie_pie''greeting_activities_activities_activities_contractors_projects']
     xl:[grid-template-rows:auto_1.4fr_0.8fr]
-    xl:[grid-template-columns:1.2fr_1fr_1fr_1fr_1fr_1fr]
+    xl:[grid-template-columns:1.4fr_1fr_1fr_1fr_1fr_1fr]
     "
     >
       {/* Greeting */}
-      <Card className="[grid-area:greeting]">
-        <Greeting user={user} />
-      </Card>
+      <div className="[grid-area:greeting] flex flex-col gap-3">
+        <Card className="h-[75%]">
+          <TopContractors/>
+        </Card>
+        <Card className="h-[25%]">
+          <Greeting user={user} />
+        </Card>
+      </div>
       {/* Amount Display */}
       <div className="[grid-area:calc]">
         <AmountDisplay

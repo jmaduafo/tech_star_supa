@@ -14,6 +14,7 @@ export default {
   			darkText: '#141414',
   			lightText: '#ececec',
   			background: '#D2D7CD',
+  			backgroundDark: '#9DAA92',
 			dialogOverlay: "rgba(107, 127, 90, 0.1)",
 			dialog: "rgba(236, 236, 236, 0.4)",
 			card: "rgba(236, 236, 236, 0.65)",

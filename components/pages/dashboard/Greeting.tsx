@@ -1,28 +1,14 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { greeting } from "@/utils/greeting";
-import Header4 from "@/components/fontsize/Header4";
-import Header2 from "@/components/fontsize/Header2";
-import { Skeleton } from "@/components/ui/skeleton";
+import React from "react";
 import TimeDate from "../login_signup/TimeDate";
 import { User } from "@/types/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/utils/initials";
 
 function Greeting({ user }: { readonly user: User | undefined }) {
-  const [greet, setGreet] = useState("");
-
-  useEffect(() => {
-    const userGreet = setInterval(() => {
-      setGreet(greeting());
-    }, 1000);
-
-    return () => clearInterval(userGreet);
-  }, []);
+  
 
   return (
-    <div className="h-full flex flex-row justify-between xl:flex-col">
-      <div className="flex gap-3 xl:block">
+    <div className="h-full flex justify-center items-center">
+      {/* <div className="flex gap-3 xl:block">
         <div className="mb-3">
           {typeof user?.image_url === "string" ? (
             <Avatar className="w-14 h-14">
@@ -60,8 +46,8 @@ function Greeting({ user }: { readonly user: User | undefined }) {
             ) : null}
           </div>
         </div>
-      </div>
-      <div className="xl:mt-auto max-w-fit hidden sm:block">
+      </div> */}
+      <div className="max-w-fit">
         <TimeDate timeFontSize="dashboard" dateFontSize="dashboard" />
       </div>
     </div>

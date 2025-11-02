@@ -18,6 +18,8 @@ export default {
 			dialogOverlay: "rgba(107, 127, 90, 0.1)",
 			dialog: "rgba(236, 236, 236, 0.4)",
 			card: "rgba(236, 236, 236, 0.65)",
+			increase: "#00C900",
+			decrease: "#FF383C",
   			dark90: 'rgba(20, 20, 20, .9)',
   			dark85: 'rgba(20, 20, 20, .85)',
   			dark75: 'rgba(20, 20, 20, .75)',

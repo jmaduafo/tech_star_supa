@@ -18,24 +18,26 @@ function AmountDisplay({
   projects,
   currencies,
   user,
+  selectedCurrency,
+  selectedProject,
+  setSelectedCurrency,
+  setSelectedProject
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
   readonly user: User | undefined;
+  readonly selectedProject: string;
+  readonly selectedCurrency: string;
+  readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
+    readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
-  const [selectedProject, setSelectedProject] = useState(
-    ""
-  );
   const [selectedPeriod, setSelectedPeriod] = useState("year");
-  const [selectedCurrency, setSelectedCurrency] = useState(
-    ""
-  );
-  const [currencySymbol, setCurrencySymbol] = useState(
-    ""
-  );
+
+  const [currencySymbol, setCurrencySymbol] = useState("");
+ 
 
   const [kpi, setKpi] = useState<Versus[] | undefined>();
 
@@ -188,7 +190,7 @@ function AmountDisplay({
           ? cardTitle.map((item, i) => {
               return (
                 <Fragment key={item.title}>
-                  <KpiCard item={item} index={i} arr={kpi} />
+                  <KpiCard item={item} index={i} arr={kpi} period={selectedPeriod}/>
                 </Fragment>
               );
             })

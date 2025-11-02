@@ -5,9 +5,15 @@ import Header2 from "@/components/fontsize/Header2";
 import { convertCurrency, getPercentChange } from "@/utils/currencies";
 import PercentBanner from "../banners/PercentBanner";
 import { Versus } from "@/types/types";
+import Paragraph from "@/components/fontsize/Paragraph";
 
 type Kpi = {
-  readonly item: { title: string; symbol: string | null; visual: boolean; className?: string };
+  readonly item: {
+    title: string;
+    symbol: string | null;
+    visual: boolean;
+    className?: string;
+  };
   readonly arr: Versus[];
   readonly index: number;
   readonly period?: string;
@@ -17,12 +23,8 @@ function KpiCard({ item, arr, index, period }: Kpi) {
   return (
     <Card className={`${item.className} flex flex-col min-h-32`}>
       <Header6 text={item.title} className="capitalize" />
-      <div className="flex justify-end items-start gap-1 mt-auto">
-        <div className="flex items-start gap-1">
-          {item.symbol ? <p className="text-sm">{item.symbol}</p> : null}
-          <Header2 className="font-light" text={`${convertCurrency(arr[index].currentAmount)}`} />
-        </div>
-        {item.visual && period !== "All Time" && (
+      {item.visual && period !== "All Time" && (
+        <div className="flex gap-1 items-end -mt-0.5 mb-3">
           <PercentBanner
             type={
               getPercentChange(
@@ -37,7 +39,17 @@ function KpiCard({ item, arr, index, period }: Kpi) {
               ).percent
             }
           />
-        )}
+          <Paragraph text={`vs. last ${period}`} className="text-darkText/60"/>
+        </div>
+      )}
+      <div className="flex justify-end mt-auto">
+        <div className="flex items-start gap-1">
+          {item.symbol ? <p className="text-sm">{item.symbol}</p> : null}
+          <Header2
+            className="font-light"
+            text={`${convertCurrency(arr[index].currentAmount)}`}
+          />
+        </div>
       </div>
     </Card>
   );

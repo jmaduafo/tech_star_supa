@@ -14,7 +14,7 @@ import { formatCurrency } from "@/utils/currencies";
 import { renderLegend } from "./legendStyle";
 import { ContentType } from "recharts/types/component/DefaultLegendContent";
 
-function BarChart({
+function VerticalBarChart({
   data,
   dataArray,
   format,
@@ -29,20 +29,29 @@ function BarChart({
 }) {
   return (
     <ResponsiveContainer width="100%" height="100%" className={"w-full h-full"}>
-      <BarContainer data={data} accessibilityLayer>
-        <CartesianGrid vertical={false} stroke="#14141420" />
+      <BarContainer data={data} accessibilityLayer layout="vertical" className="z-[60]">
+        <CartesianGrid vertical={false} stroke="#14141420" strokeOpacity={0} />
         <XAxis
-          tickLine={false}
-          axisLine={false}
+          type="number"
+          
           tickMargin={8}
           minTickGap={32}
-          dataKey="name"
           tick={{ fill: "#14141490" }}
+          hide
         />
         <YAxis
+          dataKey="name"
+          type="category"
+          tickLine={false}
+          tickFormatter={(value) =>
+            value.slice(0, 6) + "..."}
+          axisLine={false}
+          tickMargin={2}
+          minTickGap={32}
+          tick={{ fill: "#14141490", fontSize: "12.5px" }}
           stroke="rgba(20, 20, 20, 0.8)"
+          
           allowDecimals={false}
-          hide
         />
         <Tooltip
           contentStyle={{
@@ -50,19 +59,21 @@ function BarChart({
             borderRadius: "5px",
             padding: "6px 12px",
             border: "none",
+        
           }}
-          cursor={{ fill: "#d6d3d160" }} // Changes color of screen behind the cells
-          labelStyle={{ color: "#ececec", fontSize: "15px" }}
+          cursor={{ fill: "#d6d3d160", }} // Changes color of screen behind the cells
+          labelStyle={{ color: "#ececec", fontSize: "15px", zIndex: "400" }}
           itemStyle={{
             color: "rgba(236, 236, 236, .8)",
             fontSize: "14px",
             marginTop: "-4px",
+            
           }}
           formatter={(value) =>
             format && code ? `${formatCurrency(+value, code)}` : value
           }
         />
-        <Legend content={renderLegend as ContentType} />
+        {/* <Legend content={renderLegend as ContentType} /> */}
         {dataArray.map((item, i) => {
           return (
             <Bar
@@ -70,8 +81,9 @@ function BarChart({
               dataKey={item}
               activeBar={false}
               fill={COLORS[i % COLORS.length]}
-              radius={[2, 2, 0, 0]}
+              radius={[100, 100, 100, 100]}
               maxBarSize={maxSize ?? undefined}
+              
             />
           );
         })}
@@ -80,4 +92,4 @@ function BarChart({
   );
 }
 
-export default BarChart;
+export default VerticalBarChart;

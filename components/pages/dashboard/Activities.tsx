@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
-import { Activity, Amount, Project, User } from "@/types/types";
+import { Activity, User } from "@/types/types";
 import { getInitials } from "@/utils/initials";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,8 @@ import { format } from "timeago.js";
 import ViewLabel from "@/components/ui/labels/ViewLabel";
 
 function Activities({
-  projects,
-  currencies,
   user,
 }: {
-  readonly projects: Project[] | undefined;
-  readonly currencies: Amount[] | undefined;
   readonly user: User | undefined;
 }) {
   const [singleActivityOpen, setsingleActivityOpen] = useState(false);
@@ -73,7 +69,7 @@ function Activities({
                 }}
                 key={`item_${i + 1}`}
                 className={`py-2.5 px-1.5 ${
-                  i + 1 !== 5 ? "border-b" : ""
+                  i + 1 === 5 ? "" : "border-b"
                 } border-b-darkText/10 flex justify-between items-center gap-4 w-full hover:bg-darkText/5 duration-300`}
               >
                 <div className="flex-1 hidden sm:block">

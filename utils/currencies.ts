@@ -119,18 +119,18 @@ export function getPercentChange(current: number, prev: number) {
 
   if (change < 0) {
     return {
-      percent: !isFinite(change) ? "-100+" : change.toFixed(1),
+      percent: Number.isFinite(change) ? change.toFixed(1) : "-1000+",
       type: "decrease",
     };
   } else if (change > 0) {
     return {
-      percent: !isFinite(change) ? "100+" : change.toFixed(1),
+      percent: Number.isFinite(change) ? change.toFixed(1) : "1000+",
       type: "increase",
     };
   }
 
   return {
-    percent: !isNaN(change) ? change.toFixed(1) : (0.0).toFixed(1),
+    percent: Number.isNaN(change) ? (0).toFixed(1) : change.toFixed(1),
     type: "no change",
   };
 }

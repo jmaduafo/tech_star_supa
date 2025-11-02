@@ -510,12 +510,13 @@ export function contractorPieStartYearChart(data: Project[], project_id: string)
 export function topContractors(
   contractor: Contractor[],
   currency_code: string,
-  timePeriod: string
+  timePeriod: string,
+  horizontal?: boolean
 ) {
   const data: any[] = [];
 
   contractor.forEach((contractor, i) => {
-    data.push({ name: contractor.name, paymentAmount: 0 });
+    data.push({ name: contractor.name, amount: 0 });
 
     contractor.payments.forEach((item) => {
       const amount = Array.isArray(item.payment_amounts)
@@ -529,11 +530,11 @@ export function topContractors(
           amount.code === currency_code &&
           versusLast(item.date, timePeriod).current
         ) {
-          data[i]["paymentAmount"] += +amount?.amount;
+          data[i]["amount"] += +amount?.amount;
         }
       } else {
         if (amount && item.is_paid && amount.code === currency_code) {
-          data[i]["paymentAmount"] += +amount?.amount;
+          data[i]["amount"] += +amount?.amount;
         }
       }
     });

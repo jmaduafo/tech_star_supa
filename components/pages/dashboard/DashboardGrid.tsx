@@ -16,9 +16,17 @@ import TopContractors from "./TopContractors";
 function DashboardGrid({
   projects,
   currencies,
+  selectedProject,
+  selectedCurrency,
+  setSelectedCurrency,
+  setSelectedProject,
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
+  readonly selectedProject: string;
+  readonly selectedCurrency: string;
+  readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
+  readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [user, setUser] = useState<User | undefined>();
 
@@ -85,7 +93,13 @@ function DashboardGrid({
       {/* Greeting */}
       <div className="[grid-area:greeting] flex flex-col gap-3">
         <Card className="h-[75%]">
-          <TopContractors/>
+          <TopContractors
+            user={user}
+            projects={projects}
+            currencies={currencies}
+            selectedProject={selectedProject}
+            selectedCurrency={selectedCurrency}
+          />
         </Card>
         <Card className="h-[25%]">
           <Greeting user={user} />
@@ -97,11 +111,15 @@ function DashboardGrid({
           user={user}
           projects={projects}
           currencies={currencies}
+          selectedProject={selectedProject}
+          selectedCurrency={selectedCurrency}
+          setSelectedCurrency={setSelectedCurrency}
+          setSelectedProject={setSelectedProject}
         />
       </div>
       {/* Line chart */}
       <Card className="[grid-area:activities]">
-        <Activities user={user} projects={projects} currencies={currencies} />
+        <Activities user={user} />
       </Card>
       {/* Pie chart */}
       <Card className="[grid-area:pie]">

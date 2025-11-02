@@ -47,7 +47,7 @@ function ContractorPayments({
       switchPeriod(timePeriod)
     );
 
-    const sortedChart = sortByNumOrBool(chart, "paymentAmount", "desc");
+    const sortedChart = sortByNumOrBool(chart, "amount", "desc");
 
     setContractorsData(sortedChart);
   };

@@ -10,7 +10,6 @@ import { useAuth } from "@/context/UserContext";
 import { Project, Amount } from "@/types/types";
 import { getUniqueObjects } from "@/utils/chartHelpers";
 import { greeting } from "@/utils/greeting";
-import Header1 from "@/components/fontsize/Header1";
 import Header2 from "@/components/fontsize/Header2";
 import { Progress } from "@/components/ui/progress";
 import Paragraph from "@/components/fontsize/Paragraph";
@@ -19,8 +18,11 @@ function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedCurrency, setSelectedCurrency] = useState("");
+
   const [greet, setGreet] = useState("");
-  const [progress, setProgress] = useState(13);
+  const [progress, setProgress] = useState(42);
 
   const supabase = useMemo(() => createClient(), []);
   const { userData } = useAuth();
@@ -44,7 +46,7 @@ function MainPage() {
           supabase
             .from("projects")
             .select(
-              "id, name, contractors ( id, name, is_available ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
+              "id, name, contractors ( id, name, is_available, payments ( id, is_paid, is_completed, payment_amounts ( * )) ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
             )
             .eq("team_id", userData.team_id)
             .order("created_at", { ascending: false })
@@ -92,7 +94,7 @@ function MainPage() {
             <Paragraph text={`${progress}%`} />
           </div>
           <Paragraph
-            text={`You are 13% closer to a fully populated dashboard`}
+            text={`You are ${progress}% closer to a fully populated dashboard`}
             className="italic text-darkText/70"
           />
         </div>
@@ -102,7 +104,14 @@ function MainPage() {
           </button>
         </div>
       </div>
-      <DashboardGrid projects={allProjects} currencies={currenciesList} />
+      <DashboardGrid
+        projects={allProjects}
+        selectedProject={selectedProject}
+        selectedCurrency={selectedCurrency}
+        setSelectedProject={setSelectedProject}
+        setSelectedCurrency={setSelectedCurrency}
+        currencies={currenciesList}
+      />
       <Card className="">
         <LineChartDisplay projects={allProjects} currencies={currenciesList} />
       </Card>

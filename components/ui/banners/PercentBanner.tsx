@@ -16,9 +16,9 @@ function PercentBanner({
 }) {
   function percentColor() {
     if (type === "increase") {
-      return "text-green-400";
+      return "text-increase";
     } else if (type === "decrease") {
-      return "text-red-400";
+      return "text-decrease";
     } else if (type === "no change") {
       return "text-lightText";
     }
@@ -26,11 +26,11 @@ function PercentBanner({
 
   function percentIcons() {
     if (type === "increase") {
-      return <HugeiconsIcon icon={TradeUpIcon} size={24} />;
+      return <HugeiconsIcon icon={TradeUpIcon} size={18} />;
     } else if (type === "decrease") {
-      return <HugeiconsIcon icon={TradeDownIcon} size={24} />;
+      return <HugeiconsIcon icon={TradeDownIcon} size={18} />;
     } else if (type === "no change") {
-      return <HugeiconsIcon icon={SolidLine01Icon} size={20} />;
+      return <HugeiconsIcon icon={SolidLine01Icon} size={16} />;
     }
   }
   return (
@@ -39,7 +39,6 @@ function PercentBanner({
         {percentIcons()}
         <Paragraph text={`${percent}%`} />
       </div>
-      {/* <Paragraph text="vs. last month"/> */}
     </div>
   );
 }

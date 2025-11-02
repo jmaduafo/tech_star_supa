@@ -139,17 +139,19 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
   return (
     <>
       <div
-        className={`flex justify-between items-center gap-3 bg-lightText/50 px-1.5 py-1 rounded-xl
+        className={`flex justify-between items-center gap-3 bg-lightText/40 px-2 py-1.5 rounded-full
         }`}
       >
         <div className="flex items-center gap-1 flex-1">
-          <Search className="w-5 text-darkText" />
+          <div className="bg-lightText rounded-full w-9 h-9 flex justify-center items-center">
+            <Search className="w-5 h-5 text-darkText" strokeWidth={1.5} />
+          </div>
           <input
             value={value}
             onChange={handleChange}
             type="text"
             placeholder="Search"
-            className="placeholder-darkText/70 text-sm py-0"
+            className="flex-1 placeholder-darkText/70 text-sm py-0"
           />
         </div>
       </div>
@@ -173,7 +175,10 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
                   <Fragment key={item.id}>
                     <Link
                       href={`/projects/${item.id}/contractors`}
-                      onClick={() => { setValue(item.name); setSearchOpen(false) }}
+                      onClick={() => {
+                        setValue(item.name);
+                        setSearchOpen(false);
+                      }}
                     >
                       <Paragraph
                         text={item.name}
@@ -195,7 +200,10 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
                   <Fragment key={item.id}>
                     <Link
                       href={`/projects/${item.project_id}/contractors/${item.id}/contracts`}
-                      onClick={() => { setValue(item.name); setSearchOpen(false) }}
+                      onClick={() => {
+                        setValue(item.name);
+                        setSearchOpen(false);
+                      }}
                     >
                       <Paragraph
                         text={item.name}

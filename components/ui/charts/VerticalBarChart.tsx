@@ -6,13 +6,10 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
   CartesianGrid,
 } from "recharts";
 import { COLORS } from "@/utils/dataTools";
 import { formatCurrency } from "@/utils/currencies";
-import { renderLegend } from "./legendStyle";
-import { ContentType } from "recharts/types/component/DefaultLegendContent";
 
 function VerticalBarChart({
   data,

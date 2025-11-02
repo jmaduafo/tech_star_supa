@@ -58,20 +58,16 @@ function ContractorPayments({
 
   return (
     <div className="h-full w-full">
-      {!contractorsData ? (
-        <div className="flex justify-center items-center h-full w-full">
-          <Loading />
-        </div>
-      ) : (
+      {contractorsData ? (
         <div className="flex flex-col h-full w-full">
           <ChartHeading
             text="Top Contractors"
             subtext={
-              timePeriod !== "All Time"
-                ? `Contractors ranked on paid ${currency_code} payments over the past ${switchPeriod(
+              timePeriod === "All Time"
+                ? `Contractors ranked by paid ${currency_code} payments`
+                : `Contractors ranked on paid ${currency_code} payments over the past ${switchPeriod(
                     timePeriod
                   )}`
-                : `Contractors ranked by paid ${currency_code} payments`
             }
           />
           <div className="mt-auto max-h-[60%]">
@@ -113,6 +109,10 @@ function ContractorPayments({
               );
             })}
           </div>
+        </div>
+      ) : (
+        <div className="flex justify-center items-center h-full w-full">
+          <Loading />
         </div>
       )}
     </div>

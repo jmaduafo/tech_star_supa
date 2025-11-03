@@ -61,7 +61,7 @@ function ContractorMap({
             subtext="Countries shaded darker represent more active contractors"
           />
           <ComposableMap
-          className="-my-10"
+          className="-mt-10 -mb-14"
             projectionConfig={{
               scale: 150,
             }}

@@ -21,7 +21,7 @@ function AmountDisplay({
   selectedCurrency,
   selectedProject,
   setSelectedCurrency,
-  setSelectedProject
+  setSelectedProject,
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
@@ -29,45 +29,31 @@ function AmountDisplay({
   readonly selectedProject: string;
   readonly selectedCurrency: string;
   readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
-    readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
+  readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
 }) {
-
   const [selectedPeriod, setSelectedPeriod] = useState("year");
 
   const [currencySymbol, setCurrencySymbol] = useState("");
-  
- 
 
   const [kpi, setKpi] = useState<Versus[] | undefined>();
 
   // GETS ALL PROJECT AND CONTRACTOR NAMES BASED ON THE USER'S TEAM ID
   function allData() {
     try {
-      if (!projects || !currencies || !selectedProject.length || !selectedCurrency.length) {
+      if (
+        !projects ||
+        !currencies ||
+        !selectedProject.length ||
+        !selectedCurrency.length
+      ) {
         return;
       }
 
+      const currency = currency_list.find(
+        (item) => item.code === selectedCurrency
+      );
 
-
-      // if (!selectedProject.length) {
-      //   setSelectedProject(projects[0].id)
-      // }
-
-      // if (selectedCurrency.length) {
-      //   const currency = currency_list.find(
-      //     (item) => item.code === selectedCurrency
-      //   );
-
-      //   currency && setCurrencySymbol(currency.symbol);
-      // } else {
-      //   setSelectedCurrency(currencies[0].code)
-
-        const currency = currency_list.find(
-          (item) => item.code === currencies[0].code
-        );
-
-        currency && setCurrencySymbol(currency.symbol);
-      
+      currency && setCurrencySymbol(currency.symbol);
 
       setKpi([
         totalAmountPaid(
@@ -88,10 +74,7 @@ function AmountDisplay({
           selectedCurrency,
           selectedPeriod
         ),
-        activeContractors(
-          projects as unknown as Project[],
-          selectedProject
-        ),
+        activeContractors(projects as unknown as Project[], selectedProject),
       ]);
     } catch (err: any) {
       console.error(err.message);
@@ -188,7 +171,12 @@ function AmountDisplay({
           ? cardTitle.map((item, i) => {
               return (
                 <Fragment key={item.title}>
-                  <KpiCard item={item} index={i} arr={kpi} period={selectedPeriod}/>
+                  <KpiCard
+                    item={item}
+                    index={i}
+                    arr={kpi}
+                    period={selectedPeriod}
+                  />
                 </Fragment>
               );
             })

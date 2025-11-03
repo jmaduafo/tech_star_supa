@@ -56,7 +56,7 @@ function Activities({ user }: { readonly user: User | undefined }) {
           <Header5 text="Recent Activities" />
         </div>
       ) : (
-        <Skeleton className="h-6 w-[30%]" />
+        <Skeleton className="h-6 w-[30%] mb-20" />
       )}
       <div className="mt-auto">
         {data ? (

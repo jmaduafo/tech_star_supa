@@ -113,6 +113,7 @@ function MainPage() {
         ]);
 
       setAllProjects(projects.data as unknown as Project[]);
+      setSelectedProject(projects.data[0].id)
 
       setCurrenciesList(
         getUniqueObjects(
@@ -120,6 +121,11 @@ function MainPage() {
           "code"
         )
       );
+
+      setSelectedCurrency(getUniqueObjects(
+          [...contractCurrencies.data, ...paymentCurrencies.data],
+          "code"
+        )[0].code)
     } catch (err: any) {
       console.log(err.message);
     }

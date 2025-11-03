@@ -52,10 +52,6 @@ function MainPage() {
   };
 
   useEffect(() => {
-    getUser();
-  }, []);
-
-  useEffect(() => {
     const channel = supabase
       .channel("db-changes")
       .on(
@@ -130,8 +126,9 @@ function MainPage() {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
+    getUser();
+    getData()
+  }, [userData]);
 
   return (
     <div className="flex flex-col gap-3">

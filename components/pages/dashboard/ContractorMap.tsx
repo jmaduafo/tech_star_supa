@@ -35,7 +35,7 @@ function ContractorMap({
           return acc;
         }, {} as Record<string, number>);
     }
-  }, []);
+  }, [projects, selectedProject]);
 
   // Create color scale
   const colorScale = useMemo(() => {
@@ -93,6 +93,7 @@ function ContractorMap({
       ) : (
         <div className="h-full w-full flex justify-center items-center">
           <Loading />
+          <p>hi</p>
         </div>
       )}
     </div>

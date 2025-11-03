@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react";
 import Card from "@/components/ui/cards/MyCard";
 import AmountDisplay from "./AmountDisplay";

@@ -14,6 +14,7 @@ import Header2 from "@/components/fontsize/Header2";
 import { Progress } from "@/components/ui/progress";
 import Paragraph from "@/components/fontsize/Paragraph";
 import Activities from "./Activities";
+import ContractorMap from "./ContractorMap";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -94,7 +95,7 @@ function MainPage() {
           supabase
             .from("projects")
             .select(
-              "id, name, contractors ( id, name, is_available, payments ( id, is_paid, is_completed, payment_amounts ( * )) ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
+              "id, name, contractors ( id, name, is_available, country, payments ( id, is_paid, is_completed, payment_amounts ( * )) ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
             )
             .eq("team_id", userData.team_id)
             .order("created_at", { ascending: false })
@@ -161,11 +162,11 @@ function MainPage() {
         setSelectedCurrency={setSelectedCurrency}
         currencies={currenciesList}
       />
-      <div className="grid grid-cols-7 gap-3">
-        <Card className="col-span-4">
-          <div></div>
+      <div className="grid xl:grid-cols-7 gap-3">
+        <Card className="xl:col-span-4">
+          <ContractorMap projects={allProjects} selectedProject={selectedProject}/>
         </Card>
-        <Card className="col-span-3">
+        <Card className="xl:col-span-3">
           <Activities user={user} />
         </Card>
       </div>

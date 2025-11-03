@@ -41,7 +41,7 @@ function TopBar() {
         <SearchBar user={user} />
       </div>
 
-      <div className="flex gap-1">
+      <div className="flex gap-2">
         <SettingButton user={user} />
         <ProfileButton user={user} />
       </div>

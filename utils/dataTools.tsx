@@ -887,7 +887,7 @@ export const job_titles = [
   "Youth Worker",
 ];
 
-const country_coords = [
+export const country_coords = [
   {
     country: "Albania",
     alpha2: "AL",

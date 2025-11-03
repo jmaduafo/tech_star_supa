@@ -1,3 +1,4 @@
+"use client"
 import ChartHeading from "@/components/ui/labels/ChartHeading";
 import Loading from "@/components/ui/loading/Loading";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
@@ -93,7 +94,6 @@ function ContractorMap({
       ) : (
         <div className="h-full w-full flex justify-center items-center">
           <Loading />
-          <p>hi</p>
         </div>
       )}
     </div>

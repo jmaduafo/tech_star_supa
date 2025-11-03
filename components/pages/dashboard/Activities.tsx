@@ -19,11 +19,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "timeago.js";
 import ViewLabel from "@/components/ui/labels/ViewLabel";
 
-function Activities({
-  user,
-}: {
-  readonly user: User | undefined;
-}) {
+function Activities({ user }: { readonly user: User | undefined }) {
   const [singleActivityOpen, setsingleActivityOpen] = useState(false);
 
   const [data, setData] = useState<Activity[] | undefined>();
@@ -55,9 +51,13 @@ function Activities({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-between mb-20">
-        <Header5 text="Recent Activities" />
-      </div>
+      {data ? (
+        <div className="flex justify-between mb-20">
+          <Header5 text="Recent Activities" />
+        </div>
+      ) : (
+        <Skeleton className="h-6 w-[30%]" />
+      )}
       <div className="mt-auto">
         {data ? (
           data.slice(0, 5).map((item, i) => {

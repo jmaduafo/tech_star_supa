@@ -31,68 +31,66 @@ function AmountDisplay({
   readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
     readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const [allProjects, setAllProjects] = useState<Project[] | undefined>();
-  const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
   const [selectedPeriod, setSelectedPeriod] = useState("year");
 
   const [currencySymbol, setCurrencySymbol] = useState("");
+  
  
 
   const [kpi, setKpi] = useState<Versus[] | undefined>();
 
   // GETS ALL PROJECT AND CONTRACTOR NAMES BASED ON THE USER'S TEAM ID
-  async function allData() {
+  function allData() {
     try {
-      if (!user || !projects || !currencies) {
+      if (!projects || !currencies || !selectedProject.length || !selectedCurrency.length) {
         return;
       }
 
-      setAllProjects(projects as unknown as Project[]);
-      setCurrenciesList(currencies);
 
-      if (!selectedProject.length) {
-        setSelectedProject(projects[0].id)
-      }
 
-      if (selectedCurrency.length) {
-        const currency = currency_list.find(
-          (item) => item.code === selectedCurrency
-        );
+      // if (!selectedProject.length) {
+      //   setSelectedProject(projects[0].id)
+      // }
 
-        currency && setCurrencySymbol(currency.symbol);
-      } else {
-        setSelectedCurrency(currencies[0].code)
+      // if (selectedCurrency.length) {
+      //   const currency = currency_list.find(
+      //     (item) => item.code === selectedCurrency
+      //   );
+
+      //   currency && setCurrencySymbol(currency.symbol);
+      // } else {
+      //   setSelectedCurrency(currencies[0].code)
 
         const currency = currency_list.find(
           (item) => item.code === currencies[0].code
         );
 
         currency && setCurrencySymbol(currency.symbol);
-      }
+      
 
       setKpi([
         totalAmountPaid(
           projects as unknown as Project[],
-          selectedProject.length ? selectedProject : projects[0].id,
-          selectedCurrency.length ? selectedCurrency : currencies[0].code,
+          selectedProject,
+          selectedCurrency,
           selectedPeriod
         ),
         totalPayments(
           projects as unknown as Project[],
-          selectedProject.length ? selectedProject : projects[0].id,
-          selectedCurrency.length ? selectedCurrency : currencies[0].code,
+          selectedProject,
+          selectedCurrency,
           selectedPeriod
         ),
         averageContract(
           projects as unknown as Project[],
-          selectedProject.length ? selectedProject : projects[0].id,
-          selectedCurrency.length ? selectedCurrency : currencies[0].code,
+          selectedProject,
+          selectedCurrency,
           selectedPeriod
         ),
         activeContractors(
           projects as unknown as Project[],
-          selectedProject.length ? selectedProject : projects[0].id
+          selectedProject
         ),
       ]);
     } catch (err: any) {
@@ -136,8 +134,8 @@ function AmountDisplay({
           placeholder="Select a project"
           label="Projects"
         >
-          {allProjects
-            ? allProjects.map((item) => {
+          {projects
+            ? projects.map((item) => {
                 return (
                   <SelectItem
                     className="cursor-pointer"
@@ -156,8 +154,8 @@ function AmountDisplay({
           placeholder="Select a currency"
           label="Currencies"
         >
-          {currenciesList
-            ? currenciesList.map((item) => {
+          {currencies
+            ? currencies.map((item) => {
                 return (
                   <SelectItem
                     className="cursor-pointer"

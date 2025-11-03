@@ -1,14 +1,10 @@
-"use client";
-
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import Card from "@/components/ui/cards/MyCard";
 import AmountDisplay from "./AmountDisplay";
 import Greeting from "./Greeting";
 import ContractorCount from "./ContractorCount";
 import ProjectCount from "./ProjectCount";
 import PieChartDisplay from "./PieChartDisplay";
-import { useAuth } from "@/context/UserContext";
-import { createClient } from "@/lib/supabase/client";
 import { Amount, Project, User } from "@/types/types";
 import Activities from "./Activities";
 import TopContractors from "./TopContractors";
@@ -20,6 +16,7 @@ function DashboardGrid({
   selectedCurrency,
   setSelectedCurrency,
   setSelectedProject,
+  user
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
@@ -27,54 +24,8 @@ function DashboardGrid({
   readonly selectedCurrency: string;
   readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
   readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
+  readonly user: User | undefined;
 }) {
-  const [user, setUser] = useState<User | undefined>();
-
-  const { userData } = useAuth();
-  const supabase = useMemo(() => createClient(), []);
-
-  const getUser = async () => {
-    try {
-      if (!userData) {
-        return;
-      }
-
-      const { data } = await supabase
-        .from("users")
-        .select()
-        .eq("id", userData.id)
-        .single()
-        .throwOnError();
-
-      setUser(data as User);
-    } catch (err: any) {
-      console.log(err.message);
-    }
-  };
-
-  useEffect(() => {
-    getUser();
-  }, []);
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("db-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "users",
-          filter: `id=eq.${userData.id}`,
-        },
-        (payload) => getUser()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, user, setUser]);
 
   return (
     <div

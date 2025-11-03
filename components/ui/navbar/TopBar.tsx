@@ -29,7 +29,7 @@ function TopBar() {
   const { data: user } = useUsers(userData?.id);
 
   return (
-    <div className="flex justify-between">
+    <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <SidebarTrigger
           onMouseEnter={() => setIsMenu(true)}
@@ -41,9 +41,9 @@ function TopBar() {
         <SearchBar user={user} />
       </div>
 
-      <div className="flex gap-3">
-        {/* <ProfileButton user={user} /> */}
+      <div className="flex gap-1">
         <SettingButton user={user} />
+        <ProfileButton user={user} />
       </div>
     </div>
   );
@@ -59,7 +59,7 @@ function ProfileButton({ user }: { readonly user: User | undefined }) {
     <>
       <button
         onClick={() => setProfileOpen(true)}
-        className="bg-darkText rounded-full p-2 hover:opacity-70 duration-300"
+        className="bg-darkText h-8 w-8 rounded-full p-2 hover:opacity-70 duration-300"
         title="Profile"
       >
         <HiUser className="w-4 h-4" />
@@ -228,7 +228,7 @@ function SettingButton({ user }: { readonly user: User | undefined }) {
     <Dialog open={mainOpen} onOpenChange={setMainOpen}>
       <DialogTrigger asChild>
         <button
-          className="text-darkText bg-lightText/70 rounded-full p-2 hover:bg-lightText duration-300"
+          className="text-darkText h-8 w-8 bg-lightText/70 rounded-full p-2 hover:bg-lightText duration-300"
           title="Setting"
         >
           <HiMiniCog8Tooth className="w-4 h-4" />

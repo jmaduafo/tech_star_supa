@@ -7,12 +7,13 @@ import LineChartDisplay from "./LineChartDisplay";
 import Card from "@/components/ui/cards/MyCard";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/context/UserContext";
-import { Project, Amount } from "@/types/types";
+import { Project, Amount, User } from "@/types/types";
 import { getUniqueObjects } from "@/utils/chartHelpers";
 import { greeting } from "@/utils/greeting";
 import Header2 from "@/components/fontsize/Header2";
 import { Progress } from "@/components/ui/progress";
 import Paragraph from "@/components/fontsize/Paragraph";
+import Activities from "./Activities";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -27,6 +28,53 @@ function MainPage() {
   const supabase = useMemo(() => createClient(), []);
   const { userData } = useAuth();
 
+  const [user, setUser] = useState<User | undefined>();
+
+  // GET USER INFO IN REALTIME
+  const getUser = async () => {
+    try {
+      if (!userData) {
+        return;
+      }
+
+      const { data } = await supabase
+        .from("users")
+        .select()
+        .eq("id", userData.id)
+        .single()
+        .throwOnError();
+
+      setUser(data as User);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("db-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "users",
+          filter: `id=eq.${userData.id}`,
+        },
+        (payload) => getUser()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, user, setUser]);
+
+  // GREETING FOR USER
   useEffect(() => {
     const userGreet = setInterval(() => {
       setGreet(greeting());
@@ -105,6 +153,7 @@ function MainPage() {
         </div>
       </div>
       <DashboardGrid
+        user={user}
         projects={allProjects}
         selectedProject={selectedProject}
         selectedCurrency={selectedCurrency}
@@ -112,6 +161,14 @@ function MainPage() {
         setSelectedCurrency={setSelectedCurrency}
         currencies={currenciesList}
       />
+      <div className="grid grid-cols-7 gap-3">
+        <Card className="col-span-4">
+          <div></div>
+        </Card>
+        <Card className="col-span-3">
+          <Activities user={user} />
+        </Card>
+      </div>
       <Card className="">
         <LineChartDisplay projects={allProjects} currencies={currenciesList} />
       </Card>

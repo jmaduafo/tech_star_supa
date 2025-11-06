@@ -108,6 +108,14 @@ function AmountDisplay({
     },
   ];
 
+  const switchPeriod = (text: string) => {
+    if (text === "custom") {
+      return "Custom"
+    } else {
+      return "Last 1 " + text
+    }
+  } 
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
@@ -157,10 +165,10 @@ function AmountDisplay({
           placeholder="Select a period"
           label="Periods"
         >
-          {["year", "month", "week"].map((item) => {
+          {["year", "quarter", "month", "week", "day", "custom"].map((item) => {
             return (
               <SelectItem className="cursor-pointer" key={item} value={item}>
-                vs. last {item}
+                {switchPeriod(item)}
               </SelectItem>
             );
           })}

@@ -20,7 +20,7 @@ function PercentBanner({
     } else if (type === "decrease") {
       return "text-decrease";
     } else if (type === "no change") {
-      return "text-lightText";
+      return "text-amber-500";
     }
   }
 

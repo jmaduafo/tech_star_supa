@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 import Card from "@/components/ui/cards/MyCard";
@@ -8,8 +8,8 @@ import ContractorCount from "./ContractorCount";
 import ProjectCount from "./ProjectCount";
 import PieChartDisplay from "./PieChartDisplay";
 import { Amount, Project, User } from "@/types/types";
-import Activities from "./Activities";
 import TopContractors from "./TopContractors";
+import AmountsBar from "./AmountsBar";
 
 function DashboardGrid({
   projects,
@@ -18,7 +18,7 @@ function DashboardGrid({
   selectedCurrency,
   setSelectedCurrency,
   setSelectedProject,
-  user
+  user,
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
@@ -28,7 +28,6 @@ function DashboardGrid({
   readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
   readonly user: User | undefined;
 }) {
-
   return (
     <div
       className="grid h-auto gap-3
@@ -72,7 +71,11 @@ function DashboardGrid({
       </div>
       {/* Line chart */}
       <Card className="[grid-area:activities]">
-        <Activities user={user} />
+        <AmountsBar
+          projects={projects}
+          selectedProject={selectedProject}
+          selectedCurrency={selectedCurrency}
+        />
       </Card>
       {/* Pie chart */}
       <Card className="[grid-area:pie]">

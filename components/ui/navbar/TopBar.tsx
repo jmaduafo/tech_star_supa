@@ -1,6 +1,6 @@
 "use client";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { HiUser, HiMiniCog8Tooth } from "react-icons/hi2";
+import { HiMiniCog8Tooth } from "react-icons/hi2";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,8 @@ import { Search } from "lucide-react";
 import NotAvailable from "../NotAvailable";
 import Paragraph from "@/components/fontsize/Paragraph";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "../avatar";
+import { getInitials } from "@/utils/initials";
 
 function TopBar() {
   const { userData } = useAuth();
@@ -57,13 +59,16 @@ function ProfileButton({ user }: { readonly user: User | undefined }) {
 
   return (
     <>
-      <button
+      <Avatar
         onClick={() => setProfileOpen(true)}
-        className="bg-darkText h-8 w-8 rounded-full p-2 hover:opacity-70 duration-300"
-        title="Profile"
+        className="w-8 h-8 cursor-pointer hover:opacity-80 duration-300"
       >
-        <HiUser className="w-4 h-4" />
-      </button>
+        <AvatarImage
+          src={user?.image_url ?? ""}
+          alt={user?.first_name + "'s profile pic"}
+        />
+        <AvatarFallback>{getInitials(user?.full_name)}</AvatarFallback>
+      </Avatar>
       <ProfileCard
         user={user}
         setProfileOpen={setProfileOpen}

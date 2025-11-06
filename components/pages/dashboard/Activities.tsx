@@ -18,6 +18,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "timeago.js";
 import ViewLabel from "@/components/ui/labels/ViewLabel";
+import ChartHeading from "@/components/ui/labels/ChartHeading";
 
 function Activities({ user }: { readonly user: User | undefined }) {
   const [singleActivityOpen, setsingleActivityOpen] = useState(false);
@@ -53,7 +54,7 @@ function Activities({ user }: { readonly user: User | undefined }) {
     <div className="flex flex-col h-full">
       {data ? (
         <div className="flex justify-between mb-20">
-          <Header5 text="Recent Activities" />
+          <ChartHeading text="Recent Activities" subtext="Latest changes made by admins"/>
         </div>
       ) : (
         <Skeleton className="h-6 w-[30%] mb-20" />

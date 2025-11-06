@@ -97,7 +97,7 @@ function MainPage() {
   return (
     <div className="">
       <div className="flex justify-between">
-        <Header1 text={`${period !== "All Time" ? period + " " : ""}Report`} />
+        <Header1 text={`${period === "All Time" ? "" : period + " "}Report`} />
         <div className="">
           <Button>
             <Download className="" />

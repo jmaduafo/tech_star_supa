@@ -90,7 +90,7 @@ function Kpi({
         ? cardTitles.map((item, i) => {
             return (
               <Fragment key={item.title}>
-                <KpiCard period={timePeriod} item={item} index={i} arr={kpi} />
+                <KpiCard period={switchPeriod(timePeriod)} item={item} index={i} arr={kpi} />
               </Fragment>
             );
           })

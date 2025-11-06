@@ -79,7 +79,12 @@ export function pastTime(period: string) {
 
 // EVALUATES IF DATE INPUTTED IS WITHIN THE CURRENT OR PREVIOUS YEAR,
 // MONTH, OR WEEK
-export function versusLast(date: string, period: string) {
+export function versusLast(
+  date: string,
+  period: string,
+  customStart?: string,
+  customEnd?: string
+) {
   const now = new Date();
   const itemDate = new Date(date);
 
@@ -87,21 +92,37 @@ export function versusLast(date: string, period: string) {
   const previous = new Date();
 
   //  PREVIOUS YEAR VERSUS CURRENT YEAR
-  if (period === "year") {
+  if (period.toLowerCase().includes("year")) {
     previous.setFullYear(now.getFullYear() - 2);
     current.setFullYear(now.getFullYear() - 1);
-  } else if (period === "quarter") {
+  } else if (period.toLowerCase().includes("quarter")) {
     //  PREVIOUS MONTH VERSUS CURRENT MONTH
     previous.setMonth(now.getMonth() - 12);
     current.setMonth(now.getMonth() - 6);
-  } else if (period === "month") {
+  } else if (period.toLowerCase().includes("month")) {
     //  PREVIOUS MONTH VERSUS CURRENT MONTH
     previous.setMonth(now.getMonth() - 2);
     current.setMonth(now.getMonth() - 1);
-  } else if (period === "week") {
+  } else if (period.toLowerCase().includes("week")) {
     //  PREVIOUS WEEK VERSUS CURRENT WEEK
     previous.setDate(now.getDate() - 14);
     current.setDate(now.getDate() - 7);
+  } else if (period.toLowerCase().includes("day")) {
+    //  PREVIOUS DAY VERSUS CURRENT DAY
+    previous.setDate(now.getDate() - 2);
+    current.setDate(now.getDate() - 1);
+  } else if (
+    period.toLowerCase().includes("custom") &&
+    customStart &&
+    customEnd
+  ) {
+    const start = new Date(customStart);
+    const end = new Date(customEnd);
+
+    return {
+      prev: false,
+      current: itemDate >= start && itemDate <= end,
+    };
   }
 
   return {
@@ -112,14 +133,14 @@ export function versusLast(date: string, period: string) {
 
 export function switchPeriod(period: string) {
   if (period === "Yearly") {
-    return "year"
+    return "year";
   } else if (period === "Quarterly") {
-    return "quarter"
+    return "quarter";
   } else if (period === "Monthly") {
-    return "month"
+    return "month";
   } else if (period === "Weekly") {
-    return "week"
+    return "week";
   } else {
-    return period
+    return period;
   }
 }

@@ -1,27 +1,25 @@
 "use client";
 
-import Header5 from "@/components/fontsize/Header5";
 import BarChart from "@/components/ui/charts/BarChart";
-import SelectBar from "@/components/ui/input/SelectBar";
+import ChartHeading from "@/components/ui/labels/ChartHeading";
 import Loading from "@/components/ui/loading/Loading";
 import NotAvailable from "@/components/ui/NotAvailable";
-import { SelectItem } from "@/components/ui/select";
 import { Project } from "@/types/types";
 import { contractPaymentsAreaChart } from "@/utils/chartHelpers";
-import { switchPeriod } from "@/utils/dateAndTime";
 import React, { useEffect, useState } from "react";
 
 function AmountsBar({
   projects,
   selectedCurrency,
   selectedProject,
+  period
 }: {
   readonly projects: Project[] | undefined;
   readonly selectedProject: string;
   readonly selectedCurrency: string;
+  readonly period: string;
 }) {
   const [data, setData] = useState<any[] | undefined>();
-  const [period, setPeriod] = useState("Weekly");
 
   const getData = () => {
     if (!projects || !selectedCurrency.length || !selectedProject.length) {
@@ -32,11 +30,10 @@ function AmountsBar({
       projects,
       selectedProject,
       selectedCurrency,
-      switchPeriod(period)
+      period
     );
 
     chart ? setData(chart) : setData(undefined);
-    console.log(chart);
   };
 
   useEffect(() => {
@@ -47,22 +44,10 @@ function AmountsBar({
     <div className="h-full w-full">
       <div className="h-full w-full flex flex-col">
         <div>
-          <Header5 text="Revised Contract vs Contract Payment" />
-          <SelectBar
-            placeholder={"Select a time period"}
-            label={"Period"}
-            value={period}
-            valueChange={setPeriod}
-            className="mt-1.5 max-w-36"
-          >
-            {["Weekly", "Monthly", "Yearly", "Custom"].map((item) => {
-              return (
-                <SelectItem value={item} key={item}>
-                  {item}
-                </SelectItem>
-              );
-            })}
-          </SelectBar>
+          <ChartHeading
+            text="Revised Contracts vs Contract Payments"
+            subtext="Bar chart display of payments against contracts"
+          />
         </div>
         {data?.length ? (
           <div className="mt-auto h-[70%] w-full">
@@ -73,17 +58,13 @@ function AmountsBar({
               format
             />
           </div>
-        ) : (
-            null
-        )}
+        ) : null}
 
         {data && !data.length ? (
           <div className="h-[70%] w-full flex justify-center item-center">
             <NotAvailable text={"No data available"} />
           </div>
-        ) : (
-            null
-        )}
+        ) : null}
       </div>
 
       {data ? null : (

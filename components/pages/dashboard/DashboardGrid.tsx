@@ -18,14 +18,26 @@ function DashboardGrid({
   selectedCurrency,
   setSelectedCurrency,
   setSelectedProject,
+  period,
+  setPeriod,
   user,
+  customStart,
+  customEnd,
+  setCustomStart,
+  setCustomEnd
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
   readonly selectedProject: string;
   readonly selectedCurrency: string;
+  readonly period: string;
+  readonly customStart: string;
+  readonly customEnd: string;
   readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
   readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
+  readonly setPeriod: React.Dispatch<React.SetStateAction<string>>;
+  readonly setCustomStart: React.Dispatch<React.SetStateAction<string>>;
+  readonly setCustomEnd: React.Dispatch<React.SetStateAction<string>>;
   readonly user: User | undefined;
 }) {
   return (
@@ -65,6 +77,12 @@ function DashboardGrid({
           currencies={currencies}
           selectedProject={selectedProject}
           selectedCurrency={selectedCurrency}
+          period={period}
+          setPeriod={setPeriod}
+          customStart={customStart}
+          setCustomStart={setCustomStart}
+          customEnd={customEnd}
+          setCustomEnd={setCustomEnd}
           setSelectedCurrency={setSelectedCurrency}
           setSelectedProject={setSelectedProject}
         />
@@ -73,6 +91,7 @@ function DashboardGrid({
       <Card className="[grid-area:activities]">
         <AmountsBar
           projects={projects}
+          period={period}
           selectedProject={selectedProject}
           selectedCurrency={selectedCurrency}
         />

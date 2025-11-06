@@ -22,16 +22,27 @@ function AmountDisplay({
   selectedProject,
   setSelectedCurrency,
   setSelectedProject,
+  period,
+  customEnd,
+  customStart,
+  setPeriod,
+  setCustomEnd,
+  setCustomStart
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
   readonly user: User | undefined;
   readonly selectedProject: string;
   readonly selectedCurrency: string;
+  readonly period: string;
+  readonly customStart: string;
+  readonly customEnd: string;
   readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
   readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
+   readonly setPeriod: React.Dispatch<React.SetStateAction<string>>;
+    readonly setCustomStart: React.Dispatch<React.SetStateAction<string>>;
+    readonly setCustomEnd: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const [selectedPeriod, setSelectedPeriod] = useState("year");
 
   const [currencySymbol, setCurrencySymbol] = useState("");
 
@@ -44,7 +55,8 @@ function AmountDisplay({
         !projects ||
         !currencies ||
         !selectedProject.length ||
-        !selectedCurrency.length
+        !selectedCurrency.length ||
+        !period.length
       ) {
         return;
       }
@@ -60,19 +72,19 @@ function AmountDisplay({
           projects as unknown as Project[],
           selectedProject,
           selectedCurrency,
-          selectedPeriod
+          period
         ),
         totalPayments(
           projects as unknown as Project[],
           selectedProject,
           selectedCurrency,
-          selectedPeriod
+          period
         ),
         averageContract(
           projects as unknown as Project[],
           selectedProject,
           selectedCurrency,
-          selectedPeriod
+          period
         ),
         activeContractors(projects as unknown as Project[], selectedProject),
       ]);
@@ -83,7 +95,7 @@ function AmountDisplay({
 
   useEffect(() => {
     allData();
-  }, [projects, selectedProject, selectedCurrency, selectedPeriod]);
+  }, [projects, selectedProject, selectedCurrency, period]);
 
   const cardTitle = [
     {
@@ -111,6 +123,8 @@ function AmountDisplay({
   const switchPeriod = (text: string) => {
     if (text === "custom") {
       return "Custom"
+    } else if (text === "day") {
+      return "Last 24 hours"
     } else {
       return "Last 1 " + text
     }
@@ -160,8 +174,8 @@ function AmountDisplay({
             : null}
         </SelectBar>
         <SelectBar
-          valueChange={setSelectedPeriod}
-          value={selectedPeriod}
+          valueChange={setPeriod}
+          value={period}
           placeholder="Select a period"
           label="Periods"
         >
@@ -183,7 +197,7 @@ function AmountDisplay({
                     item={item}
                     index={i}
                     arr={kpi}
-                    period={selectedPeriod}
+                    period={period}
                   />
                 </Fragment>
               );

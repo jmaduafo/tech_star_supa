@@ -23,7 +23,7 @@ function KpiCard({ item, arr, index, period }: Kpi) {
   return (
     <Card className={`${item.className} flex flex-col min-h-32`}>
       <Header6 text={item.title} className="capitalize" />
-      {item.visual && period !== "All Time" && (
+      {item.visual && period !== "All Time" && period?.toLowerCase() !== "custom" && (
         <div className="flex gap-1 items-end -mt-0.5 mb-3">
           <PercentBanner
             type={

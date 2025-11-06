@@ -23,6 +23,10 @@ function MainPage() {
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState("");
 
+  const [period, setPeriod] = useState("year");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+
   const [greet, setGreet] = useState("");
   const [progress, setProgress] = useState(42);
 
@@ -113,7 +117,7 @@ function MainPage() {
         ]);
 
       setAllProjects(projects.data as unknown as Project[]);
-      setSelectedProject(projects.data[0].id)
+      setSelectedProject(projects.data[0].id);
 
       setCurrenciesList(
         getUniqueObjects(
@@ -122,10 +126,12 @@ function MainPage() {
         )
       );
 
-      setSelectedCurrency(getUniqueObjects(
+      setSelectedCurrency(
+        getUniqueObjects(
           [...contractCurrencies.data, ...paymentCurrencies.data],
           "code"
-        )[0].code)
+        )[0].code
+      );
     } catch (err: any) {
       console.log(err.message);
     }
@@ -133,7 +139,7 @@ function MainPage() {
 
   useEffect(() => {
     getUser();
-    getData()
+    getData();
   }, [userData]);
 
   return (
@@ -161,20 +167,37 @@ function MainPage() {
         projects={allProjects}
         selectedProject={selectedProject}
         selectedCurrency={selectedCurrency}
+        period={period}
+        customStart={customStart}
+        customEnd={customEnd}
+        setPeriod={setPeriod}
         setSelectedProject={setSelectedProject}
         setSelectedCurrency={setSelectedCurrency}
+        setCustomStart={setCustomStart}
+        setCustomEnd={setCustomEnd}
         currencies={currenciesList}
       />
       <div className="grid xl:grid-cols-7 gap-3">
         <Card className="xl:col-span-4">
-          <ContractorMap projects={allProjects} selectedProject={selectedProject}/>
+          <ContractorMap
+            projects={allProjects}
+            selectedProject={selectedProject}
+          />
         </Card>
         <Card className="xl:col-span-3">
           <Activities user={user} />
         </Card>
       </div>
       <Card className="">
-        <LineChartDisplay projects={allProjects} currencies={currenciesList} />
+        <LineChartDisplay
+          projects={allProjects}
+          currencies={currenciesList}
+          selectedProject={selectedProject}
+          selectedCurrency={selectedCurrency}
+          customStart={customStart}
+          customEnd={customEnd}
+          period={period}
+        />
       </Card>
       <div className="mt-2">
         <PaymentDisplay projects={allProjects} currencies={currenciesList} />

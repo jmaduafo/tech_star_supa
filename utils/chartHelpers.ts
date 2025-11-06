@@ -100,24 +100,24 @@ export function activitiesBar(activities: Activity[], period: string) {
     );
 
     if (index !== -1) {
-      if (period !== "All Time") {
+      if (period === "All Time") {
+        data[index]["activityCount"]++;
+      } else {
         versusLast(activity.created_at, period).current &&
           data[index]["activityCount"]++;
-      } else {
-        data[index]["activityCount"]++;
       }
     } else {
-      if (period !== "All Time") {
+      if (period === "All Time") {
+        data.push({
+          name: format(activity.created_at, "PP"),
+          activityCount: 1,
+        });
+      } else {
         versusLast(activity.created_at, period).current &&
           data.push({
             name: format(activity.created_at, "PP"),
             activityCount: 1,
           });
-      } else {
-        data.push({
-          name: format(activity.created_at, "PP"),
-          activityCount: 1,
-        });
       }
     }
   });

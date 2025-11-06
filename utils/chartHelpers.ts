@@ -510,8 +510,7 @@ export function contractorPieStartYearChart(data: Project[], project_id: string)
 export function topContractors(
   contractor: Contractor[],
   currency_code: string,
-  timePeriod: string,
-  horizontal?: boolean
+  timePeriod: string
 ) {
   const data: any[] = [];
 

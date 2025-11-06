@@ -113,8 +113,8 @@ export function versusLast(
     current.setDate(now.getDate() - 1);
   } else if (
     period.toLowerCase().includes("custom") &&
-    customStart &&
-    customEnd
+    customStart?.length &&
+    customEnd?.length
   ) {
     const start = new Date(customStart);
     const end = new Date(customEnd);

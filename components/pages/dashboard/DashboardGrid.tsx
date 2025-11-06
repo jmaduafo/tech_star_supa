@@ -24,7 +24,7 @@ function DashboardGrid({
   customStart,
   customEnd,
   setCustomStart,
-  setCustomEnd
+  setCustomEnd,
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
@@ -58,11 +58,12 @@ function DashboardGrid({
       <div className="[grid-area:greeting] flex flex-col gap-3">
         <Card className="h-[75%]">
           <TopContractors
-            user={user}
             projects={projects}
-            currencies={currencies}
             selectedProject={selectedProject}
             selectedCurrency={selectedCurrency}
+            period={period}
+            customStart={customStart}
+            customEnd={customEnd}
           />
         </Card>
         <Card className="h-[25%]">

@@ -3,28 +3,30 @@
 import Header5 from "@/components/fontsize/Header5";
 import VerticalBarChart from "@/components/ui/charts/VerticalBarChart";
 import Loading from "@/components/ui/loading/Loading";
-import { Amount, Project, User } from "@/types/types";
+import { Project } from "@/types/types";
 import { topContractors } from "@/utils/chartHelpers";
 import { sortByNumOrBool } from "@/utils/sortFilter";
 import React, { useEffect, useState } from "react";
 
 function TopContractors({
   projects,
-  currencies,
-  user,
   selectedCurrency,
   selectedProject,
+  period,
+  customStart,
+  customEnd
 }: {
   readonly projects: Project[] | undefined;
-  readonly currencies: Amount[] | undefined;
-  readonly user: User | undefined;
   readonly selectedProject: string;
   readonly selectedCurrency: string;
+  readonly period: string;
+  readonly customStart: string;
+  readonly customEnd: string;
 }) {
   const [data, setData] = useState<any[] | undefined>();
 
   const getData = () => {
-    if (!selectedProject.length || !selectedCurrency.length || !projects) {
+    if (!selectedProject.length || !selectedCurrency.length || !projects || !period.length) {
       return;
     }
 
@@ -38,7 +40,7 @@ function TopContractors({
       const list = topContractors(
         project.contractors,
         selectedCurrency,
-        "All Time"
+        period
       );
 
       const top = sortByNumOrBool(list, "amount", "desc");
@@ -48,7 +50,7 @@ function TopContractors({
 
   useEffect(() => {
     getData();
-  }, [projects, selectedProject, selectedCurrency]);
+  }, [projects, selectedProject, selectedCurrency, period]);
 
   return (
     <div className="h-full">

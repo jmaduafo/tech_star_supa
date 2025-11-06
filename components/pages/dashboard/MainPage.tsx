@@ -15,6 +15,14 @@ import { Progress } from "@/components/ui/progress";
 import Paragraph from "@/components/fontsize/Paragraph";
 import Activities from "./Activities";
 import ContractorMap from "./ContractorMap";
+import { Plus, ChevronDownIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { type DateRange } from "react-day-picker";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -34,6 +42,21 @@ function MainPage() {
   const { userData } = useAuth();
 
   const [user, setUser] = useState<User | undefined>();
+
+  const [open, setOpen] = useState(false);
+
+  const [dropdown, setDropdown] =
+    useState<React.ComponentProps<typeof Calendar>["captionLayout"]>(
+      "dropdown"
+    );
+
+  const today = new Date();
+  today.setDate(today.getDate() - 1);
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: today,
+    to: new Date(),
+  });
 
   // GET USER INFO IN REALTIME
   const getUser = async () => {
@@ -142,6 +165,13 @@ function MainPage() {
     getData();
   }, [userData]);
 
+  useEffect(() => {
+    if (dateRange?.from && dateRange?.to) {
+      setCustomStart(dateRange.from.toLocaleDateString());
+      setCustomEnd(dateRange.to.toLocaleDateString());
+    }
+  }, [dateRange]);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex justify-between items-start mb-1">
@@ -156,9 +186,41 @@ function MainPage() {
             className="italic text-darkText/70"
           />
         </div>
-        <div>
-          <button className="font-light bg-darkText text-lightText px-6 py-2 rounded-full">
-            + Add Project
+        <div className="flex items-center gap-2">
+          {period === "custom" ? (
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <button className="flex gap-1 items-center font-light text-darkText bg-lightText/60 hover:bg-lightText/80 duration-300 px-6 py-2.5 rounded-full">
+                  {dateRange?.from && dateRange?.to
+                    ? dateRange.from.toLocaleDateString() +
+                      " - " +
+                      dateRange.to.toLocaleDateString()
+                    : "Select date"}
+                  <ChevronDownIcon strokeWidth={1} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="end"
+              >
+                <Calendar
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                  captionLayout={dropdown}
+                  disabled={(date) => date > new Date()}
+                  className="rounded-lg border shadow-sm"
+                />
+              </PopoverContent>
+            </Popover>
+          ) : null}
+          <button className="flex gap-1 items-center font-light bg-darkText text-lightText px-6 py-2.5 rounded-full">
+            <span>
+              <Plus className="w-5 h-5" strokeWidth={1} />
+            </span>
+            <span>Add Project</span>
           </button>
         </div>
       </div>

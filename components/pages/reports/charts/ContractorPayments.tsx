@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import Header6 from "@/components/fontsize/Header6";
 import Paragraph from "@/components/fontsize/Paragraph";
 import ChartHeading from "@/components/ui/labels/ChartHeading";
 import Loading from "@/components/ui/loading/Loading";
-import { Contractor, Project, User } from "@/types/types";
+import { Project, User } from "@/types/types";
 import { topContractors } from "@/utils/chartHelpers";
 import { formatCurrency } from "@/utils/currencies";
 import { switchPeriod } from "@/utils/dateAndTime";
@@ -39,17 +39,19 @@ function ContractorPayments({
       return;
     }
 
-    const contractors = project.contractors;
+    if (project.contractors) {
+      const contractors = project.contractors;
 
-    const chart = topContractors(
-      contractors as Contractor[],
-      currency_code,
-      switchPeriod(timePeriod)
-    );
+      const chart = topContractors(
+        contractors,
+        currency_code,
+        switchPeriod(timePeriod)
+      );
 
-    const sortedChart = sortByNumOrBool(chart, "amount", "desc");
+      const sortedChart = sortByNumOrBool(chart, "amount", "desc");
 
-    setContractorsData(sortedChart);
+      setContractorsData(sortedChart);
+    }
   };
 
   useEffect(() => {
@@ -99,10 +101,7 @@ function ContractorPayments({
                   <div className="flex-[4]">
                     <Header6
                       className="text-right"
-                      text={`${formatCurrency(
-                        +item.paymentAmount,
-                        currency_code
-                      )}`}
+                      text={`${formatCurrency(+item.amount, currency_code)}`}
                     />
                   </div>
                 </div>

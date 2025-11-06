@@ -27,7 +27,7 @@ function AmountDisplay({
   customStart,
   setPeriod,
   setCustomEnd,
-  setCustomStart
+  setCustomStart,
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
@@ -39,11 +39,10 @@ function AmountDisplay({
   readonly customEnd: string;
   readonly setSelectedProject: React.Dispatch<React.SetStateAction<string>>;
   readonly setSelectedCurrency: React.Dispatch<React.SetStateAction<string>>;
-   readonly setPeriod: React.Dispatch<React.SetStateAction<string>>;
-    readonly setCustomStart: React.Dispatch<React.SetStateAction<string>>;
-    readonly setCustomEnd: React.Dispatch<React.SetStateAction<string>>;
+  readonly setPeriod: React.Dispatch<React.SetStateAction<string>>;
+  readonly setCustomStart: React.Dispatch<React.SetStateAction<string>>;
+  readonly setCustomEnd: React.Dispatch<React.SetStateAction<string>>;
 }) {
-
   const [currencySymbol, setCurrencySymbol] = useState("");
 
   const [kpi, setKpi] = useState<Versus[] | undefined>();
@@ -122,13 +121,13 @@ function AmountDisplay({
 
   const switchPeriod = (text: string) => {
     if (text === "custom") {
-      return "Custom"
+      return "Custom";
     } else if (text === "day") {
-      return "Last 24 hours"
+      return "Last 24 hours";
     } else {
-      return "Last 1 " + text
+      return "Last 1 " + text;
     }
-  } 
+  };
 
   return (
     <div>
@@ -193,12 +192,7 @@ function AmountDisplay({
           ? cardTitle.map((item, i) => {
               return (
                 <Fragment key={item.title}>
-                  <KpiCard
-                    item={item}
-                    index={i}
-                    arr={kpi}
-                    period={period}
-                  />
+                  <KpiCard item={item} index={i} arr={kpi} period={period} />
                 </Fragment>
               );
             })

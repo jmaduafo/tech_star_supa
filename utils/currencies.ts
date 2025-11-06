@@ -7,23 +7,23 @@ export function convertCurrency(labelValue: number) {
 
   // IF LENGTH IS 6 OR MORE, INCLUDING "." (ex. 290.78), CHANGE TO
   // 1 DECIMAL PLACE INSTEAD
-  if (Math.abs(Number(labelValue)) >= 1.0e9) {
-    if ((Math.abs(Number(labelValue)) / 1.0e9).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1.0e9).toFixed(1) + "B";
+  if (Math.abs(Number(labelValue)) >= 1e9) {
+    if ((Math.abs(Number(labelValue)) / 1e9).toFixed(2).length >= 6) {
+      output += (Math.abs(Number(labelValue)) / 1e9).toFixed(1) + "B";
     } else {
-      output += (Math.abs(Number(labelValue)) / 1.0e9).toFixed(2) + "B";
+      output += (Math.abs(Number(labelValue)) / 1e9).toFixed(2) + "B";
     }
-  } else if (Math.abs(Number(labelValue)) >= 1.0e6) {
-    if ((Math.abs(Number(labelValue)) / 1.0e6).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(1) + "M";
+  } else if (Math.abs(Number(labelValue)) >= 1e6) {
+    if ((Math.abs(Number(labelValue)) / 1e6).toFixed(2).length >= 6) {
+      output += (Math.abs(Number(labelValue)) / 1e6).toFixed(1) + "M";
     } else {
-      output += (Math.abs(Number(labelValue)) / 1.0e6).toFixed(2) + "M";
+      output += (Math.abs(Number(labelValue)) / 1e6).toFixed(2) + "M";
     }
-  } else if (Math.abs(Number(labelValue)) >= 1.0e3) {
-    if ((Math.abs(Number(labelValue)) / 1.0e3).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(1) + "K";
+  } else if (Math.abs(Number(labelValue)) >= 1e3) {
+    if ((Math.abs(Number(labelValue)) / 1e3).toFixed(2).length >= 6) {
+      output += (Math.abs(Number(labelValue)) / 1e3).toFixed(1) + "K";
     } else {
-      output += (Math.abs(Number(labelValue)) / 1.0e3).toFixed(2) + "K";
+      output += (Math.abs(Number(labelValue)) / 1e3).toFixed(2) + "K";
     }
   } else if (Math.abs(Number(labelValue)).toFixed(2).length >= 6) {
     output += Math.abs(Number(labelValue)).toFixed(2);
@@ -92,13 +92,7 @@ export function upsertCurrencies(
   newCurrencies.forEach((newCurrency) => {
     const idx = result.findIndex((c) => c.code === newCurrency.code);
 
-    if (idx !== -1) {
-      // update existing — preserve id, created_at, etc.
-      result[idx] = {
-        ...result[idx],
-        ...newCurrency,
-      };
-    } else {
+    if (idx === -1) {
       // insert new — leave id/payment_id empty so Supabase can fill in
       result.push({
         id: crypto.randomUUID(), // temp id until backend responds
@@ -107,6 +101,12 @@ export function upsertCurrencies(
         updated_at: null,
         ...newCurrency,
       });
+    } else {
+      // update existing — preserve id, created_at, etc.
+      result[idx] = {
+        ...result[idx],
+        ...newCurrency,
+      };
     }
   });
 

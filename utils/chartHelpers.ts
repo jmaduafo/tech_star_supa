@@ -448,12 +448,12 @@ export function contractorPieStageChart(data: StageContractor[]) {
 
     const index = chart.findIndex((ch) => ch.name === stage.name);
 
-    if (index !== -1) {
+    if (index === -1) {
+      chart.push({ name: stage.name, contractor_ids: [contractor.id] });
+    } else {
       if (!chart[index].contractor_ids.includes(contractor.id)) {
         chart[index].contractor_ids.push(contractor.id);
       }
-    } else {
-      chart.push({ name: stage.name, contractor_ids: [contractor.id] });
     }
   });
 
@@ -478,10 +478,10 @@ export function contractorPieLocationChart(data: Project[], project_id: string) 
   contractors?.forEach((contractor) => {
     const index = chart.findIndex(item => item.name === contractor.country)
 
-    if (index !== -1) {
-      chart[index]["count"]++
-    } else {
+    if (index === -1) {
       chart.push({ name: contractor.country, count: 1})
+    } else {
+      chart[index]["count"]++
     }
   });
 
@@ -497,10 +497,10 @@ export function contractorPieStartYearChart(data: Project[], project_id: string)
   contractors?.forEach((contractor) => {
     const index = chart.findIndex(item => item.name === contractor.start_year)
 
-    if (index !== -1) {
-      chart[index]["count"]++
-    } else {
+    if (index === -1) {
       chart.push({ name: contractor.start_year, count: 1})
+    } else {
+      chart[index]["count"]++
     }
   });
 

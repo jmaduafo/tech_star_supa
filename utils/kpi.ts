@@ -9,7 +9,9 @@ export function totalAmountPaid(
   data: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const payments = data.find((item) => item.id === project_id)?.payments;
 
@@ -26,11 +28,20 @@ export function totalAmountPaid(
   filter?.forEach((item) => {
     if (item?.payment_amounts) {
       if (period !== "All Time") {
-        versusLast(item?.date, period).prev &&
-          prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
+        if (
+          period.toLowerCase().includes("custom") &&
+          customStart?.length &&
+          customEnd?.length
+        ) {
+          versusLast(item?.date, period, customStart, customEnd).current &&
+            currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+        } else {
+          versusLast(item?.date, period).prev &&
+            prevAmounts.push(Number(item?.payment_amounts[0]?.amount));
 
-        versusLast(item?.date, period).current &&
-          currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+          versusLast(item?.date, period).current &&
+            currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
+        }
       } else {
         currentAmounts.push(Number(item?.payment_amounts[0]?.amount));
       }
@@ -47,7 +58,9 @@ export function totalContractAmount(
   data: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const contracts = data.find((item) => item.id === project_id)?.contracts;
 
@@ -66,11 +79,20 @@ export function totalContractAmount(
 
   filter?.forEach((item) => {
     if (period !== "All Time") {
-      versusLast(item.date, period).prev &&
-        prevAmounts.push(Number(item.amount));
+      if (
+        period.toLowerCase().includes("custom") &&
+        customStart?.length &&
+        customEnd?.length
+      ) {
+        versusLast(item.date, period, customStart, customEnd).current &&
+          currentAmounts.push(Number(item.amount));
+      } else {
+        versusLast(item.date, period).prev &&
+          prevAmounts.push(Number(item.amount));
 
-      versusLast(item.date, period).current &&
-        currentAmounts.push(Number(item.amount));
+        versusLast(item.date, period).current &&
+          currentAmounts.push(Number(item.amount));
+      }
     } else {
       currentAmounts.push(Number(item.amount));
     }
@@ -86,7 +108,9 @@ export function totalContractPayments(
   data: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const payments = data.find((item) => item.id === project_id)?.payments;
 
@@ -125,7 +149,9 @@ export function totalContractBalance(
   data: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const currentContractAmount = totalContractAmount(
     data,
@@ -168,7 +194,9 @@ export function totalPayments(
   data: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const payments = data.find((item) => item.id === project_id)?.payments;
 
@@ -183,8 +211,13 @@ export function totalPayments(
   let currentAmount = 0;
 
   filter?.forEach((item) => {
-    versusLast(item?.date, period).prev && previousAmount++;
-    versusLast(item?.date, period).current && currentAmount++;
+    if (period === "custom" && customStart?.length && customEnd?.length) {
+      versusLast(item?.date, period, customStart, customEnd).current &&
+        currentAmount++;
+    } else {
+      versusLast(item?.date, period).prev && previousAmount++;
+      versusLast(item?.date, period).current && currentAmount++;
+    }
   });
 
   return {
@@ -198,7 +231,9 @@ export function averageContract(
   data: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const contracts = data.find((item) => item.id === project_id)?.contracts;
 
@@ -211,19 +246,28 @@ export function averageContract(
 
   filter?.forEach((item) => {
     if (item?.contract_amounts) {
-      versusLast(item?.date, period).prev &&
-        prevAmounts.push(
-          Number(
-            item?.contract_amounts?.find((item) => item.code === code)?.amount
-          )
-        );
+      if (period === "custom" && customStart?.length && customEnd?.length) {
+        versusLast(item?.date, period, customStart, customEnd).current &&
+          currentAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
+      } else {
+        versusLast(item?.date, period).prev &&
+          prevAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
 
-      versusLast(item?.date, period).current &&
-        currentAmounts.push(
-          Number(
-            item?.contract_amounts?.find((item) => item.code === code)?.amount
-          )
-        );
+        versusLast(item?.date, period).current &&
+          currentAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
+      }
     }
   });
 
@@ -269,7 +313,9 @@ export function highestPaymentAmount(
   data: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const payments = data.find((item) => item.id === project_id)?.payments;
 

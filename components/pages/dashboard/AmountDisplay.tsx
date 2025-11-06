@@ -49,52 +49,61 @@ function AmountDisplay({
 
   // GETS ALL PROJECT AND CONTRACTOR NAMES BASED ON THE USER'S TEAM ID
   function allData() {
-    try {
-      if (
-        !projects ||
-        !currencies ||
-        !selectedProject.length ||
-        !selectedCurrency.length ||
-        !period.length
-      ) {
-        return;
-      }
-
-      const currency = currency_list.find(
-        (item) => item.code === selectedCurrency
-      );
-
-      currency && setCurrencySymbol(currency.symbol);
-
-      setKpi([
-        totalAmountPaid(
-          projects as unknown as Project[],
-          selectedProject,
-          selectedCurrency,
-          period
-        ),
-        totalPayments(
-          projects as unknown as Project[],
-          selectedProject,
-          selectedCurrency,
-          period
-        ),
-        averageContract(
-          projects as unknown as Project[],
-          selectedProject,
-          selectedCurrency,
-          period
-        ),
-        activeContractors(projects as unknown as Project[], selectedProject),
-      ]);
-    } catch (err: any) {
-      console.error(err.message);
+    if (
+      !projects ||
+      !currencies ||
+      !selectedProject.length ||
+      !selectedCurrency.length ||
+      !period.length
+    ) {
+      return;
     }
+
+    const currency = currency_list.find(
+      (item) => item.code === selectedCurrency
+    );
+
+    currency && setCurrencySymbol(currency.symbol);
+
+    setKpi([
+      totalAmountPaid(
+        projects as unknown as Project[],
+        selectedProject,
+        selectedCurrency,
+        period,
+        customStart,
+        customEnd
+      ),
+      totalPayments(
+        projects as unknown as Project[],
+        selectedProject,
+        selectedCurrency,
+        period,
+        customStart,
+        customEnd
+      ),
+      averageContract(
+        projects as unknown as Project[],
+        selectedProject,
+        selectedCurrency,
+        period,
+        customStart,
+        customEnd
+      ),
+      activeContractors(projects as unknown as Project[], selectedProject),
+    ]);
   }
 
   useEffect(() => {
     allData();
-  }, [projects, selectedProject, selectedCurrency, period]);
+  }, [
+    projects,
+    selectedProject,
+    selectedCurrency,
+    period,
+    customStart,
+    customEnd,
+  ]);
 
   const cardTitle = [
     {

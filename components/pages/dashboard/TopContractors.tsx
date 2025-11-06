@@ -14,7 +14,7 @@ function TopContractors({
   selectedProject,
   period,
   customStart,
-  customEnd
+  customEnd,
 }: {
   readonly projects: Project[] | undefined;
   readonly selectedProject: string;
@@ -26,7 +26,12 @@ function TopContractors({
   const [data, setData] = useState<any[] | undefined>();
 
   const getData = () => {
-    if (!selectedProject.length || !selectedCurrency.length || !projects || !period.length) {
+    if (
+      !selectedProject.length ||
+      !selectedCurrency.length ||
+      !projects ||
+      !period.length
+    ) {
       return;
     }
 
@@ -40,7 +45,9 @@ function TopContractors({
       const list = topContractors(
         project.contractors,
         selectedCurrency,
-        period
+        period,
+        customStart,
+        customEnd
       );
 
       const top = sortByNumOrBool(list, "amount", "desc");
@@ -50,7 +57,14 @@ function TopContractors({
 
   useEffect(() => {
     getData();
-  }, [projects, selectedProject, selectedCurrency, period]);
+  }, [
+    projects,
+    selectedProject,
+    selectedCurrency,
+    period,
+    customStart,
+    customEnd,
+  ]);
 
   return (
     <div className="h-full">

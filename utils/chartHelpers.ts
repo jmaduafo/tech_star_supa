@@ -217,7 +217,9 @@ export function contractPaymentsAreaChart(
 
   // return sorted by date
 
-  return newData.sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime())
+  return newData.sort(
+    (a, b) => new Date(a.name).getTime() - new Date(b.name).getTime()
+  );
 }
 
 // pages/reports/charts/StatusBar
@@ -469,48 +471,56 @@ export function contractorPieStageChart(data: StageContractor[]) {
   return newChart;
 }
 
-export function contractorPieLocationChart(data: Project[], project_id: string) {
+export function contractorPieLocationChart(
+  data: Project[],
+  project_id: string
+) {
   const chart: any[] = [];
 
-
-  const contractors = data.find(item => item.id === project_id)?.contractors
+  const contractors = data.find((item) => item.id === project_id)?.contractors;
 
   contractors?.forEach((contractor) => {
-    const index = chart.findIndex(item => item.name === contractor.country)
+    const index = chart.findIndex((item) => item.name === contractor.country);
 
     if (index === -1) {
-      chart.push({ name: contractor.country, count: 1})
+      chart.push({ name: contractor.country, count: 1 });
     } else {
-      chart[index]["count"]++
+      chart[index]["count"]++;
     }
   });
 
-  return chart
+  return chart;
 }
 
-export function contractorPieStartYearChart(data: Project[], project_id: string) {
+export function contractorPieStartYearChart(
+  data: Project[],
+  project_id: string
+) {
   const chart: any[] = [];
 
-
-  const contractors = data.find(item => item.id === project_id)?.contractors
+  const contractors = data.find((item) => item.id === project_id)?.contractors;
 
   contractors?.forEach((contractor) => {
-    const index = chart.findIndex(item => item.name === contractor.start_year)
+    const index = chart.findIndex(
+      (item) => item.name === contractor.start_year
+    );
 
     if (index === -1) {
-      chart.push({ name: contractor.start_year, count: 1})
+      chart.push({ name: contractor.start_year, count: 1 });
     } else {
-      chart[index]["count"]++
+      chart[index]["count"]++;
     }
   });
 
-  return chart
+  return chart;
 }
 
 export function topContractors(
   contractor: Contractor[],
   currency_code: string,
-  timePeriod: string
+  timePeriod: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const data: any[] = [];
 
@@ -524,12 +534,27 @@ export function topContractors(
 
       if (timePeriod !== "All Time") {
         if (
-          amount &&
-          item.is_paid &&
-          amount.code === currency_code &&
-          versusLast(item.date, timePeriod).current
+          timePeriod.toLowerCase().includes("custom") &&
+          customStart?.length &&
+          customEnd?.length
         ) {
-          data[i]["amount"] += +amount?.amount;
+          if (
+            amount &&
+            item.is_paid &&
+            amount.code === currency_code &&
+            versusLast(item.date, timePeriod, customStart, customEnd).current
+          ) {
+            data[i]["amount"] += +amount?.amount;
+          }
+        } else {
+          if (
+            amount &&
+            item.is_paid &&
+            amount.code === currency_code &&
+            versusLast(item.date, timePeriod).current
+          ) {
+            data[i]["amount"] += +amount?.amount;
+          }
         }
       } else {
         if (amount && item.is_paid && amount.code === currency_code) {

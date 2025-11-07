@@ -12,12 +12,16 @@ function AmountsBar({
   projects,
   selectedCurrency,
   selectedProject,
-  period
+  period,
+  customStart,
+  customEnd,
 }: {
   readonly projects: Project[] | undefined;
   readonly selectedProject: string;
   readonly selectedCurrency: string;
   readonly period: string;
+  readonly customStart: string;
+  readonly customEnd: string;
 }) {
   const [data, setData] = useState<any[] | undefined>();
 
@@ -30,7 +34,9 @@ function AmountsBar({
       projects,
       selectedProject,
       selectedCurrency,
-      period
+      period,
+      customStart,
+      customEnd
     );
 
     chart ? setData(chart) : setData(undefined);
@@ -38,7 +44,7 @@ function AmountsBar({
 
   useEffect(() => {
     getData();
-  }, [selectedCurrency, selectedProject, period]);
+  }, [selectedCurrency, selectedProject, period, customStart, customEnd]);
 
   return (
     <div className="h-full w-full">

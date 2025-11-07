@@ -129,7 +129,9 @@ export function contractPaymentsAreaChart(
   projects: Project[],
   project_id: string,
   code: string,
-  period: string
+  period: string,
+  customStart?: string,
+  customEnd?: string
 ) {
   const project = projects.find((item) => item.id === project_id);
 
@@ -146,12 +148,25 @@ export function contractPaymentsAreaChart(
   contracts?.forEach((contract) => {
     contract.contract_amounts.forEach((amount) => {
       if (period !== "All Time") {
-        versusLast(contract.date, period).current &&
-          amount.code === code &&
-          contractAmounts.push({
-            name: format(contract.date, "PP"),
-            amount: +amount.amount,
-          });
+        if (
+          period.toLowerCase().includes("custom") &&
+          customStart?.length &&
+          customEnd?.length
+        ) {
+          versusLast(contract.date, period, customStart, customEnd).current &&
+            amount.code === code &&
+            contractAmounts.push({
+              name: format(contract.date, "PP"),
+              amount: +amount.amount,
+            });
+        } else {
+          versusLast(contract.date, period).current &&
+            amount.code === code &&
+            contractAmounts.push({
+              name: format(contract.date, "PP"),
+              amount: +amount.amount,
+            });
+        }
       } else {
         amount.code === code &&
           contractAmounts.push({

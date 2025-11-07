@@ -53,12 +53,12 @@ function PieChartDisplay({
           <TextButton href="/reports" text="See more" iconDirection="right" />
         </div>
       ) : null}
-      {!data ? (
+      {data ? (
+        chartRender
+      ) : (
         <div className="h-full flex justify-center items-center">
           <Loading />
         </div>
-      ) : (
-        chartRender
       )}
     </div>
   );

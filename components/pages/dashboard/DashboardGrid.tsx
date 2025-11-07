@@ -95,6 +95,8 @@ function DashboardGrid({
           period={period}
           selectedProject={selectedProject}
           selectedCurrency={selectedCurrency}
+          customStart={customStart}
+          customEnd={customEnd}
         />
       </Card>
       {/* Pie chart */}

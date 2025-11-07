@@ -13,43 +13,45 @@ import { useAuth } from "@/context/UserContext";
 function PaymentDisplay({
   projects,
   currencies,
+  selectedProject,
 }: {
   readonly projects: Project[] | undefined;
   readonly currencies: Amount[] | undefined;
+  readonly selectedProject: string;
 }) {
   const [data, setData] = useState<Payment[] | undefined>();
 
   const { userData } = useAuth();
 
-  const getLatest = async () => {
-    try {
-      if (!userData || !projects) {
-        return;
-      }
-
-      const payments: Payment[] = [];
-
-      projects.forEach((project) => {
-        project.payments?.forEach((payment) => {
-          payments.push(payment);
-        });
-      });
-
-      // ORDER THE PAYMENTS IN DESCENDING ORDER
-      const orderedPayment = payments.toSorted((a, b) => {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      });
-
-      // ONLY GET 5 AT MOST
-      setData(orderedPayment.slice(0, 5));
-    } catch (err: any) {
-      console.log(err.message);
+  const getLatest = () => {
+    if (!userData || !projects || !selectedProject.length) {
+      return;
     }
+
+    const project = projects.find((item) => item.id === selectedProject);
+
+    if (!project) {
+      return;
+    }
+
+    const payments: Payment[] = [];
+
+    project.payments?.forEach((payment) => {
+      payments.push(payment);
+    });
+
+    // ORDER THE PAYMENTS IN DESCENDING ORDER
+    const orderedPayment = payments.toSorted((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+
+    // ONLY GET 5 AT MOST
+    setData(orderedPayment.slice(0, 5));
   };
 
   useEffect(() => {
     getLatest();
-  }, [projects]);
+  }, [projects, selectedProject]);
 
   return (
     <section className="w-full">
@@ -79,11 +81,7 @@ function PaymentDisplay({
         </div>
       </div>
       <div className="mt-6">
-        {!data ? (
-          <div className="flex justify-center py-8">
-            <Loading />
-          </div>
-        ) : (
+        {data ? (
           <MainTable
             columns={paymentColumns}
             data={data}
@@ -91,6 +89,10 @@ function PaymentDisplay({
             team_name={"My"}
             filterCategory="description"
           />
+        ) : (
+          <div className="flex justify-center py-8">
+            <Loading />
+          </div>
         )}
       </div>
     </section>

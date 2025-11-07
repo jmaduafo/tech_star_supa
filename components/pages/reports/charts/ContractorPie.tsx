@@ -71,11 +71,7 @@ function ContractorPie({
 
   return (
     <div className="h-full">
-      {!chartData ? (
-        <div className="h-full w-full flex justify-center items-center">
-          <Loading />
-        </div>
-      ) : (
+      {chartData ? (
         <div className="flex flex-col items-center h-full w-full">
           <SelectBar
             placeholder={""}
@@ -101,6 +97,10 @@ function ContractorPie({
               subtext={`Count of contractors based on ${value.toLowerCase()}`}
             />
           </div>
+        </div>
+      ) : (
+        <div className="h-full w-full flex justify-center items-center">
+          <Loading />
         </div>
       )}
     </div>

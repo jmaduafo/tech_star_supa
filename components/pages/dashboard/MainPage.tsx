@@ -262,7 +262,11 @@ function MainPage() {
         />
       </Card>
       <div className="mt-2">
-        <PaymentDisplay projects={allProjects} currencies={currenciesList} />
+        <PaymentDisplay
+          projects={allProjects}
+          currencies={currenciesList}
+          selectedProject={selectedProject}
+        />
       </div>
     </div>
   );

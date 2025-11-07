@@ -29,7 +29,6 @@ function LineChartDisplay({
 }) {
   const [filteredData, setFilteredData] = useState<LineData[] | undefined>();
 
-
   const getData = () => {
     if (
       !projects ||
@@ -67,12 +66,22 @@ function LineChartDisplay({
     // SORT CHART BY DATE IN ASCENDING ORDER (NAME KEY IS THE DATE)
     const sortedChart = sortDate(chart, "name", true);
     // FILTER BY THE FIRST PROJECT AND THE FIRST CODE LISTED
-    const filterChart = sortedChart.filter(
-      (item) =>
-        item.project_id === selectedProject &&
-        item.code === selectedCurrency &&
-        versusLast(item.name, period).current
-    );
+    const filterChart =
+      period.toLowerCase().includes("custom") &&
+      customStart.length &&
+      customEnd.length
+        ? sortedChart.filter(
+            (item) =>
+              item.project_id === selectedProject &&
+              item.code === selectedCurrency &&
+              versusLast(item.name, period, customStart, customEnd).current
+          )
+        : sortedChart.filter(
+            (item) =>
+              item.project_id === selectedProject &&
+              item.code === selectedCurrency &&
+              versusLast(item.name, period).current
+          );
 
     // ACCUMULATE TOTAL AMOUNTS BASED ON THE DATE
     // EXAMPLE: AUG 12, 2021 => 309.45; AUG 12, 2021 => 405.00; AUG 19, 2021 => 203.76
@@ -83,25 +92,31 @@ function LineChartDisplay({
 
   useEffect(() => {
     getData();
-  }, [projects, currencies, selectedProject, selectedCurrency, period]);
-
+  }, [
+    projects,
+    currencies,
+    selectedProject,
+    selectedCurrency,
+    period,
+    customStart,
+    customEnd,
+  ]);
 
   const switchPeriod = () => {
     if (period === "custom") {
       if (customStart.length && customEnd.length) {
-        return `from ${customStart} to ${customEnd}`
+        return `from ${customStart} to ${customEnd}`;
       } else {
-        return "from -"
+        return "from -";
       }
     } else if (period === "day") {
-      return "within the last 24 hours"
+      return "within the last 24 hours";
     } else if (period === "") {
-      return ""
+      return "";
     } else {
-      return "within the last 1 " + period
+      return "within the last 1 " + period;
     }
-  } 
-
+  };
 
   return (
     <div className="h-[50vh] flex flex-col">
@@ -111,7 +126,8 @@ function LineChartDisplay({
             <ChartHeading
               text="At a Glance"
               subtext={`All ${selectedCurrency} payments made for project ${
-                projects?.find((item) => item.id === selectedProject)?.name ?? "-"
+                projects?.find((item) => item.id === selectedProject)?.name ??
+                "-"
               } ${switchPeriod()}`}
             />
           </div>

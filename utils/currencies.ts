@@ -8,23 +8,11 @@ export function convertCurrency(labelValue: number) {
   // IF LENGTH IS 6 OR MORE, INCLUDING "." (ex. 290.78), CHANGE TO
   // 1 DECIMAL PLACE INSTEAD
   if (Math.abs(Number(labelValue)) >= 1e9) {
-    if ((Math.abs(Number(labelValue)) / 1e9).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1e9).toFixed(1) + "B";
-    } else {
-      output += (Math.abs(Number(labelValue)) / 1e9).toFixed(2) + "B";
-    }
+    output += (Math.abs(Number(labelValue)) / 1e9).toFixed(2) + "B"
   } else if (Math.abs(Number(labelValue)) >= 1e6) {
-    if ((Math.abs(Number(labelValue)) / 1e6).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1e6).toFixed(1) + "M";
-    } else {
-      output += (Math.abs(Number(labelValue)) / 1e6).toFixed(2) + "M";
-    }
+    output += (Math.abs(Number(labelValue)) / 1e6).toFixed(2) + "M";
   } else if (Math.abs(Number(labelValue)) >= 1e3) {
-    if ((Math.abs(Number(labelValue)) / 1e3).toFixed(2).length >= 6) {
-      output += (Math.abs(Number(labelValue)) / 1e3).toFixed(1) + "K";
-    } else {
-      output += (Math.abs(Number(labelValue)) / 1e3).toFixed(2) + "K";
-    }
+    output += (Math.abs(Number(labelValue)) / 1e3).toFixed(2) + "K";
   } else if (Math.abs(Number(labelValue)).toFixed(2).length >= 6) {
     output += Math.abs(Number(labelValue)).toFixed(2);
   } else {

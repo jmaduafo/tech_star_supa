@@ -49,21 +49,23 @@ function AmountsBar({
   return (
     <div className="h-full w-full">
       <div className="h-full w-full flex flex-col">
-        <div>
-          <ChartHeading
-            text="Revised Contracts vs Contract Payments"
-            subtext="Bar chart display of payments against contracts"
-          />
-        </div>
         {data?.length ? (
-          <div className="mt-auto h-[70%] w-full">
-            <BarChart
-              data={data}
-              dataArray={["contracts", "payments"]}
-              code={selectedCurrency}
-              format
-            />
-          </div>
+          <>
+            <div>
+              <ChartHeading
+                text="Revised Contracts vs Contract Payments"
+                subtext="Bar chart display of payments against contracts"
+              />
+            </div>
+            <div className="mt-auto h-[70%] w-full">
+              <BarChart
+                data={data}
+                dataArray={["contracts", "payments"]}
+                code={selectedCurrency}
+                format
+              />
+            </div>
+          </>
         ) : null}
 
         {data && !data.length ? (
@@ -71,13 +73,13 @@ function AmountsBar({
             <NotAvailable text={"No data available"} />
           </div>
         ) : null}
+        
+        {data ? null : (
+          <div className="flex justify-center items-center h-full w-full">
+            <Loading />
+          </div>
+        )}
       </div>
-
-      {data ? null : (
-        <div className="flex justify-center items-center h-full w-full">
-          <Loading />
-        </div>
-      )}
     </div>
   );
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import DashboardGrid from "./DashboardGrid";
 import PaymentDisplay from "./PaymentDisplay";
 import LineChartDisplay from "./LineChartDisplay";
 import Card from "@/components/ui/cards/MyCard";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/context/UserContext";
-import { Project, Amount, User } from "@/types/types";
+import { Project, Amount, User, Activity } from "@/types/types";
 import { getUniqueObjects } from "@/utils/chartHelpers";
 import { greeting } from "@/utils/greeting";
 import Header2 from "@/components/fontsize/Header2";
@@ -23,9 +23,12 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
+import { progress } from "@/utils/dashboardProgress";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
+  const [allActivities, setAllActivities] = useState<Activity[] | undefined>();
+  const [team, setTeam] = useState<User[] | undefined>();
   const [currenciesList, setCurrenciesList] = useState<Amount[] | undefined>();
 
   const [selectedProject, setSelectedProject] = useState("");
@@ -36,7 +39,6 @@ function MainPage() {
   const [customEnd, setCustomEnd] = useState("");
 
   const [greet, setGreet] = useState("");
-  const [progress, setProgress] = useState(42);
 
   const supabase = useMemo(() => createClient(), []);
   const { userData } = useAuth();
@@ -44,6 +46,11 @@ function MainPage() {
   const [user, setUser] = useState<User | undefined>();
 
   const [open, setOpen] = useState(false);
+
+  const [progressMessages, setProgressMessages] = useState<string[]>([]);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const [dropdown, setDropdown] =
     useState<React.ComponentProps<typeof Calendar>["captionLayout"]>(
@@ -113,33 +120,50 @@ function MainPage() {
         return;
       }
 
-      const [projects, contractCurrencies, paymentCurrencies] =
-        await Promise.all([
-          supabase
-            .from("projects")
-            .select(
-              "id, name, contractors ( id, name, is_available, country, payments ( id, date, is_paid, is_completed, payment_amounts ( * )) ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) )"
-            )
-            .eq("team_id", userData.team_id)
-            .order("created_at", { ascending: false })
-            .throwOnError(),
-          supabase
-            .from("contract_amounts")
-            .select(
-              "id, contract_id, name, symbol, code, contracts ( id, team_id, project_id, contractor_id )"
-            )
-            .eq("contracts.team_id", userData.team_id)
-            .throwOnError(),
-          supabase
-            .from("payment_amounts")
-            .select(
-              "id, payment_id, name, symbol, code, payments ( id, team_id, project_id, contractor_id )"
-            )
-            .eq("payments.team_id", userData.team_id)
-            .throwOnError(),
-        ]);
+      const [
+        projects,
+        contractCurrencies,
+        paymentCurrencies,
+        activities,
+        team,
+      ] = await Promise.all([
+        supabase
+          .from("projects")
+          .select(
+            "id, name, contractors ( id, name, is_available, country, payments ( id, date, is_paid, is_completed, payment_amounts ( * )) ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) ), stages (id) "
+          )
+          .eq("team_id", userData.team_id)
+          .order("created_at", { ascending: false })
+          .throwOnError(),
+        supabase
+          .from("contract_amounts")
+          .select(
+            "id, contract_id, name, symbol, code, contracts ( id, team_id, project_id, contractor_id )"
+          )
+          .eq("contracts.team_id", userData.team_id)
+          .throwOnError(),
+        supabase
+          .from("payment_amounts")
+          .select(
+            "id, payment_id, name, symbol, code, payments ( id, team_id, project_id, contractor_id )"
+          )
+          .eq("payments.team_id", userData.team_id)
+          .throwOnError(),
+        supabase
+          .from("activities")
+          .select()
+          .eq("team_id", userData.team_id)
+          .throwOnError(),
+        supabase
+          .from("users")
+          .select("id")
+          .eq("team_id", userData.team_id)
+          .throwOnError(),
+      ]);
 
       setAllProjects(projects.data as unknown as Project[]);
+      setAllActivities(activities.data as Activity[]);
+      setTeam(team.data as User[]);
       setSelectedProject(projects.data[0].id);
 
       setCurrenciesList(
@@ -172,17 +196,51 @@ function MainPage() {
     }
   }, [dateRange]);
 
+  useEffect(() => {
+    if (progressMessages.length) {
+      const slideInterval = setInterval(() => {
+        setCurrentIndex(
+          (prevIndex) => (prevIndex + 1) % progressMessages.length
+        );
+      }, 5000); // Change slide every 3 seconds
+
+      // Cleanup function to clear the interval when the component unmounts
+      return () => clearInterval(slideInterval);
+    }
+  }, [progressMessages]);
+
+  useEffect(() => {
+    if (allProjects && allActivities && team) {
+      if (!progress(allProjects, team, allActivities)?.messages) {
+        return;
+      }
+
+      const progressResult = progress(allProjects, team, allActivities);
+
+      setProgressMessages(
+        progressResult?.messages
+          ? [
+              ...progressResult.messages,
+              `You are ${progressResult.percentage}% closer to a fully populated dashboard`,
+            ]
+          : []
+      );
+
+      progressResult && setProgressPercent(progressResult.percentage);
+    }
+  }, [allProjects, allActivities, team]);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex justify-between items-start mb-1">
         <div>
           <Header2 text={`Good ${greet}, ${userData?.first_name}`} />
           <div className="flex gap-3">
-            <Progress value={progress} className="w-96 mt-2" />
-            <Paragraph text={`${progress}%`} />
+            <Progress value={progressPercent} className="w-96 mt-2" />
+            <Paragraph text={`${progressPercent}%`} />
           </div>
           <Paragraph
-            text={`You are ${progress}% closer to a fully populated dashboard`}
+            text={progressMessages.length ? progressMessages[currentIndex] : ""}
             className="italic text-darkText/70"
           />
         </div>

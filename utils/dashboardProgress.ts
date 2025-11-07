@@ -141,7 +141,7 @@ export const progress = (
     });
   } else {
     progress.push({
-      message: `Team work makes the dream work! ${
+      message: `Teamwork makes the dream work! ${
         2 - team.length
       } more member${optionalS(2 - team.length)} for a full team`,
       success: false,

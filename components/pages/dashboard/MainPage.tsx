@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DashboardGrid from "./DashboardGrid";
 import PaymentDisplay from "./PaymentDisplay";
 import LineChartDisplay from "./LineChartDisplay";
@@ -52,7 +52,7 @@ function MainPage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [dropdown, setDropdown] =
+  const [dropdown] =
     useState<React.ComponentProps<typeof Calendar>["captionLayout"]>(
       "dropdown"
     );

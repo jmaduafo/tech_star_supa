@@ -18,7 +18,7 @@ function CheckedButton({
       className={`rounded-full w-6 h-6 ${
         disabledLogic
           ? "opacity-50 cursor-not-allowed"
-          : "opacity-100 cursor-pointer hover:bg-lightText text-lightText hover:text-darkText duration-300"
+          : "opacity-100 cursor-pointer hover:bg-darkText text-darkText hover:text-lightText duration-300"
       }`}
     >
       <CircleCheck strokeWidth={1} className="w-6 h-6" />

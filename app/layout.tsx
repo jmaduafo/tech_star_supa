@@ -10,8 +10,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "TechStar",
+  description: "TechStar is a web application designed to streamline how contractors, contracts, and payments are managed within a company. Built with efficiency and clarity in mind, it replaces outdated manual recording methods with an intuitive, automated system that supports real-time calculations, multi-currency tracking, and quick data exports",
 };
 
 export const urbanist = Urbanist({

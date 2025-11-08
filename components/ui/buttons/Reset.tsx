@@ -15,7 +15,7 @@ function Reset({
       disabled={disabledLogic}
       className={`rounded-full ${disabledLogic ? "opacity-50" : "opacity-100 hover:opacity-70 duration-300"}`}
     >
-      <RefreshCw strokeWidth={1} className="text-lightText w-6 h-6" />
+      <RefreshCw strokeWidth={1} className="text-darkText w-6 h-6" />
     </button>
   );
 }

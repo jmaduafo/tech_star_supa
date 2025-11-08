@@ -25,6 +25,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
 import { progress } from "@/utils/dashboardProgress";
 import { Skeleton } from "@/components/ui/skeleton";
+import ContractorsDisplay from "./ContractorsDisplay";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -131,7 +132,7 @@ function MainPage() {
         supabase
           .from("projects")
           .select(
-            "id, name, contractors ( id, name, is_available, country, payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts ( id ) ), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) ), stages (id) "
+            "id, name, contractors ( *, projects ( name ), payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts (id, contract_amounts (*)), stage_contractors (*, stages ( id, name ))), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) ), stages (id) "
           )
           .eq("team_id", userData.team_id)
           .order("created_at", { ascending: false })
@@ -241,7 +242,9 @@ function MainPage() {
               <Progress value={progressPercent} className="w-96 " />
               <Paragraph text={`${progressPercent}%`} />
             </div>
-          ) : <Skeleton className="h-6 w-[80%]" />}
+          ) : (
+            <Skeleton className="h-6 w-[80%]" />
+          )}
 
           <Paragraph
             text={progressMessages.length ? progressMessages[currentIndex] : ""}
@@ -327,6 +330,12 @@ function MainPage() {
         <PaymentDisplay
           projects={allProjects}
           currencies={currenciesList}
+          selectedProject={selectedProject}
+        />
+      </div>
+      <div className="mt-2">
+        <ContractorsDisplay
+          projects={allProjects}
           selectedProject={selectedProject}
         />
       </div>

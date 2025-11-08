@@ -1,24 +1,22 @@
-"use client";
-import React, { useEffect, useState } from "react";
 import Header3 from "@/components/fontsize/Header3";
-import { optionalS } from "@/utils/optionalS";
-import TextButton from "@/components/ui/buttons/TextButton";
-import { Amount, Payment, Project } from "@/types/types";
-import Loading from "@/components/ui/loading/Loading";
 import Header6 from "@/components/fontsize/Header6";
-import { paymentColumns } from "@/components/ui/tables/columns";
+import TextButton from "@/components/ui/buttons/TextButton";
+import Loading from "@/components/ui/loading/Loading";
+import { contractorColumns } from "@/components/ui/tables/columns";
 import MainTable from "@/components/ui/tables/MainTable";
+import { Contractor, Project } from "@/types/types";
+import { optionalS } from "@/utils/optionalS";
+import { format } from "date-fns";
+import React, { useEffect, useState } from "react";
 
-function PaymentDisplay({
+function ContractorsDisplay({
   projects,
-  currencies,
   selectedProject,
 }: {
   readonly projects: Project[] | undefined;
-  readonly currencies: Amount[] | undefined;
   readonly selectedProject: string;
 }) {
-  const [data, setData] = useState<Payment[] | undefined>();
+  const [data, setData] = useState<Contractor[] | undefined>();
 
   const getLatest = () => {
     if (!projects || !selectedProject.length) {
@@ -31,15 +29,18 @@ function PaymentDisplay({
       return;
     }
 
-    const payments: Payment[] = [];
+    const contractors: Contractor[] = [];
 
-    project.payments?.forEach((payment) => {
-      payments.push(payment);
+    project.contractors?.forEach((contractor) => {
+      contractors.push(contractor);
     });
 
     // ORDER THE PAYMENTS IN DESCENDING ORDER
-    const orderedPayment = payments.toSorted((a, b) => {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    const orderedPayment = contractors.toSorted((a, b) => {
+      return (
+        new Date(format(`${b.start_month} ${b.start_year}`, "P")).getTime() -
+        new Date(format(`${a.start_month} ${a.start_year}`, "P")).getTime()
+      );
     });
 
     // ONLY GET 5 AT MOST
@@ -50,12 +51,11 @@ function PaymentDisplay({
     getLatest();
   }, [projects, selectedProject]);
 
-  return (
-    <section className="w-full">
+  return <section className="w-full">
       <div className="flex justify-between items-start">
         <div className="flex items-start gap-5">
-          {/* LATEST HEADING WITH PAYMENTS COUNT */}
-          <Header3 text="Latest Payments" />
+          {/* LATEST HEADING WITH CONTRACTOR COUNT */}
+          <Header3 text="Latest Contractors" />
           {data ? (
             <Header6
               text={
@@ -70,7 +70,7 @@ function PaymentDisplay({
         <div>
           {data?.length ? (
             <TextButton
-              href="tables/payments"
+              href="/tables/contractors"
               text="View all"
               iconDirection="right"
             />
@@ -80,9 +80,9 @@ function PaymentDisplay({
       <div className="mt-6">
         {data ? (
           <MainTable
-            columns={paymentColumns}
+            columns={contractorColumns}
             data={data}
-            is_payment
+            is_payment={false}
             team_name={"My"}
             filterCategory="description"
           />
@@ -93,7 +93,6 @@ function PaymentDisplay({
         )}
       </div>
     </section>
-  );
 }
 
-export default PaymentDisplay;
+export default ContractorsDisplay;

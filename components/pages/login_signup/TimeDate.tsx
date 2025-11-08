@@ -1,7 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { fullDate, fullTime } from "@/utils/dateAndTime";
-import { Sunrise, Sunset, CloudSun, CloudMoon, Clock2 } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  MoonCloudIcon,
+  Sun02Icon,
+  SunCloud02Icon,
+  SunsetIcon,
+} from "@hugeicons/core-free-icons";
 
 function TimeDate({
   timeFontSize,
@@ -30,37 +36,41 @@ function TimeDate({
   function timeIcon(hour: string) {
     if (+hour >= 20 || (+hour >= 0 && +hour < 7)) {
       return (
-        <CloudMoon
+        <HugeiconsIcon
+          icon={MoonCloudIcon}
           strokeWidth={1.5}
           className={
-            timeFontSize === "dashboard" ? "w-14 h-14" : "w-[6.5vw] h-[6.5vw]"
+            timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6.5vw] h-[6.5vw]"
           }
         />
       );
     } else if (+hour >= 7 && +hour < 10) {
       return (
-        <Sunrise
+        <HugeiconsIcon
+          icon={Sun02Icon}
           strokeWidth={1.5}
           className={
-            timeFontSize === "dashboard" ? "w-14 h-14" : "w-[6.5vw] h-[6.5vw]"
+            timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6.5vw] h-[6.5vw]"
           }
         />
       );
     } else if (+hour >= 10 && +hour < 18) {
       return (
-        <CloudSun
+        <HugeiconsIcon
+          icon={SunCloud02Icon}
           strokeWidth={1.5}
           className={
-            timeFontSize === "dashboard" ? "w-14 h-14" : "w-[6.5vw] h-[6.5vw]"
+            timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6.5vw] h-[6.5vw]"
           }
         />
       );
     } else {
       return (
-        <Sunset
+        <HugeiconsIcon
+          icon={SunsetIcon}
           strokeWidth={1.5}
           className={
-            timeFontSize === "dashboard" ? "w-14 h-14" : "w-[6.5vw] h-[6.5vw]"
+            timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6.5vw] h-[6.5vw]"
           }
         />
       );
@@ -74,12 +84,13 @@ function TimeDate({
       >
         {/* TIME ICON */}
         <div className="text-darkText duration-200">
-          <Clock2
+          {/* <Clock2
             strokeWidth={1.2}
             className={
               timeFontSize === "dashboard" ? "w-12 h-12" : "w-[6vw] h-[6vw]"
             }
-          />
+          /> */}
+          {timeIcon(time.hour)}
         </div>
         {/* TIME DISPLAY */}
         <p

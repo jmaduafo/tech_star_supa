@@ -2,7 +2,7 @@ import React from "react";
 
 function OnlineStatus({ status }: { readonly status: "online" | "offline" }) {
   return status === "online" ? (
-    <p className="text-[14px] py-1 px-4 rounded-full border border-green-200 bg-[#bbf7d030] w-fit text-green-200">
+    <p className="text-[14px] py-1 px-4 rounded-full border border-green-400 bg-[#bbf7d030] w-fit text-green-400">
       Online <span className="animate-ping ml-1">&#9679;</span>{" "}
     </p>
   ) : (

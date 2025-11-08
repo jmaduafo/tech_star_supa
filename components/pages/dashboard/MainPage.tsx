@@ -24,6 +24,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
 import { progress } from "@/utils/dashboardProgress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -48,7 +49,7 @@ function MainPage() {
   const [open, setOpen] = useState(false);
 
   const [progressMessages, setProgressMessages] = useState<string[]>([]);
-  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [progressPercent, setProgressPercent] = useState<number | undefined>();
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -211,10 +212,6 @@ function MainPage() {
 
   useEffect(() => {
     if (allProjects && allActivities && team) {
-      if (!progress(allProjects, team, allActivities)?.messages) {
-        return;
-      }
-
       const progressResult = progress(allProjects, team, allActivities);
 
       setProgressMessages(
@@ -234,11 +231,18 @@ function MainPage() {
     <div className="flex flex-col gap-3">
       <div className="flex justify-between items-start mb-1">
         <div>
-          <Header2 text={`Good ${greet}, ${userData?.first_name}`} />
-          <div className="flex gap-3">
-            <Progress value={progressPercent} className="w-96 mt-2" />
-            <Paragraph text={`${progressPercent}%`} />
-          </div>
+          {greet.length && userData ? (
+            <Header2 text={`Good ${greet}, ${userData?.first_name}`} />
+          ) : (
+            <Skeleton className="h-10 w-full" />
+          )}
+          {progressPercent ? (
+            <div className="flex items-center gap-3 mt-2">
+              <Progress value={progressPercent} className="w-96 " />
+              <Paragraph text={`${progressPercent}%`} />
+            </div>
+          ) : <Skeleton className="h-6 w-[80%]" />}
+
           <Paragraph
             text={progressMessages.length ? progressMessages[currentIndex] : ""}
             className="italic text-darkText/70"

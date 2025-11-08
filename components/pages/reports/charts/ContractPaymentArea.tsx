@@ -44,11 +44,7 @@ function ContractPaymentArea({
 
   return (
     <div className="h-full w-full">
-      {!data ? (
-        <div className="w-full h-full flex justify-center items-center">
-          <Loading />
-        </div>
-      ) : (
+      {data ? (
         <div className="h-full w-full">
           <ChartHeading
             text="Contracts vs Contract Payments"
@@ -62,6 +58,10 @@ function ContractPaymentArea({
               dataKeys={["contracts", "payments"]}
             />
           </div>
+        </div>
+      ) : (
+        <div className="w-full h-full flex justify-center items-center">
+          <Loading />
         </div>
       )}
     </div>

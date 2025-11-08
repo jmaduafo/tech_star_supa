@@ -10,9 +10,7 @@ import {
 } from "@/types/types";
 import {
   checkArray,
-  convertCurrency,
-  formatCurrency,
-  totalSum,
+  formatCurrency
 } from "@/utils/currencies";
 import { formatDate } from "@/utils/dateAndTime";
 import { ColumnDef } from "@tanstack/react-table";
@@ -647,7 +645,7 @@ export const teamColumns: ColumnDef<User>[] = [
           </Avatar>
           <div>
             <div>{user?.full_name}</div>
-            <div className="-mt-1 text-[13px] text-light70">
+            <div className="-mt-1 text-[13px] text-darkText/70">
               {user?.job_title ?? "Unemployed"}
             </div>
           </div>
@@ -712,15 +710,15 @@ export const teamColumns: ColumnDef<User>[] = [
 
       return user?.is_owner ? (
         <div className="flex items-center gap-1 text-[14px]">
-          <div className="py-1 px-3 border border-lightText bg-darkText rounded-full capitalize">
+          <div className="py-1 px-3 bg-darkText text-lightText rounded-full capitalize">
             owner
           </div>
-          <div className="py-1 px-3 border border-lightText rounded-full capitalize">
+          <div className="py-1 px-3 border border-darkText  rounded-full capitalize">
             {user.role}
           </div>
         </div>
       ) : (
-        <div className="text-[14px] py-1 px-3 border border-lightText rounded-full">
+        <div className="text-[14px] py-1 px-3 border border-darkText rounded-full">
           {user.role}
         </div>
       );

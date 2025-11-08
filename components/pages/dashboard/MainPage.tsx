@@ -26,6 +26,7 @@ import { type DateRange } from "react-day-picker";
 import { progress } from "@/utils/dashboardProgress";
 import { Skeleton } from "@/components/ui/skeleton";
 import ContractorsDisplay from "./ContractorsDisplay";
+import PrimaryButton from "@/components/ui/buttons/PrimaryButton";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -281,12 +282,14 @@ function MainPage() {
               </PopoverContent>
             </Popover>
           ) : null}
-          <button className="flex gap-1 items-center font-light bg-darkText text-lightText px-6 py-2.5 rounded-full">
-            <span>
-              <Plus className="w-5 h-5" strokeWidth={1} />
-            </span>
-            <span>Add Project</span>
-          </button>
+          <PrimaryButton link="/projects">
+            <>
+              <span>
+                <Plus className="w-5 h-5" strokeWidth={1} />
+              </span>
+              <span>Add Project</span>
+            </>
+          </PrimaryButton>
         </div>
       </div>
       <DashboardGrid

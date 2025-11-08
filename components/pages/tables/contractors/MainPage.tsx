@@ -36,11 +36,7 @@ function MainPage() {
     getData();
   }, [userData]);
 
-  return !data ? (
-    <div className="py-16 flex justify-center">
-      <Loading className="w-10 h-10" />
-    </div>
-  ) : (
+  return data ? (
     <section>
       <MainTitle title={"Contractor Log"} data={data} />
       <div className="mt-10">
@@ -55,6 +51,10 @@ function MainPage() {
         />
       </div>
     </section>
+  ) : (
+    <div className="py-16 flex justify-center">
+      <Loading className="w-10 h-10" />
+    </div>
   );
 }
 

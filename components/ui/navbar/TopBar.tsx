@@ -173,8 +173,8 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
         ) : null}
         {filteredProject.length ? (
           <div>
-            <Paragraph text="Projects" className="font-medium mt-1.5" />
-            <div className="flex flex-col">
+            <p className="font-medium mt-1.5 text-[13px]">Projects</p>
+            <div className="flex flex-col mt-1">
               {filteredProject.map((item) => {
                 return (
                   <Fragment key={item.id}>
@@ -184,10 +184,12 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
                         setValue(item.name);
                         setSearchOpen(false);
                       }}
+                      className="flex items-center gap-2 py-1.5 px-2 cursor-pointer hover:bg-lightText/50 rounded-md"
                     >
+                      <Search className="w-4 h-4" strokeWidth={1}/>
                       <Paragraph
                         text={item.name}
-                        className="cursor-pointer py-1 px-2 hover:bg-lightText/80 rounded-md"
+                        className=""
                       />
                     </Link>
                   </Fragment>
@@ -198,8 +200,8 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
         ) : null}
         {filteredContractor.length ? (
           <div>
-            <Paragraph text="Contractors" className="font-medium mt-1.5" />
-            <div className="flex flex-col">
+            <p className="font-medium mt-1.5 text-[13px]">Contractors</p>
+            <div className="flex flex-col mt-1">
               {filteredContractor.map((item) => {
                 return (
                   <Fragment key={item.id}>
@@ -209,10 +211,12 @@ function SearchBar({ user }: { readonly user: User | undefined }) {
                         setValue(item.name);
                         setSearchOpen(false);
                       }}
+                      className="flex items-center gap-2 py-1.5 px-2 cursor-pointer hover:bg-lightText/50 rounded-md"
                     >
+                      <Search className="w-4 h-4" strokeWidth={1}/>
                       <Paragraph
                         text={item.name}
-                        className="cursor-pointer py-1 px-2 hover:bg-lightText/80 rounded-md"
+                        className=""
                       />
                     </Link>
                   </Fragment>

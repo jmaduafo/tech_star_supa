@@ -26,9 +26,9 @@ export const progress = (
     });
   } else {
     progress.push({
-      message: `Getting there — Insert ${2 - projects.length} more project${optionalS(
+      message: `Getting there — Insert ${
         2 - projects.length
-      )}`,
+      } more project${optionalS(2 - projects.length)}`,
       success: false,
     });
   }
@@ -58,57 +58,42 @@ export const progress = (
 
   // EACH CONTRACTOR MUST HAVE AT LEAST 10 PAYMENTS
   for (const project of projects) {
-    if (!project.contractors) {
-      return;
+    if (project.contractors) {
+      project.contractors.forEach((contractor) => {
+       const hasRequirement = contractor.payments?.length >= 10;
+       
+        payments.push(hasRequirement);
+      });
     }
-
-    project.contractors.forEach((contractor) => {
-      if (contractor.payments?.length >= 10) {
-        payments.push(true);
-      } else {
-        payments.push(false);
-      }
-    });
   }
 
-  if (payments.some((item) => !item)) {
-    progress.push({
-      message: `Almost there — Add ten payments in total for each contractor`,
-      success: false,
-    });
-  } else {
-    progress.push({
-      message: null,
-      success: true,
-    });
-  }
+ const hasAllPayments = payments.every(Boolean);
 
-  // EACH CONTRACTOR MUST HAVE AT LEAST 2 CONTRACTS
+  progress.push({
+    message: hasAllPayments
+      ? null
+      : `Almost there — Add ten payments in total for each contractor`,
+    success: hasAllPayments,
+  });
+
+  // EACH CONTRACTOR MUST HAVE AT LEAST 1 CONTRACT
   for (const project of projects) {
-    if (!project.contractors) {
-      return;
+    if (project.contractors) {
+      project.contractors.forEach((contractor) => {
+        const hasRequirement = contractor.contracts?.length >= 1;
+        contracts.push(hasRequirement);
+      });
     }
-
-    project.contractors.forEach((contractor) => {
-      if (contractor.contracts?.length >= 1) {
-        contracts.push(true);
-      } else {
-        contracts.push(false);
-      }
-    });
   }
 
-  if (contracts.some((item) => !item)) {
-    progress.push({
-      message: `Making progress — Not every contractor has at least one contract`,
-      success: false,
-    });
-  } else {
-    progress.push({
-      message: null,
-      success: true,
-    });
-  }
+  const hasAllContracts = contracts.every(Boolean);
+
+  progress.push({
+    message: hasAllContracts
+      ? null
+      : `Making progress — Not every contractor has at least one contract`,
+    success: hasAllContracts,
+  });
 
   // EACH PROJECT MUST HAVE AT LEAST THREE STAGES
   for (const project of projects) {
@@ -178,7 +163,9 @@ export const progress = (
   });
 
   return {
-    percentage: Math.round(((progress.length - tasksLeft) / progress.length) * 100),
+    percentage: Math.round(
+      ((progress.length - tasksLeft) / progress.length) * 100
+    ),
     messages: finalProgress,
   };
 };

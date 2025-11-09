@@ -132,7 +132,6 @@ function SignUp() {
         .from("team_members")
         .insert({
           team_id: teamData?.id,
-          role: "admin",
           user_id: userId,
         });
 

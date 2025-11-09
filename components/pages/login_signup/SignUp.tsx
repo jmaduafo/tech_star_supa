@@ -63,7 +63,7 @@ function SignUp() {
             emailRedirectTo: `${globalThis.location.origin}`,
           },
         });
-        
+
       if (signUpError) {
         toast.error("Something went wrong", {
           description: signUpError.message,
@@ -149,6 +149,11 @@ function SignUp() {
           "Please check your email and follow the instructions to confirm your account before signing in",
         duration: Infinity,
       });
+
+      setFirstName("")
+      setLastName("")
+      setEmail("")
+      setPassword("")
     } catch (error: unknown) {
       toast.error("Something went wrong", {
         description:

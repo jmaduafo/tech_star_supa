@@ -60,10 +60,10 @@ function SignUp() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}`,
+            emailRedirectTo: `${globalThis.location.origin}`,
           },
         });
-
+        
       if (signUpError) {
         toast.error("Something went wrong", {
           description: signUpError.message,
@@ -77,7 +77,9 @@ function SignUp() {
       const userId = signUpData.user?.id;
 
       if (!userId) {
-        console.error("No user found");
+        toast.error("Something went wrong", {
+          description: "No user found",
+        });
       }
 
       // CREATE NEW TEAM USING NEWLY CREATED USER ID
@@ -88,7 +90,10 @@ function SignUp() {
         .single();
 
       if (teamError) {
-        console.error(teamError.message);
+        toast.error("Something went wrong", {
+          description: teamError.message,
+        });
+
         return;
       }
 
@@ -115,7 +120,10 @@ function SignUp() {
       });
 
       if (userError) {
-        console.error(userError.message);
+        toast.error("Something went wrong", {
+          description: userError.message,
+        });
+
         return;
       }
 
@@ -129,7 +137,10 @@ function SignUp() {
         });
 
       if (memberError) {
-        console.error(memberError.message);
+        toast.error("Something went wrong", {
+          description: memberError.message,
+        });
+
         return;
       }
 
@@ -210,10 +221,7 @@ function SignUp() {
           </div>
         </CustomInput>
         <div className="mt-[4em] flex justify-end">
-          <Submit
-            loading={isLoading}
-            disabledLogic={isLoading}
-          />
+          <Submit loading={isLoading} disabledLogic={isLoading} />
         </div>
       </form>
     </div>

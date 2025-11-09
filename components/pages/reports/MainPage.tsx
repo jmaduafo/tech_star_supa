@@ -6,13 +6,13 @@ import Charts from "./charts/Charts";
 import Header1 from "@/components/fontsize/Header1";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useAuth } from "@/context/UserContext";
 import { Amount, Project } from "@/types/types";
 import { createClient } from "@/lib/supabase/client";
 import { getUniqueObjects } from "@/utils/chartHelpers";
 import { currency_list } from "@/utils/dataTools";
+import PrimaryButton from "@/components/ui/buttons/PrimaryButton";
 
 function MainPage() {
   const [period, setPeriod] = useState("All Time");
@@ -99,10 +99,14 @@ function MainPage() {
       <div className="flex justify-between">
         <Header1 text={`${period === "All Time" ? "" : period + " "}Report`} />
         <div className="">
-          <Button>
-            <Download className="" />
-            Download
-          </Button>
+          <PrimaryButton>
+            <>
+              <span>
+                <Download className="w-5 h-5" strokeWidth={1} />
+              </span>
+              <span>Download</span>
+            </>
+          </PrimaryButton>
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-4 mt-8">

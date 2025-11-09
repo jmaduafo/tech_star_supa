@@ -15,18 +15,14 @@ import { Progress } from "@/components/ui/progress";
 import Paragraph from "@/components/fontsize/Paragraph";
 import Activities from "./Activities";
 import ContractorMap from "./ContractorMap";
-import { Plus, ChevronDownIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Plus } from "lucide-react";
 import { type DateRange } from "react-day-picker";
 import { progress } from "@/utils/dashboardProgress";
 import { Skeleton } from "@/components/ui/skeleton";
 import ContractorsDisplay from "./ContractorsDisplay";
 import PrimaryButton from "@/components/ui/buttons/PrimaryButton";
+import CustomDate from "@/components/ui/buttons/CustomDate";
+import { useRouter } from "next/navigation";
 
 function MainPage() {
   const [allProjects, setAllProjects] = useState<Project[] | undefined>();
@@ -48,17 +44,12 @@ function MainPage() {
 
   const [user, setUser] = useState<User | undefined>();
 
-  const [open, setOpen] = useState(false);
-
   const [progressMessages, setProgressMessages] = useState<string[]>([]);
   const [progressPercent, setProgressPercent] = useState<number | undefined>();
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [dropdown] =
-    useState<React.ComponentProps<typeof Calendar>["captionLayout"]>(
-      "dropdown"
-    );
+  const route = useRouter()
 
   const today = new Date();
   today.setDate(today.getDate() - 1);
@@ -254,35 +245,9 @@ function MainPage() {
         </div>
         <div className="flex items-center gap-2">
           {period === "custom" ? (
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <button className="flex gap-1 items-center font-light text-darkText bg-lightText/60 hover:bg-lightText/80 duration-300 px-6 py-2.5 rounded-full">
-                  {dateRange?.from && dateRange?.to
-                    ? dateRange.from.toLocaleDateString() +
-                      " - " +
-                      dateRange.to.toLocaleDateString()
-                    : "Select date"}
-                  <ChevronDownIcon strokeWidth={1} />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="end"
-              >
-                <Calendar
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
-                  captionLayout={dropdown}
-                  disabled={(date) => date > new Date()}
-                  className="rounded-lg border shadow-sm"
-                />
-              </PopoverContent>
-            </Popover>
+            <CustomDate dateRange={dateRange} setDateRange={setDateRange}/>
           ) : null}
-          <PrimaryButton link="/projects">
+          <PrimaryButton action={() => route.push("/projects")}>
             <>
               <span>
                 <Plus className="w-5 h-5" strokeWidth={1} />

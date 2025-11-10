@@ -65,6 +65,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { checkArray } from "@/utils/currencies";
 
 function ContractorDisplay({
   allContractors,
@@ -117,6 +118,8 @@ function ContractorDisplay({
                             </Link>
                             {/* CONTRACTOR LOCATION */}
                             <p className="text-[14px] text-darkText/50">
+                              Since {item?.start_month?.substring(0, 3)}.{" "}
+                              {item.start_year} -{" "}
                               {item?.city ? (
                                 <span className="italic capitalize">
                                   {item.city},{" "}
@@ -295,7 +298,7 @@ function DropDown({
             </DropdownMenuItem>
             <DropdownMenuGroup>
               <Link
-                href={`/projects/${contractor?.project_id}/contractors/${contractor?.id}`}
+                href={`/projects/${contractor?.project_id}/contractors/${contractor?.id}/contracts`}
               >
                 <DropdownMenuItem>View contracts</DropdownMenuItem>
               </Link>
@@ -552,41 +555,29 @@ const ViewContractor = ({
 }) => {
   const [stagesData, setStagesData] = useState<Stage[] | undefined>();
 
-  const supabase = createClient();
-
   const getStages = async () => {
-    try {
-      if (!contractor) {
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("stages")
-        .select(
-          `
-            id,
-            name,
-            stage_contractors (
-              contractor_id
-            )
-          `
-        )
-        .eq("stage_contractors.contractor_id", contractor.id);
-
-      if (error) {
-        console.log(error.message);
-        return;
-      }
-
-      setStagesData(contractorStages(data));
-    } catch (err: any) {
-      console.error(err.message);
+    if (!contractor) {
+      return;
     }
+
+    const stageContractors = contractor.stage_contractors
+
+    const stages: Stage[] = []
+
+    stageContractors.forEach(item => {
+      const stage = checkArray(item.stages)
+
+      if (stage) {
+        stages.push(stage)
+      }
+    })
+
+    setStagesData(stages as Stage[])
   };
 
   useEffect(() => {
     getStages();
-  }, []);
+  }, [contractor]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -622,15 +613,17 @@ const ViewContractor = ({
               content={contractor.start_month + " " + contractor.start_year}
             />
             <ViewLabel label="Stages" custom>
-              {stagesData ? (
+              {stagesData?.length ? (
                 <p>
                   {stagesData.map((item, i) => {
                     return (
                       <Fragment key={item.id}>
-                        <span className="">{item.name}</span>
-                        {i !== stagesData.length - 1 ? (
+                        <span className="">
+                          {item?.name}
+                        </span>
+                        {i === stagesData.length - 1 ? null : (
                           <span className="">, </span>
-                        ) : null}
+                        )}
                       </Fragment>
                     );
                   })}

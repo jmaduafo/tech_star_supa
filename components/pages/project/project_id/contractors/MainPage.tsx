@@ -69,7 +69,7 @@ function MainPage() {
 
       const { data, error } = await supabase
         .from("contractors")
-        .select("*, projects (name, is_completed)")
+        .select("*, projects (name, is_completed), stage_contractors ( id, stages ( id, name ) )")
         .eq("team_id", userData.team_id)
         .eq("project_id", project_id);
 
@@ -186,6 +186,16 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "contractors",
+          filter: `team_id=eq.${userData?.team_id}`
+        },
+        (payload) => getData()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "stage_contractors"
         },
         (payload) => getData()
       )

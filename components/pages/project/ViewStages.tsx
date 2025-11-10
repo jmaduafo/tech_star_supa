@@ -260,7 +260,8 @@ const DeleteRow = ({
         description: err.message,
       });
 
-      return;
+      setStage(undefined);
+      setViewOpen(true);
     } finally {
       setDeleteLoading(false);
     }
@@ -453,7 +454,7 @@ const EditRow = ({
             className="mt-3"
           >
             <SelectBar
-              className="w-full"
+              className="w-full selectForm"
               placeholder={"Select an icon"}
               label={"Icons"}
               value={form.icon}

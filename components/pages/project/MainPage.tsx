@@ -241,7 +241,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "projects",
-          filter: `id=eq.${userData?.team_id}`,
+          filter: `team_id=eq.${userData?.team_id}`,
         },
         (payload) => getProjects()
       )
@@ -251,7 +251,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "stages",
-          filter: `id=eq.${userData?.team_id}`,
+          filter: `team_id=eq.${userData?.team_id}`,
         },
         (payload) => getProjects()
       )

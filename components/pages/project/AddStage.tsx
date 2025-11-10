@@ -171,7 +171,7 @@ function AddStage({
             className="mt-3"
           >
             <SelectBar
-              className="w-full"
+              className="w-full selectForm"
               placeholder={"Select an icon"}
               label={"Icons"}
               value={form.icon}

@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/UserContext";
 import { createClient } from "@/lib/supabase/client";
 import { Project, Stage } from "@/types/types";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { EllipsisVertical } from "lucide-react";
 import {
   DropdownMenu,
@@ -43,6 +43,7 @@ import Header6 from "@/components/fontsize/Header6";
 import Paragraph from "@/components/fontsize/Paragraph";
 import SelectBar from "@/components/ui/input/SelectBar";
 import { SelectItem } from "@/components/ui/select";
+import NotAvailable from "@/components/ui/NotAvailable";
 
 function ViewStages({
   open,
@@ -53,58 +54,10 @@ function ViewStages({
   readonly open: boolean;
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [data, setData] = useState<Stage[] | undefined>();
-
   const [deleteStage, setDeleteStage] = useState<Stage | undefined>();
   const [editStage, setEditStage] = useState<Stage | undefined>();
 
   const { userData } = useAuth();
-  const supabase = createClient();
-
-  const getData = async () => {
-    try {
-      if (!userData || !project) {
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("stages")
-        .select("*, projects ( name )")
-        .eq("project_id", project.id)
-        .eq("team_id", userData.team_id);
-
-      if (error) {
-        console.error(error.message);
-      }
-
-      setData(data as unknown as Stage[]);
-    } catch (err: any) {
-      console.error(err.message);
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("db-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "stages",
-        },
-        (payload) => getData()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, data, setData]);
 
   return (
     <>
@@ -117,9 +70,10 @@ function ViewStages({
             {/* <span className=""> */}
             <DialogTitle className="flex items-start gap-3 text-3xl font-normal">
               Stages
-              {data ? (
+              {project?.stages ? (
                 <p className="text-sm tracking-normal rounded-full px-3 bg-darkText text-lightText">
-                  {data.length} result{optionalS(data.length)}
+                  {project.stages?.length} result
+                  {optionalS(project.stages?.length)}
                 </p>
               ) : null}
             </DialogTitle>
@@ -127,86 +81,94 @@ function ViewStages({
             <DialogDescription>
               All stages under the project{" "}
               <span className="font-semibold">
-                {data && data[0].projects ? data[0].projects?.name : ""}
+                {project ? project.name : ""}
               </span>
             </DialogDescription>
           </DialogHeader>
-          {!data ? (
+          {project ? (
+            <div className="flex flex-col gap-3 w-full mt-4">
+              {project.stages?.length ? (
+                project.stages?.map((item) => {
+                  let Icon;
+                  if (typeof item.icon === "number") {
+                    const IconEntry = STAGE_ICONS[item.icon]; // get object from array
+                    Icon = IconEntry?.icon;
+                  }
+                  return (
+                    <div
+                      key={item.id}
+                      className="text-darkText bg-lightText/40 px-2 py-2 rounded-md"
+                    >
+                      <div className="flex justify-between gap-6">
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 flex justify-center items-center rounded-full bg-darkText text-lightText">
+                            {Icon && (
+                              <Icon className="w-5 h-5" strokeWidth={1} />
+                            )}
+                          </div>
+                          <div>
+                            <Header6 text={item.name} className="capitalize" />
+                            {item.description ? (
+                              <Paragraph
+                                text={item.description}
+                                className="text-darkText/70"
+                              />
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger>
+                              {userData?.role === "admin" ? (
+                                <EllipsisVertical className="w-5 h-5" />
+                              ) : null}
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="" align="start">
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setOpen(false);
+                                    setEditStage(item);
+                                  }}
+                                >
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setOpen(false);
+                                    setDeleteStage(item);
+                                  }}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                      <div className="mt-1 flex justify-end">
+                        {item.is_completed ? (
+                          <Banner text="completed" />
+                        ) : (
+                          <Banner text="ongoing" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex justify-center items-center pb-5">
+                  <NotAvailable text="No stages created yet" />
+                </div>
+              )}
+            </div>
+          ) : (
             <div className="flex flex-col gap-3 w-full mt-4">
               <Skeleton className="h-5 w-full" />
               <Skeleton className="h-5 w-[80%]" />
               <Skeleton className="h-5 w-[70%]" />
               <Skeleton className="h-5 w-[50%]" />
               <Skeleton className="h-5 w-[35%]" />
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3 w-full mt-4">
-              {data.map((item) => {
-                let Icon;
-                if (typeof item.icon === "number") {
-                  const IconEntry = STAGE_ICONS[item.icon]; // get object from array
-                  Icon = IconEntry?.icon;
-                }
-                return (
-                  <div
-                    key={item.id}
-                    className="text-darkText bg-lightText/40 px-2 py-2 rounded-md"
-                  >
-                    <div className="flex justify-between gap-6">
-                      <div className="flex items-start gap-3">
-                        <div className="w-9 h-9 flex justify-center items-center rounded-full bg-darkText text-lightText">
-                          {Icon && <Icon className="w-5 h-5" strokeWidth={1} />}
-                        </div>
-                        <div>
-                          <Header6 text={item.name} className="capitalize" />
-                          {item.description ? (
-                            <Paragraph
-                              text={item.description}
-                              className="text-darkText/70"
-                            />
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger>
-                            {userData?.role === "admin" ? (
-                              <EllipsisVertical className="w-5 h-5" />
-                            ) : null}
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="" align="start">
-                            <DropdownMenuGroup>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setOpen(false);
-                                  setEditStage(item);
-                                }}
-                              >
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setOpen(false);
-                                  setDeleteStage(item);
-                                }}
-                              >
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                    <div className="mt-1 flex justify-end">
-                      {item.is_completed ? (
-                        <Banner text="completed" />
-                      ) : (
-                        <Banner text="ongoing" />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           )}
         </DialogContent>
@@ -427,7 +389,7 @@ const EditRow = ({
       });
 
       setStage(undefined);
-      setViewOpen(true)
+      setViewOpen(true);
     } catch (err: any) {
       toast.error("Something went wrong", {
         description: err.message,

@@ -150,7 +150,7 @@ export const EditProjectSchema = z.object({
 });
 
 export const StagesSchema = z.object({
-  name: z.string().min(1, { message: "You must enter a name for this stage." }).max(20),
+  name: z.string().min(1, { message: "You must enter a name for this stage." }).max(40),
   description: z
     .string()
     .min(1, { message: "You must enter a name for this stage." })

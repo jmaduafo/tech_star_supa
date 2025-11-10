@@ -58,7 +58,7 @@ function MainPage() {
 
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select("*, stages ( * )")
         .eq("team_id", userData.team_id);
 
       if (error) {
@@ -85,6 +85,8 @@ function MainPage() {
   useEffect(() => {
     getProjects();
   }, []);
+
+  console.log(allProjects)
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -239,6 +241,17 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "projects",
+          filter: `id=eq.${userData?.team_id}`,
+        },
+        (payload) => getProjects()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "stages",
+          filter: `id=eq.${userData?.team_id}`,
         },
         (payload) => getProjects()
       )

@@ -603,7 +603,7 @@ const EditProject = ({
               placeholder="Select country"
               value={projectInfo.country}
               label="Countries"
-              className="mt-1"
+              className="mt-1 selectForm"
               valueChange={(text) => {
                 setProjectInfo({ ...projectInfo, country: text });
               }}
@@ -647,7 +647,7 @@ const EditProject = ({
                 label="Starting month *"
                 value={projectInfo.month}
                 placeholder="Select month"
-                className="mt-1"
+                className="mt-1 selectForm"
                 valueChange={(text) => {
                   setProjectInfo({ ...projectInfo, month: text });
                 }}

@@ -284,8 +284,8 @@ function MainPage() {
               label="Description *"
               htmlFor="desc"
               type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               name={"desc"}
               id="desc"
               className="mt-3"

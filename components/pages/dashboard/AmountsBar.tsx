@@ -26,25 +26,25 @@ function AmountsBar({
   const [data, setData] = useState<any[] | undefined>();
 
   const getData = () => {
-    if (!projects || !selectedCurrency.length || !selectedProject.length) {
+    if (!projects) {
       return;
     }
 
-    const chart = contractPaymentsAreaChart(
+    const chart = projects.length ? contractPaymentsAreaChart(
       projects,
       selectedProject,
       selectedCurrency,
       period,
       customStart,
       customEnd
-    );
+    ) : []
 
-    chart ? setData(chart) : setData(undefined);
+    setData(chart);
   };
 
   useEffect(() => {
     getData();
-  }, [selectedCurrency, selectedProject, period, customStart, customEnd]);
+  }, [projects, selectedCurrency, selectedProject, period, customStart, customEnd]);
 
   return (
     <div className="h-full w-full">

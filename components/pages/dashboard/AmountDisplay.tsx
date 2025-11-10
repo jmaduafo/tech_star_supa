@@ -13,6 +13,7 @@ import {
   totalAmountPaid,
   totalPayments,
 } from "@/utils/kpi";
+import NotAvailable from "@/components/ui/NotAvailable";
 
 function AmountDisplay({
   projects,
@@ -56,6 +57,7 @@ function AmountDisplay({
       !selectedCurrency.length ||
       !period.length
     ) {
+      setKpi([])
       return;
     }
 
@@ -198,13 +200,7 @@ function AmountDisplay({
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mt-2">
         {kpi
-          ? cardTitle.map((item, i) => {
-              return (
-                <Fragment key={item.title}>
-                  <KpiCard item={item} index={i} arr={kpi} period={period} />
-                </Fragment>
-              );
-            })
+          ? null
           : Array.from({ length: 4 }).map((_, i) => {
               return (
                 <Card
@@ -215,6 +211,19 @@ function AmountDisplay({
                 </Card>
               );
             })}
+        {kpi?.length && selectedProject.length ? (
+          cardTitle.map((item, i) => {
+            return (
+              <Fragment key={item.title}>
+                <KpiCard item={item} index={i} arr={kpi} period={period} />
+              </Fragment>
+            );
+          })
+        ) : (
+          <Card className="h-36 md:col-span-2 xl:col-span-4 flex justify-center items-center">
+            <NotAvailable text="No data available" />
+          </Card>
+        )}
       </div>
     </div>
   );

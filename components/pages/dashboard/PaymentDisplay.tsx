@@ -21,13 +21,14 @@ function PaymentDisplay({
   const [data, setData] = useState<Payment[] | undefined>();
 
   const getLatest = () => {
-    if (!projects || !selectedProject.length) {
+    if (!projects) {
       return;
     }
 
     const project = projects.find((item) => item.id === selectedProject);
 
     if (!project) {
+      setData([])
       return;
     }
 

@@ -49,7 +49,7 @@ function MainPage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const route = useRouter()
+  const route = useRouter();
 
   const today = new Date();
   today.setDate(today.getDate() - 1);
@@ -132,14 +132,14 @@ function MainPage() {
         supabase
           .from("contract_amounts")
           .select(
-            "id, contract_id, name, symbol, code, contracts ( id, team_id, project_id, contractor_id )"
+            "id, contract_id, name, symbol, code, contracts!inner( id, team_id, project_id, contractor_id )"
           )
           .eq("contracts.team_id", userData.team_id)
           .throwOnError(),
         supabase
           .from("payment_amounts")
           .select(
-            "id, payment_id, name, symbol, code, payments ( id, team_id, project_id, contractor_id )"
+            "id, payment_id, name, symbol, code, payments!inner( id, team_id, project_id, contractor_id )"
           )
           .eq("payments.team_id", userData.team_id)
           .throwOnError(),
@@ -161,17 +161,17 @@ function MainPage() {
       setSelectedProject(projects.data[0].id);
 
       setCurrenciesList(
-        getUniqueObjects(
-          [...contractCurrencies.data, ...paymentCurrencies.data],
-          "code"
-        )
+         getUniqueObjects(
+              [...contractCurrencies.data, ...paymentCurrencies.data],
+              "code"
+            )
       );
 
       setSelectedCurrency(
-        getUniqueObjects(
-          [...contractCurrencies.data, ...paymentCurrencies.data],
-          "code"
-        )[0].code
+          getUniqueObjects(
+              [...contractCurrencies.data, ...paymentCurrencies.data],
+              "code"
+            )[0].code
       );
     } catch (err: any) {
       console.log(err.message);
@@ -229,7 +229,7 @@ function MainPage() {
           ) : (
             <Skeleton className="h-10 w-full" />
           )}
-          {progressPercent ? (
+          {typeof progressPercent === "number" ? (
             <div className="flex items-center gap-3 mt-2">
               <Progress value={progressPercent} className="w-96 " />
               <Paragraph text={`${progressPercent}%`} />
@@ -245,7 +245,7 @@ function MainPage() {
         </div>
         <div className="flex items-center gap-2">
           {period === "custom" ? (
-            <CustomDate dateRange={dateRange} setDateRange={setDateRange}/>
+            <CustomDate dateRange={dateRange} setDateRange={setDateRange} />
           ) : null}
           <PrimaryButton action={() => route.push("/projects")}>
             <>

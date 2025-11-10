@@ -36,6 +36,7 @@ function LineChartDisplay({
       !selectedCurrency.length ||
       !selectedProject.length
     ) {
+      setFilteredData([])
       return;
     }
 

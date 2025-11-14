@@ -165,6 +165,8 @@ export type Amount = {
   code: string;
   name: string;
   amount: string;
+  vat: number | null;
+  wht: number | null;
   contract_id?: string | null;
   payment_id?: string | null;
   contracts?: Contract;
@@ -186,6 +188,7 @@ export type Contract = {
   projects: Project;
   contractors: Contractor;
   stages: Stage;
+  payments: Payment[];
   is_completed: boolean;
   description: string;
   comment?: string | null;

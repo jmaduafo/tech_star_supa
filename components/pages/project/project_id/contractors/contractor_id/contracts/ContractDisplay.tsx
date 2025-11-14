@@ -24,7 +24,7 @@ import { format } from "date-fns";
 import Input from "@/components/ui/input/Input";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import Separator from "@/components/ui/MySeparator";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import CustomInput from "@/components/ui/input/CustomInput";
 import { Calendar } from "@/components/ui/calendar";
@@ -44,9 +44,12 @@ function ContractDisplay({
   readonly user: User | undefined;
 }) {
   const [open, setOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [contractDate, setContractDate] = useState<string | undefined>(undefined);
+  const [contractDate, setContractDate] = useState<string | undefined>(
+    undefined
+  );
   const [currencyInputs, setCurrencyInputs] = useState<Amount[]>([]);
   const [bankInputs, setBankInputs] = useState<string[]>([]);
 
@@ -60,6 +63,8 @@ function ContractDisplay({
       symbol: "",
       amount: "",
       name: "",
+      vat: "",
+      wht: "",
     },
     is_completed: false,
     is_unlimited: false,
@@ -74,9 +79,12 @@ function ContractDisplay({
     // CHECKS IF CODE IS ENTERED, IF THE TOTAL AMOUNT IS MORE THAN
     // 0, AND IF THE AMOUNT IS AT MOST 15 DIGITS
     if (
-      (form.amounts.code.length && +form.amounts.amount > 0) ||
+      (form.amounts.code.length &&
+        +form.amounts.amount > 0 &&
+        +form.amounts.vat >= 0 &&
+        +form.amounts.vat <= 50) ||
       form.is_unlimited ||
-      form.amounts.amount.length < 16
+      form.amounts.amount.split(".")[0].length < 16
     ) {
       const checkDuplicate = currencyInputs.find(
         (item) => item.code === form.amounts.code
@@ -93,6 +101,7 @@ function ContractDisplay({
             ...form.amounts,
             amount: "",
             code: "",
+            vat: "",
           },
         });
         return;
@@ -111,6 +120,8 @@ function ContractDisplay({
             name: currency_list[currencyIndex].name,
             symbol: currency_list[currencyIndex].symbol,
             amount: form.is_unlimited ? "Unlimited" : form.amounts.amount,
+            vat: +form.amounts.vat,
+            wht: +form.amounts.wht,
           },
         ]);
 
@@ -253,6 +264,8 @@ function ContractDisplay({
           symbol: "",
           amount: "",
           name: "",
+          vat: "",
+          wht: "",
         },
         is_completed: false,
         is_unlimited: false,
@@ -270,6 +283,8 @@ function ContractDisplay({
     }
   };
 
+  console.log(data)
+  
   return (
     <section>
       <div className="flex items-end justify-between">
@@ -300,7 +315,7 @@ function ContractDisplay({
             }}
           >
             {/* DATE PICKER POPUP */}
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -318,7 +333,11 @@ function ContractDisplay({
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent
+                className="w-auto p-0"
+                align="start"
+                portal={false}
+              >
                 <Calendar
                   mode="single"
                   selected={contractDate ? new Date(contractDate) : undefined}
@@ -373,7 +392,7 @@ function ContractDisplay({
                 valueChange={(id) => setForm({ ...form, stage_id: id })}
                 placeholder="Select the project stage *"
                 label="Stages"
-                className="w-full sm:w-full mb-3"
+                className="w-full sm:w-full mb-3 selectForm"
               >
                 {stages
                   ? stages.map((item) => {
@@ -406,9 +425,9 @@ function ContractDisplay({
                       <p>{item.code}</p>
                       <div className="flex items-center gap-1">
                         <p className="capitalize">
-                          {item.amount !== "Unlimited"
-                            ? formatCurrency(+item.amount, item.code)
-                            : `${item.symbol} Unlimited`}
+                          {item.amount === "Unlimited"
+                            ? `${item.symbol} Unlimited`
+                            : formatCurrency(+item.amount, item.code)}
                         </p>
                         <button
                           className="hover:bg-lightText hover:text-darkText rounded-full duration-300"
@@ -442,7 +461,7 @@ function ContractDisplay({
                   value={form.amounts.code}
                   placeholder="Select a currency"
                   label="Currency"
-                  className="w-full"
+                  className="w-full selectForm"
                 >
                   {currency_list.map((item) => {
                     return (
@@ -463,6 +482,7 @@ function ContractDisplay({
                   type="number"
                   id="amount"
                   name="amount"
+                  min={0}
                   onChange={(e) =>
                     setForm({
                       ...form,
@@ -473,6 +493,56 @@ function ContractDisplay({
                     })
                   }
                   value={form.amounts.amount}
+                  disabled={form.is_unlimited}
+                />
+              </CustomInput>
+              <CustomInput
+                htmlFor="vat"
+                label="VAT (in percent %)"
+                className="mt-3"
+              >
+                <input
+                  className="form"
+                  type="number"
+                  step={0.1}
+                  min={0}
+                  id="vat"
+                  name="vat"
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      amounts: {
+                        ...form.amounts,
+                        vat: e.target.value,
+                      },
+                    })
+                  }
+                  value={form.amounts.vat}
+                  disabled={form.is_unlimited}
+                />
+              </CustomInput>
+              <CustomInput
+                htmlFor="wht"
+                label="WHT (in percent %)"
+                className="mt-3"
+              >
+                <input
+                  className="form"
+                  type="number"
+                  step={0.1}
+                  min={0}
+                  id="wht"
+                  name="wht"
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      amounts: {
+                        ...form.amounts,
+                        wht: e.target.value,
+                      },
+                    })
+                  }
+                  value={form.amounts.wht}
                   disabled={form.is_unlimited}
                 />
               </CustomInput>

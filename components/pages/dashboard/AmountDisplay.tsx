@@ -9,8 +9,8 @@ import KpiCard from "@/components/ui/cards/KpiCard";
 import Loading from "@/components/ui/loading/Loading";
 import {
   activeContractors,
-  averageContract,
   totalAmountPaid,
+  totalContract,
   totalPayments,
 } from "@/utils/kpi";
 import NotAvailable from "@/components/ui/NotAvailable";
@@ -84,7 +84,7 @@ function AmountDisplay({
         customStart,
         customEnd
       ),
-      averageContract(
+      totalContract(
         projects as unknown as Project[],
         selectedProject,
         selectedCurrency,
@@ -119,7 +119,7 @@ function AmountDisplay({
       visual: true,
     },
     {
-      title: "Average contract size",
+      title: "Contract size",
       symbol: currencySymbol,
       visual: true,
     },

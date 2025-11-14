@@ -1,4 +1,4 @@
-import { Amount, Contractor, Payment, Project } from "@/types/types";
+import { Contract, Contractor, Payment, Project } from "@/types/types";
 import { checkArray, totalSum } from "./currencies";
 import { versusLast } from "./dateAndTime";
 import { chartFormatCount } from "./chartHelpers";
@@ -281,6 +281,57 @@ export function averageContract(
   };
 }
 
+// GETS THE AVERAGE CONTRACT SIZE
+export function totalContract(
+  data: Project[],
+  project_id: string,
+  code: string,
+  period: string,
+  customStart?: string,
+  customEnd?: string
+) {
+  const contracts = data.find((item) => item.id === project_id)?.contracts;
+
+  const filter = contracts?.filter((item) =>
+    item.contract_amounts?.find((item) => item.code === code)
+  );
+
+  const prevAmounts: number[] = [];
+  const currentAmounts: number[] = [];
+
+  filter?.forEach((item) => {
+    if (item?.contract_amounts) {
+      if (period === "custom" && customStart?.length && customEnd?.length) {
+        versusLast(item?.date, period, customStart, customEnd).current &&
+          currentAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
+      } else {
+        versusLast(item?.date, period).prev &&
+          prevAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
+
+        versusLast(item?.date, period).current &&
+          currentAmounts.push(
+            Number(
+              item?.contract_amounts?.find((item) => item.code === code)?.amount
+            )
+          );
+      }
+    }
+  });
+
+  return {
+    previousAmount: prevAmounts.length ? totalSum(prevAmounts) : 0,
+    currentAmount: currentAmounts.length ? totalSum(currentAmounts) : 0,
+  };
+}
+
 // GETS ALL THE ACTIVE CONTRACTORS UNDER A PROJECT
 export function activeContractors(data: Project[], project_id: string) {
   const contractors = data.find((item) => item.id === project_id)?.contractors;
@@ -352,10 +403,10 @@ export function highestPaymentAmount(
   };
 }
 
-export function revisedContract(payments: Payment[], code: string) {
+export function revisedContract(contracts: Contract[], code: string) {
   const contract_amount: number[] = [];
 
-  payments[0]?.contracts?.contract_amounts?.forEach((amount) => {
+  contracts[0]?.contract_amounts?.forEach((amount) => {
     code === amount?.code && contract_amount.push(+amount?.amount);
   });
 
@@ -365,16 +416,17 @@ export function revisedContract(payments: Payment[], code: string) {
   };
 }
 
-export function contractPayments(payments: Payment[], code: string) {
+export function contractPayments(contracts: Contract[], code: string) {
   const payment_amount: number[] = [];
 
-  payments.forEach((payment) => {
-    const amount = checkArray(payment?.payment_amounts);
+  contracts.forEach((contract) => {
+    contract.payments.forEach((payment) => {
+      const amount = checkArray(payment?.payment_amounts);
 
-    amount &&
-      code === amount.code &&
-      payment.is_paid &&
-      payment_amount.push(+amount.amount);
+      code === amount?.code &&
+        payment.is_paid &&
+        payment_amount.push(+amount.amount);
+    });
   });
 
   return {
@@ -383,9 +435,9 @@ export function contractPayments(payments: Payment[], code: string) {
   };
 }
 
-export function totalBalance(payments: Payment[], code: string) {
-  const contract = revisedContract(payments, code);
-  const payment = contractPayments(payments, code);
+export function totalBalance(contracts: Contract[], code: string) {
+  const contract = revisedContract(contracts, code);
+  const payment = contractPayments(contracts, code);
 
   return {
     previousAmount: 0,
@@ -394,17 +446,18 @@ export function totalBalance(payments: Payment[], code: string) {
   };
 }
 
-export function totalPending(payments: Payment[], code: string) {
+export function totalPending(contracts: Contract[], code: string) {
   const payment_amount: number[] = [];
 
-  payments.forEach((payment) => {
-    const amount = checkArray(payment?.payment_amounts);
+  contracts.forEach((contract) => {
+    contract.payments.forEach((payment) => {
+      const amount = checkArray(payment?.payment_amounts);
 
-    amount &&
-      code === amount.code &&
-      !payment.is_completed &&
-      !payment.is_paid &&
-      payment_amount.push(+amount.amount);
+      code === amount?.code &&
+        !payment.is_completed &&
+        !payment.is_paid &&
+        payment_amount.push(+amount.amount);
+    });
   });
 
   return {
@@ -413,17 +466,18 @@ export function totalPending(payments: Payment[], code: string) {
   };
 }
 
-export function totalUnpaid(payments: Payment[], code: string) {
+export function totalUnpaid(contracts: Contract[], code: string) {
   const payment_amount: number[] = [];
 
-  payments.forEach((payment) => {
-    const amount = checkArray(payment?.payment_amounts);
+  contracts.forEach((contract) => {
+    contract.payments.forEach((payment) => {
+      const amount = checkArray(payment?.payment_amounts);
 
-    amount &&
-      code === amount.code &&
-      payment.is_completed &&
-      !payment.is_paid &&
-      payment_amount.push(+amount.amount);
+      code === amount?.code &&
+        payment.is_completed &&
+        !payment.is_paid &&
+        payment_amount.push(+amount.amount);
+    });
   });
 
   return {

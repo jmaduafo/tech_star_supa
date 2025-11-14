@@ -22,10 +22,9 @@ import { paymentColumns } from "@/components/ui/tables/columns";
 import DataTable from "@/components/ui/tables/DataTable";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { Amount, Contract, Payment, User } from "@/types/types";
+import { Amount, Contract, User } from "@/types/types";
 import { formatCurrency, upsertCurrency } from "@/utils/currencies";
 import { currency_list } from "@/utils/dataTools";
-import { optionalS } from "@/utils/optionalS";
 import { PaymentSchema } from "@/zod/validation";
 import { SelectItem } from "@/components/ui/select";
 import { format } from "date-fns";
@@ -36,12 +35,10 @@ import { toast } from "sonner";
 
 function PaymentDisplay({
   data,
-  contract,
   user,
 }: {
-  readonly data: Payment[] | undefined;
+  readonly data: Contract[] | undefined;
   readonly user: User | undefined;
-  readonly contract: Contract | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,18 +102,18 @@ function PaymentDisplay({
 
     setIsLoading(true);
 
-    if (!user || !project_id || !contractor_id || !contract) {
+    if (!user || !project_id || !contractor_id || !data) {
       return;
     }
 
     const values = {
       date: paymentDate,
-      stage_id: contract.stage_id,
+      stage_id: data[0].stage_id,
       bank_name: form.bank_name,
       currency: currencyInputs,
       is_completed: form.is_completed,
-      is_paid: !form.is_completed ? false : form.is_paid,
-      desc: contract.description,
+      is_paid: form.is_completed ? form.is_paid : false,
+      desc: data[0].description,
       comment: form.comment.length ? form.comment.trim() : null,
     };
 
@@ -146,7 +143,7 @@ function PaymentDisplay({
     } = result.data;
 
     try {
-      const { data, error } = await supabase
+      const { data: paymentData, error } = await supabase
         .from("payments")
         .insert({
           date,
@@ -154,7 +151,7 @@ function PaymentDisplay({
           contractor_id,
           stage_id,
           team_id: user.team_id,
-          contract_id: contract.id,
+          contract_id: data[0].id,
           description: desc,
           comment,
           bank_name,
@@ -175,7 +172,7 @@ function PaymentDisplay({
       const { error: amountError } = await supabase
         .from("payment_amounts")
         .insert({
-          payment_id: data.id,
+          payment_id: paymentData.id,
           symbol: currency[0].symbol,
           name: currency[0].name,
           code: currency[0].code,
@@ -194,9 +191,9 @@ function PaymentDisplay({
         .from("activities")
         .insert({
           description: `Added a new payment for contract ${
-            contract.contract_code
+            data[0].contract_code
           } ${
-            contract.projects ? "under project " + contract.projects.name : ""
+            data[0].projects ? "under project " + data[0].projects.name : ""
           }`.trim(),
           user_id: user.id,
           team_id: user.team_id,
@@ -212,14 +209,14 @@ function PaymentDisplay({
       }
 
       toast.success("Success!", {
-        description: `Payment for contract ${contract.contract_code} was added successfully`,
+        description: `Payment for contract ${data[0].contract_code} was added successfully`,
       });
 
       setForm({
         comment: "",
         bank_name: "",
-        stage_id: contract.stage_id,
-        desc: contract.description,
+        stage_id: data[0].stage_id,
+        desc: data[0].description,
         amounts: {
           code: "",
           symbol: "",
@@ -255,10 +252,10 @@ function PaymentDisplay({
           ) : null}
         </div>
         <div>
-          {!contract?.is_completed ? (
+          { data &&!data[0]?.is_completed ? (
             <AddButton
               title="payment"
-              desc={`Create a payment for contract ${contract?.contract_code}`}
+              desc={`Create a payment for contract ${data[0]?.contract_code}`}
               setOpen={setOpen}
               open={open}
             >
@@ -299,23 +296,23 @@ function PaymentDisplay({
                         setPaymentDate(normalized);
                       }}
                       disabled={(date: Date) =>
-                        contract?.date ? date < new Date(contract?.date) : true
+                        data[0]?.date ? date < new Date(data[0]?.date) : true
                       }
                       captionLayout="dropdown"
                     />
                   </PopoverContent>
                 </Popover>
                 {/* DESCRIPTION INPUT */}
-                {contract ? (
+                {data ? (
                   <CustomInput
                     htmlFor={"desc"}
                     label={"Description *"}
                     className="mb-3"
                   >
                     <input
-                      value={contract.description}
+                      value={data[0].description}
                       onChange={(e) =>
-                        setForm({ ...form, desc: contract.description })
+                        setForm({ ...form, desc: data[0].description })
                       }
                       className="form"
                       disabled
@@ -337,8 +334,8 @@ function PaymentDisplay({
                     label="Banks"
                     className="w-full mt-1.5"
                   >
-                    {contract?.bank_names
-                      ? contract.bank_names.map((item) => {
+                    {data[0]?.bank_names
+                      ? data[0].bank_names.map((item) => {
                           return (
                             <SelectItem
                               key={item}
@@ -355,16 +352,16 @@ function PaymentDisplay({
                   </SelectBar>
                 </CustomInput>
                 {/* ADD STAGES */}
-                {contract?.stages ? (
+                {data[0]?.stages ? (
                   <CustomInput
                     htmlFor={"stages"}
                     label={"Project stage *"}
                     className="mb-3"
                   >
                     <input
-                      value={contract.stages?.name}
+                      value={data[0].stages?.name}
                       onChange={(e) =>
-                        setForm({ ...form, stage_id: contract.stages?.id })
+                        setForm({ ...form, stage_id: data[0].stages?.id })
                       }
                       className="form"
                       disabled
@@ -409,8 +406,8 @@ function PaymentDisplay({
                       label="Currency"
                       className="w-full mt-1.5"
                     >
-                      {contract?.contract_amounts
-                        ? contract.contract_amounts?.map((item) => {
+                      {data[0]?.contract_amounts
+                        ? data[0].contract_amounts?.map((item) => {
                             return (
                               <SelectItem key={item.name} value={item.code}>
                                 {item.name}
@@ -501,14 +498,10 @@ function PaymentDisplay({
       </div>
       <div className="mt-4">
         {/* DISPLAY OF DATA TABLE WITH RENDERED DATA FROM BACKEND */}
-        {!data ? (
-          <div className="py-8 flex justify-center">
-            <Loading className="w-10 h-10" />
-          </div>
-        ) : (
+        {data ? (
           <DataTable
             columns={paymentColumns}
-            data={data}
+            data={data[0].payments}
             is_payment
             // DISPLAYS EXPORT BUTTON IF TRUE
             is_export
@@ -517,6 +510,10 @@ function PaymentDisplay({
             team_name={user ? user?.first_name : "My"}
             filterCategory="currency"
           />
+        ) : (
+          <div className="py-8 flex justify-center">
+            <Loading className="w-10 h-10" />
+          </div>
         )}
       </div>
     </section>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/UserContext";
-import { Amount, Contract, Payment, Versus } from "@/types/types";
+import { Amount, Contract, Versus } from "@/types/types";
 import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import {
@@ -29,7 +29,7 @@ import { currency_list } from "@/utils/dataTools";
 import KpiCard from "@/components/ui/cards/KpiCard";
 
 function MainPage() {
-  const [data, setData] = useState<Payment[] | undefined>();
+  const [data, setData] = useState<Contract[] | undefined>();
 
   const [currencyList, setCurrencyList] = useState<Amount[] | undefined>();
   const [kpis, setKpis] = useState<Versus[] | undefined>();
@@ -44,23 +44,25 @@ function MainPage() {
   const getData = async () => {
     try {
       if (!userData || !project_id || !contractor_id || !contract_id) {
+        console.log("Error")
         return;
       }
 
       const { data } = await supabase
-        .from("payments")
+        .from("contracts")
         .select(
-          `*, projects (name), contractors (name), stages ( id, name ), contracts (*, contract_amounts ( * )), payment_amounts (*)`
+          `*, contract_amounts ( * ), projects (name), contractors (name), stages ( id, name ), payments (*, payment_amounts (*))`
         )
         .eq("project_id", project_id)
         .eq("contractor_id", contractor_id)
-        .eq("contract_id", contract_id)
+        .eq("id", contract_id)
         .eq("team_id", userData.team_id)
         .throwOnError();
 
-      setData(data as Payment[]);
+      setData(data as Contract[]);
 
-      const contract_amounts = data[0]?.contracts?.contract_amounts;
+      console.log(data)
+      const contract_amounts = data[0]?.contract_amounts;
 
       if (contract_amounts) {
         setCurrencyList(contract_amounts);
@@ -82,7 +84,7 @@ function MainPage() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [userData, project_id, contractor_id, contract_id]);
 
   useEffect(() => {
     const channel = supabase
@@ -195,14 +197,14 @@ function MainPage() {
       <div className="">
         {data ? (
           <MainTitle
-            title={data[0].contracts?.contract_code ?? ""}
+            title={data[0]?.contract_code ?? ""}
             data={data}
           />
         ) : null}
         <div className="mb-3">
           {data ? (
             <Banner
-              text={data[0].contracts?.is_completed ? "completed" : "ongoing"}
+              text={data[0]?.is_completed ? "completed" : "ongoing"}
             />
           ) : null}
         </div>
@@ -232,7 +234,7 @@ function MainPage() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage>
-                  {data[0].contracts?.contract_code}
+                  {data[0]?.contract_code}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -273,7 +275,6 @@ function MainPage() {
       <PaymentDisplay
         user={userData}
         data={data}
-        contract={data && (data[0]?.contracts as Contract | undefined)}
       />
     </>
   );

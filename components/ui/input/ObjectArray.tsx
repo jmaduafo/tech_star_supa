@@ -14,7 +14,7 @@ function ObjectArray({ children, handleAdd, disabledLogic }: Input) {
       <div className="flex justify-end">
         <button
           type="button"
-          className={`mt-2 py-1 px-4 rounded-md border-none outline-none bg-darkText ${
+          className={`mt-2 py-1 px-4 rounded-md border-none outline-none bg-darkText text-lightText ${
             disabledLogic ? "opacity-50" : "hover:opacity-50"
           } duration-300`}
           onClick={handleAdd}

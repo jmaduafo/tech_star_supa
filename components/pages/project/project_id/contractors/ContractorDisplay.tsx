@@ -572,7 +572,7 @@ const ViewContractor = ({
       }
     })
 
-    setStagesData(stages as Stage[])
+    setStagesData(stages)
   };
 
   useEffect(() => {

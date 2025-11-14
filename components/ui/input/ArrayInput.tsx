@@ -26,7 +26,7 @@ function ArrayInput({
   const [value, setValue] = useState("");
 
   function handleAddInput() {
-    if (value.length && isNaN(+value)) {
+    if (value.length && Number.isNaN(+value)) {
       setInputs([...new Set([...inputs, value.toLowerCase().trim()])]);
       setValue("");
     }
@@ -46,7 +46,7 @@ function ArrayInput({
               className="flex items-center gap-2 py-0.5 px-3 text-[13.5px] bg-darkText text-lightText rounded-full"
             >
               <p className="capitalize whitespace-nowrap">{item}</p>
-              {!hideX ? (
+              {hideX ? null : (
                 <button
                   className="hover:bg-lightText hover:text-darkText rounded-full duration-300"
                   type="button"
@@ -54,7 +54,7 @@ function ArrayInput({
                 >
                   <X className="w-3 h-3" />
                 </button>
-              ) : null}
+              )}
             </div>
           );
         })}
@@ -78,7 +78,7 @@ function ArrayInput({
       <div className="flex justify-end">
         <button
           type="button"
-          className={`mt-2 py-1 px-4 rounded-md border-none outline-none bg-darkText ${
+          className={`mt-2 py-1 px-4 rounded-md border-none outline-none bg-darkText text-lightText ${
             disabledLogic ? "opacity-50" : "hover:opacity-50"
           } duration-300`}
           onClick={handleAddInput}

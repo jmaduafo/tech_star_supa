@@ -260,6 +260,8 @@ export const ContractSchema = z.object({
       amount: z.string().nonempty({
         message: "You must enter a currency amount.",
       }),
+      vat: z.nullable(z.float32().min(0).max(50)),
+      wht: z.nullable(z.float32().min(0).max(50)),
     })
     .array()
     .nonempty({

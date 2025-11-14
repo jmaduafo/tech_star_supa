@@ -165,8 +165,8 @@ export type Amount = {
   code: string;
   name: string;
   amount: string;
-  vat: number | null;
-  wht: number | null;
+  vat?: number | null;
+  wht?: number | null;
   contract_id?: string | null;
   payment_id?: string | null;
   contracts?: Contract;

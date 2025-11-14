@@ -384,7 +384,7 @@ function ProfileCard({
                     location: text,
                   }))
                 }
-                className="mt-1 w-full"
+                className="mt-1 w-full selectForm"
               >
                 {country_list.map((item) => {
                   return (
@@ -406,7 +406,7 @@ function ProfileCard({
                     job_title: text,
                   }))
                 }
-                className="mt-1 w-full"
+                className="mt-1 w-full selectForm"
               >
                 {job_titles.map((item) => {
                   return (

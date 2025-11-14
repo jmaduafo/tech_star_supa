@@ -104,6 +104,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "contract_amounts",
+          filter: `team_id=eq.${userData?.team_id}`
         },
         (payload) => getData()
       )
@@ -113,6 +114,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "payments",
+          filter: `team_id=eq.${userData?.team_id}`
         },
         (payload) => getData()
       )
@@ -122,6 +124,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "payment_amounts",
+          filter: `team_id=eq.${userData?.team_id}`
         },
         (payload) => getData()
       )
@@ -131,6 +134,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "stages",
+          filter: `team_id=eq.${userData?.team_id}`
         },
         (payload) => getData()
       )

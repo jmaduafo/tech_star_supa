@@ -44,7 +44,7 @@ function MainPage() {
   const getData = async () => {
     try {
       if (!userData || !project_id || !contractor_id || !contract_id) {
-        console.log("Error")
+        console.log("Error");
         return;
       }
 
@@ -59,9 +59,9 @@ function MainPage() {
         .eq("team_id", userData.team_id)
         .throwOnError();
 
-      setData(data as Contract[]);
+      setData(data as unknown as Contract[]);
 
-      console.log(data)
+      console.log(data);
       const contract_amounts = data[0]?.contract_amounts;
 
       if (contract_amounts) {
@@ -104,7 +104,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "contract_amounts",
-          filter: `team_id=eq.${userData?.team_id}`
+          filter: `team_id=eq.${userData?.team_id}`,
         },
         (payload) => getData()
       )
@@ -114,7 +114,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "payments",
-          filter: `team_id=eq.${userData?.team_id}`
+          filter: `team_id=eq.${userData?.team_id}`,
         },
         (payload) => getData()
       )
@@ -124,7 +124,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "payment_amounts",
-          filter: `team_id=eq.${userData?.team_id}`
+          filter: `team_id=eq.${userData?.team_id}`,
         },
         (payload) => getData()
       )
@@ -134,7 +134,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "stages",
-          filter: `team_id=eq.${userData?.team_id}`
+          filter: `team_id=eq.${userData?.team_id}`,
         },
         (payload) => getData()
       )
@@ -200,16 +200,11 @@ function MainPage() {
     <>
       <div className="">
         {data ? (
-          <MainTitle
-            title={data[0]?.contract_code ?? ""}
-            data={data}
-          />
+          <MainTitle title={data[0]?.contract_code ?? ""} data={data[0].payments} />
         ) : null}
         <div className="mb-3">
           {data ? (
-            <Banner
-              text={data[0]?.is_completed ? "completed" : "ongoing"}
-            />
+            <Banner text={data[0]?.is_completed ? "completed" : "ongoing"} />
           ) : null}
         </div>
       </div>
@@ -237,9 +232,7 @@ function MainPage() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>
-                  {data[0]?.contract_code}
-                </BreadcrumbPage>
+                <BreadcrumbPage>{data[0]?.contract_code}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -276,10 +269,7 @@ function MainPage() {
           })}
         </div>
       ) : null}
-      <PaymentDisplay
-        user={userData}
-        data={data}
-      />
+      <PaymentDisplay user={userData} data={data} />
     </>
   );
 }

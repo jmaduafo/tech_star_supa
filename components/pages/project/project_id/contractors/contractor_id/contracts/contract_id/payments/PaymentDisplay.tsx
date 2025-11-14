@@ -237,7 +237,7 @@ function PaymentDisplay({
       setIsLoading(false);
     }
   };
-  
+
   return (
     <section>
       <div className="flex items-end justify-between">
@@ -252,7 +252,7 @@ function PaymentDisplay({
           ) : null}
         </div>
         <div>
-          { data &&!data[0]?.is_completed ? (
+          {data && !data[0]?.is_completed ? (
             <AddButton
               title="payment"
               desc={`Create a payment for contract ${data[0]?.contract_code}`}
@@ -287,7 +287,11 @@ function PaymentDisplay({
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent
+                    className="w-auto p-0"
+                    align="start"
+                    portal={false}
+                  >
                     <Calendar
                       mode="single"
                       selected={paymentDate ? new Date(paymentDate) : undefined}
@@ -332,7 +336,7 @@ function PaymentDisplay({
                     value={form.bank_name}
                     placeholder="Select a bank"
                     label="Banks"
-                    className="w-full mt-1.5"
+                    className="w-full mt-1.5 selectForm"
                   >
                     {data[0]?.bank_names
                       ? data[0].bank_names.map((item) => {
@@ -403,8 +407,8 @@ function PaymentDisplay({
                       }
                       value={form.amounts.code}
                       placeholder="Select a currency"
-                      label="Currency"
-                      className="w-full mt-1.5"
+                      label="Currencies"
+                      className="w-full mt-1.5 selectForm"
                     >
                       {data[0]?.contract_amounts
                         ? data[0].contract_amounts?.map((item) => {

@@ -5,7 +5,6 @@ import { HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Hover = {
-  readonly mode: string;
   readonly requirements: {
     schema: string;
     description: string;
@@ -15,7 +14,7 @@ type Hover = {
   readonly setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   readonly open: boolean;
 };
-function BulkAddHoverCard({ mode, requirements, setOpen, open }: Hover) {
+function BulkAddHoverCard({ requirements, setOpen, open }: Hover) {
   return (
     <HoverCard open={open} onOpenChange={setOpen}>
       <HoverCardTrigger
@@ -32,22 +31,19 @@ function BulkAddHoverCard({ mode, requirements, setOpen, open }: Hover) {
           <div className="">
             <Paragraph text="Headers" className="underline" />
             <div>
-              {mode.toLowerCase() === "contractor"
-                ? requirements.map((item) => {
+              {requirements.map((item) => {
                     return (
                       <div key={item.schema} className="">
                         <Paragraph text={`${item.schema}`} />
                       </div>
                     );
-                  })
-                : null}
+                  })}
             </div>
           </div>
           <div>
             <Paragraph text="Type" className="underline" />
             <div>
-              {mode.toLowerCase() === "contractor"
-                ? requirements.map((item) => {
+              {requirements.map((item) => {
                     return (
                       <div key={item.schema} className="">
                         <Paragraph
@@ -56,15 +52,13 @@ function BulkAddHoverCard({ mode, requirements, setOpen, open }: Hover) {
                         />
                       </div>
                     );
-                  })
-                : null}
+                  })}
             </div>
           </div>
           <div>
             <Paragraph text="Description" className="underline" />
             <div>
-              {mode.toLowerCase() === "contractor"
-                ? requirements.map((item) => {
+              {requirements.map((item) => {
                     return (
                       <div key={item.schema} className="">
                         <Paragraph
@@ -73,15 +67,13 @@ function BulkAddHoverCard({ mode, requirements, setOpen, open }: Hover) {
                         />
                       </div>
                     );
-                  })
-                : null}
+                  })}
             </div>
           </div>
           <div>
             <Paragraph text="Row Expectations" className="underline" />
             <div>
-              {mode.toLowerCase() === "contractor"
-                ? requirements.map((item) => {
+              {requirements.map((item) => {
                     return (
                       <div key={item.schema} className="flex gap-1">
                         <Paragraph
@@ -90,8 +82,7 @@ function BulkAddHoverCard({ mode, requirements, setOpen, open }: Hover) {
                         />
                       </div>
                     );
-                  })
-                : null}
+                  })}
             </div>
           </div>
         </div>

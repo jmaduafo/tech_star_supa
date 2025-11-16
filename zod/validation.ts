@@ -104,7 +104,9 @@ export const PasswordValidation = z.object({
 export const CreateProjectSchema = z.object({
   name: z.string().min(1, { message: "You must enter a name." }),
   country: z.string().min(1, { message: "You must select a country." }),
-  description: z.string().min(1, { message: "You must write a description of the project" }),
+  description: z
+    .string()
+    .min(1, { message: "You must write a description of the project" }),
   city: z.nullable(z.string()),
   month: z.string().min(1, { message: "You must select a month." }),
   year: z
@@ -150,7 +152,10 @@ export const EditProjectSchema = z.object({
 });
 
 export const StagesSchema = z.object({
-  name: z.string().min(1, { message: "You must enter a name for this stage." }).max(40),
+  name: z
+    .string()
+    .min(1, { message: "You must enter a name for this stage." })
+    .max(40),
   description: z
     .string()
     .min(1, { message: "You must enter a name for this stage." })
@@ -306,3 +311,45 @@ export const PaymentSchema = z.object({
     }),
   comment: z.nullable(z.string()),
 });
+
+export const PaymentFileSchema = (banks: string[], desc: string) => {
+  z.object({
+    description: z
+      .string()
+      .min(1, { message: "You must enter a description for this payment." })
+      .max(70)
+      .transform((val) => (val.trim() === "" ? desc : val)),
+    date: z.date(),
+    bank_name: z
+      .string()
+      .max(40)
+      .refine((val) => banks.includes(val.toLowerCase().trim()), {
+        message: "The bank name entered is not included for this contract",
+      }),
+    is_completed: z.boolean(),
+    is_paid: z.boolean(),
+    currency: z
+      .object({
+        code: z.string().nonempty({
+          message: "You must enter a currency code.",
+        }),
+        name: z.string().nonempty({
+          message: "You must enter a currency name.",
+        }),
+        symbol: z.string().nonempty({
+          message: "You must enter a currency symbol.",
+        }),
+        amount: z.string().nonempty({
+          message: "You must enter a currency amount.",
+        }),
+      })
+      .array()
+      .nonempty({
+        message: "You must enter a currency and amount.",
+      }),
+    comment: z
+      .string()
+      .transform((val) => (val.trim() === "" ? null : val))
+      .nullable(),
+  });
+};

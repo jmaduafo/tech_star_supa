@@ -42,7 +42,7 @@ type BulkAddProps = {
   readonly open?: boolean;
   readonly loading: boolean;
   readonly handleSubmit: () => void;
-  readonly mode: string;
+  readonly mode: "contractor" | "payment";
   readonly maxSize?: number;
 };
 
@@ -211,10 +211,50 @@ function BulkAdd({
     ],
     payment: [
       {
-        schema: "",
-        type: "",
+        schema: "date",
+        type: "date",
+        description: "Expected date of payment",
+        validation: "MM-DD-YYYY format",
+        dummy: "06-21-2025",
+        dummy2: "09-04-2024",
+      },
+      {
+        schema: "bank_name",
+        type: "text",
+        description: "The city location of contractor",
+        validation: "No more than 40 char.",
+        dummy: "Bank of America",
+        dummy2: "Chase",
+      },
+      {
+        schema: "description",
+        type: "text",
+        description: "Purpose of payment",
+        validation: "Not required; Max length of 70 char.",
+        dummy: "Appointment through concept design",
+        dummy2: "",
+      },
+      {
+        schema: "is_completed",
+        type: "boolean",
+        description: "Notes if payment is completed or pending",
+        validation: "Must be TRUE or FALSE",
+        dummy: "TRUE",
+        dummy2: "TRUE",
+      },
+      {
+        schema: "is_paid",
+        type: "boolean",
+        description: "Notes if payment is paid or unpaid",
+        validation: "Must be TRUE or FALSE",
+        dummy: "TRUE",
+        dummy2: "FALSE",
+      },
+      {
+        schema: "comment",
+        type: "text",
         description: "Additional info",
-        validation: "Not required",
+        validation: "Not required; Max length of 70 char",
         dummy: "Expecting a zoom call next Tuesday",
         dummy2: "",
       },
@@ -224,7 +264,7 @@ function BulkAdd({
   function switchRequirements() {
     if (mode.toLowerCase() === "contractor") {
       return requirements.contractor;
-    } else if (mode.toLowerCase() === "payment") {
+    } else {
       return requirements.payment;
     }
   }
@@ -270,8 +310,7 @@ function BulkAdd({
           <div className="flex items-center">
             <Paragraph text="Requirements" className="text-darkText" />
             <BulkAddHoverCard
-              mode={mode}
-              requirements={switchRequirements() ?? []}
+              requirements={switchRequirements()}
               open={hoverOpen}
               setOpen={setHoverOpen}
             />
@@ -397,7 +436,30 @@ function BulkAdd({
                         </div>
                       );
                     })
-                  : null}
+                  : requirements.payment.map((item) => {
+                      return (
+                        <div key={item.schema}>
+                          <div className="flex items-center px-2 h-8 min-w-28 border-t border-r border-r-darkText/20 border-t-darkText/20 bg-lightText/30">
+                            <Paragraph
+                              text={item.schema}
+                              className="whitespace-nowrap font-medium text-darkText/80"
+                            />
+                          </div>
+                          <div className="flex items-center px-2 h-8 min-w-28 border-t border-r border-r-darkText/20 border-t-darkText/20 bg-lightText/30">
+                            <Paragraph
+                              text={item.dummy}
+                              className="whitespace-nowrap text-darkText/75"
+                            />
+                          </div>
+                          <div className="flex items-center px-2 h-8 min-w-28 border-t border-r border-r-darkText/20 border-t-darkText/20 bg-lightText/30">
+                            <Paragraph
+                              text={item.dummy2}
+                              className="whitespace-nowrap text-darkText/75"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
               </div>
             </div>
           )}

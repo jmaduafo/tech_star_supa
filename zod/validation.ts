@@ -1,3 +1,4 @@
+import { currency_list } from "@/utils/dataTools";
 import { z } from "zod";
 
 export const CreateUserSchema = z.object({
@@ -328,25 +329,15 @@ export const PaymentFileSchema = (banks: string[], desc: string) => {
       }),
     is_completed: z.boolean(),
     is_paid: z.boolean(),
-    currency: z
-      .object({
-        code: z.string().nonempty({
-          message: "You must enter a currency code.",
-        }),
-        name: z.string().nonempty({
-          message: "You must enter a currency name.",
-        }),
-        symbol: z.string().nonempty({
-          message: "You must enter a currency symbol.",
-        }),
-        amount: z.string().nonempty({
-          message: "You must enter a currency amount.",
-        }),
-      })
-      .array()
-      .nonempty({
-        message: "You must enter a currency and amount.",
+    currency_code: z
+      .string()
+      .min(3, { message: "You must enter a currency code this payment." })
+      .max(3)
+      .transform((val) => (val.toUpperCase()))
+      .refine((val) => currency_list.find(item => item.code.includes(val)), {
+        message: "The currency code entered is not valid",
       }),
+    amount: z.coerce.number().int().gt(0).lt(1000000000000),
     comment: z
       .string()
       .transform((val) => (val.trim() === "" ? null : val))

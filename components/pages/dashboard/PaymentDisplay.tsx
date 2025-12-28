@@ -47,6 +47,8 @@ function PaymentDisplay({
     setData(orderedPayment.slice(0, 5));
   };
 
+  console.log(data)
+
   useEffect(() => {
     getLatest();
   }, [projects, selectedProject]);

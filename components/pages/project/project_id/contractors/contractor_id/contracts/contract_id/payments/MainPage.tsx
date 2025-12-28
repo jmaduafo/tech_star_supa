@@ -51,7 +51,7 @@ function MainPage() {
       const { data } = await supabase
         .from("contracts")
         .select(
-          `*, contract_amounts ( * ), projects (name), contractors (name), stages ( id, name ), payments (*, payment_amounts (*))`
+          `*, contract_amounts ( * ), projects (name), contractors (name), stages ( id, name ), payments (*, stages (name), projects (name), contractors (name), contracts (contract_code), payment_amounts (*))`
         )
         .eq("project_id", project_id)
         .eq("contractor_id", contractor_id)
@@ -95,6 +95,7 @@ function MainPage() {
           event: "*",
           schema: "public",
           table: "contracts",
+          filter: `team_id=eq.${userData?.team_id}`,
         },
         (payload) => getData()
       )

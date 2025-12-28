@@ -124,7 +124,7 @@ function MainPage() {
         supabase
           .from("projects")
           .select(
-            "id, name, contractors ( *, projects ( name ), payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts (id, contract_amounts (*)), stage_contractors (*, stages ( id, name ))), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, payment_amounts ( * ) ), stages (id) "
+            "id, name, contractors ( *, projects ( name ), payments ( id, date, is_paid, is_completed, payment_amounts ( * )), contracts (id, contract_amounts (*)), stage_contractors (*, stages ( id, name ))), contracts ( id, contract_code, date, is_completed, contract_amounts ( * ) ), payments ( *, projects (name), contractors (name), stages (name), contracts (contract_code), payment_amounts ( * ) ), stages (id) "
           )
           .eq("team_id", userData.team_id)
           .order("created_at", { ascending: false })

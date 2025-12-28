@@ -49,7 +49,7 @@ function KpiCard({ item, arr, index, period }: Kpi) {
         )}
       <div
         className={`${
-          +arr[index].currentAmount < 0
+          +arr[index].currentAmount < 0 || (item.title.toLowerCase().includes("unpaid") && +arr[index].currentAmount > 0)
             ? "text-decrease"
             : "text-darkText"
         } font-light mt-auto flex items-start justify-end gap-1`}

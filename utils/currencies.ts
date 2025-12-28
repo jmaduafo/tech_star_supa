@@ -8,15 +8,15 @@ export function convertCurrency(labelValue: number) {
   // IF LENGTH IS 6 OR MORE, INCLUDING "." (ex. 290.78), CHANGE TO
   // 1 DECIMAL PLACE INSTEAD
   if (Math.abs(Number(labelValue)) >= 1e9) {
-    output += (Math.abs(Number(labelValue)) / 1e9).toFixed(2) + "B"
+    output += (Number(labelValue) / 1e9).toFixed(2) + "B"
   } else if (Math.abs(Number(labelValue)) >= 1e6) {
-    output += (Math.abs(Number(labelValue)) / 1e6).toFixed(2) + "M";
+    output += (Number(labelValue) / 1e6).toFixed(2) + "M";
   } else if (Math.abs(Number(labelValue)) >= 1e3) {
-    output += (Math.abs(Number(labelValue)) / 1e3).toFixed(2) + "K";
+    output += (Number(labelValue) / 1e3).toFixed(2) + "K";
   } else if (Math.abs(Number(labelValue)).toFixed(2).length >= 6) {
-    output += Math.abs(Number(labelValue)).toFixed(2);
+    output += Number(labelValue).toFixed(2);
   } else {
-    output += Math.abs(Number(labelValue));
+    output += Number(labelValue);
   }
 
   return output;

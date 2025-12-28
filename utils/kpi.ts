@@ -439,6 +439,9 @@ export function totalBalance(contracts: Contract[], code: string) {
   const contract = revisedContract(contracts, code);
   const payment = contractPayments(contracts, code);
 
+  console.log(contract.currentAmount, payment.currentAmount)
+  console.log(contract.currentAmount - payment.currentAmount)
+
   return {
     previousAmount: 0,
     currentAmount:

@@ -61,7 +61,6 @@ function MainPage() {
 
       setData(data as unknown as Contract[]);
 
-      console.log(data);
       const contract_amounts = data[0]?.contract_amounts;
 
       if (contract_amounts) {
@@ -172,7 +171,7 @@ function MainPage() {
       className: "",
     },
     {
-      title: "Contract payment total",
+      title: "Total paid",
       symbol: selectedSymbol,
       visual: false,
       className: "md:col-span-2 xl:col-span-1",

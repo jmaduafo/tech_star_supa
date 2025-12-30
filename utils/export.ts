@@ -19,15 +19,16 @@ export function downloadToExcel(
         { label: "CONTRACT CODE", value: (row) => row.contract_code ?? "--" },
         { label: "DATE", value: (row) => formatDate(row.date as string) },
         { label: "DESCRIPTION", value: "description" },
-        { label: "PROJECT NAME", value: "project_name" },
+        { label: "PROJECT NAME", value: (row) => typeof row.projects === "string" as string },
         { label: "CONTRACTOR NAME", value: "contractor_name" },
         { label: "STAGE", value: "stage_name" },
         {
           label: "BANK NAME",
-          value: (row) =>
-            row.bank_name && typeof row.bank_name === "string"
-              ? row.bank_name.charAt(0).toUpperCase() + row.bank_name.slice(1)
-              : "",
+          value: (row) => 
+              row.bank_name && typeof row.bank_name === "string" && payment
+                ? row.bank_name.charAt(0).toUpperCase() + row.bank_name.slice(1)
+                : ""
+          
         },
         {
           label: "CURRENCY NAME",

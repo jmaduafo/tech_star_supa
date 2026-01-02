@@ -1,6 +1,17 @@
+## Description
+
+Tools: Next.js, TypeScript, Supabase, Tailwind CSS, Shadcn UI, Recharts,Figma
+
 ## Demo
 
-https://github.com/user-attachments/assets/f52e1099-8931-44c2-ab91-b5389870c5c4
+https://github.com/user-attachments/assets/6cd8afc2-1ec9-48ae-af6e-0caf6f7aa1a3
+
+https://github.com/user-attachments/assets/1a4e2fd7-d92a-4fd4-843f-d6a5d14fc917
+
+https://github.com/user-attachments/assets/429bad0e-5a83-4150-a7f0-a257328277e0
+
+https://github.com/user-attachments/assets/7d171335-7c9c-4cce-a111-b1d0d493e00e
+
 
 
 

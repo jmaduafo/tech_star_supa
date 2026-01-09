@@ -370,9 +370,6 @@ export function paymentPieCurrencyChart(
   // Filter only the paid payments
   const paymentsFilter = payments.filter((item) => item.is_paid);
 
-  console.log(currencies)
-  console.log(paymentsFilter)
-
   currencies.forEach((currency, i) => {
     data.push({ name: currency.name, paymentCount: 0 });
 

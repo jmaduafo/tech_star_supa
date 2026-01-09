@@ -22,7 +22,7 @@ function CustomDate({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex gap-1 items-center font-light text-darkText bg-lightText/60 hover:bg-lightText/80 duration-300 px-6 py-2.5 rounded-full">
+        <button className="text-sm lg:text-base flex gap-1 items-center font-light text-darkText bg-lightText/60 hover:bg-lightText/80 duration-300 px-6 py-2.5 rounded-full">
           {dateRange?.from && dateRange?.to
             ? dateRange.from.toLocaleDateString() +
               " - " +

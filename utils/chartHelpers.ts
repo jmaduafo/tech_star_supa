@@ -367,24 +367,22 @@ export function paymentPieCurrencyChart(
 ) {
   const data: any[] = [];
 
+  // Filter only the paid payments
   const paymentsFilter = payments.filter((item) => item.is_paid);
 
+  console.log(currencies)
+  console.log(paymentsFilter)
+
   currencies.forEach((currency, i) => {
-    const index = data.findIndex((item) => item.name === currency.name);
+    data.push({ name: currency.name, paymentCount: 0 });
 
-    if (index === -1) {
-      data.push({ name: currency.name, paymentCount: 0 });
+    paymentsFilter.forEach((item) => {
+      const amounts = checkArray(item.payment_amounts);
 
-      paymentsFilter.forEach((item) => {
-        const amounts = Array.isArray(item.payment_amounts)
-          ? item.payment_amounts[0]
-          : item.payment_amounts;
-
-        if (amounts) {
-          amounts.name === currency.name && data[i]["paymentCount"]++;
-        }
-      });
-    }
+      if (amounts && amounts.name === currency.name) {
+        data[i].paymentCount++;
+      }
+    });
   });
 
   return data;
@@ -462,6 +460,10 @@ export function contractorPieStageChart(data: StageContractor[]) {
   data.forEach((item) => {
     const stage = checkArray(item.stages);
     const contractor = checkArray(item.contractors);
+
+    if (!stage || !contractor) {
+      return;
+    }
 
     const index = chart.findIndex((ch) => ch.name === stage.name);
 

@@ -13,6 +13,7 @@ import {
   User,
 } from "@/types/types";
 import {
+  getUniqueObjects,
   paymentPieContractChart,
   paymentPieContractorChart,
   paymentPieCurrencyChart,
@@ -43,7 +44,7 @@ function PaymentPie({
   const [stageData, setStageData] = useState<any[] | undefined>();
 
   const getData = async () => {
-    if (!project_id || !projects) {
+    if (!project_id || !projects || !currencies) {
       return;
     }
 
@@ -53,16 +54,6 @@ function PaymentPie({
       return;
     }
 
-    const currency: Amount[] = [];
-
-    project.payments?.forEach((item) => {
-      const amount = Array.isArray(item.payment_amounts)
-        ? item.payment_amounts[0]
-        : item.payment_amounts;
-
-      currency.push(amount as Amount);
-    });
-
     const contracts = project.contracts;
     const payments = project.payments;
     const contractors = project.contractors;
@@ -70,7 +61,7 @@ function PaymentPie({
 
     const currencyChart = paymentPieCurrencyChart(
       project_id,
-      currency,
+      currencies,
       payments as Payment[]
     );
     const contractChart = paymentPieContractChart(
@@ -97,11 +88,7 @@ function PaymentPie({
 
   useEffect(() => {
     getData();
-  }, [project_id]);
-
-  useEffect(() => {
-    getData();
-  }, [value]);
+  }, [project_id, value]);
 
   const switchCharts = () => {
     if (!currencyData || !stageData || !contractorData || !contractData) {
@@ -147,8 +134,8 @@ function PaymentPie({
           </div>
           <div className="mt-auto">
             <PieChartHeading
-              text={`Paid Payments by ${value !== "Currency" ? value.slice(0,-1) : value}`}
-              subtext={`Showing count of paid payments under each ${value !== "Currency" ? value.slice(0,-1).toLowerCase() : value}`}
+              text={`Paid Payments by ${value === "Currency" ? value : value.slice(0,-1)}`}
+              subtext={`Showing count of paid payments under each ${value === "Currency" ? value : value.slice(0,-1).toLowerCase()}`}
             />
           </div>
         </div>

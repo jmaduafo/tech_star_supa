@@ -1,6 +1,8 @@
 ## Description
 
-Tools: Next.js, TypeScript, Supabase, Tailwind CSS, Shadcn UI, Recharts,Figma
+Tools: Next.js, TypeScript, Supabase, Tailwind CSS, Shadcn UI, Recharts, Figma
+
+Techstar is a lightweight finance management application designed to streamline how contractors record payments and manage financial data. It reduces manual data entry by organizing payments and contracts in one centralized system while generating clear, real-time visual reports that make financial information easier to track and analyze.
 
 ## Demo
 
@@ -12,7 +14,9 @@ https://github.com/user-attachments/assets/429bad0e-5a83-4150-a7f0-a257328277e0
 
 https://github.com/user-attachments/assets/7d171335-7c9c-4cce-a111-b1d0d493e00e
 
-
+- Fixed pie chart data bug in Reports page
+  
+https://github.com/user-attachments/assets/4e171bac-226d-4b5f-aae9-cad743333404
 
 
 <a href="https://demo-nextjs-with-supabase.vercel.app/">

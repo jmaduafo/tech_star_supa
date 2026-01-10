@@ -223,7 +223,7 @@ function MainPage() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col-reverse gap-5 lg:flex-row justify-between items-start mb-1">
-        <div className="w-full">
+        <div className="w-full lg:w-auto">
           {greet.length && userData ? (
             <Header2 text={`Good ${greet}, ${userData?.first_name}`} />
           ) : (

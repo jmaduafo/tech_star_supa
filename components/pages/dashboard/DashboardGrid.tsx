@@ -55,7 +55,7 @@ function DashboardGrid({
     "
     >
       {/* Greeting */}
-      <div className="w-full bg-black [grid-area:greeting] grid grid-cols-3 xl:flex xl:flex-col gap-3">
+      <div className="w-full [grid-area:greeting] grid grid-cols-3 xl:flex xl:flex-col gap-3">
         <Card className="col-span-3 md:col-span-2 h-auto xl:h-[75%]">
           <TopContractors
             projects={projects}

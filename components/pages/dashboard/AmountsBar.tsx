@@ -57,7 +57,7 @@ function AmountsBar({
                 subtext="Bar chart display of payments against contracts"
               />
             </div>
-            <div className="mt-auto h-[70%] w-full">
+            <div className="mt-auto h-[35vh] xl:h-[70%] w-full">
               <BarChart
                 data={data}
                 dataArray={["contracts", "payments"]}

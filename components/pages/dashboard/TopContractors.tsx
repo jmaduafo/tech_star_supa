@@ -74,7 +74,7 @@ function TopContractors({
             <Header5 text="Top Paid Contractors" />
             <p className="text-xs -translate-y-1">Max. 5</p>
           </div>
-          <div className="mt-auto h-[60%] w-full">
+          <div className="mt-auto h-[25vh] xl:h-[60%] w-full">
             <VerticalBarChart
               data={data}
               format

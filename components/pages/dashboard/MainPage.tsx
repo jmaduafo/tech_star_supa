@@ -223,7 +223,7 @@ function MainPage() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col-reverse gap-5 lg:flex-row justify-between items-start mb-1">
-        <div>
+        <div className="w-full">
           {greet.length && userData ? (
             <Header2 text={`Good ${greet}, ${userData?.first_name}`} />
           ) : (
@@ -231,7 +231,7 @@ function MainPage() {
           )}
           {typeof progressPercent === "number" ? (
             <div className="flex items-center gap-3 mt-2">
-              <Progress value={progressPercent} className="w-96 " />
+              <Progress value={progressPercent} className="flex-1 lg:flex-initial lg:w-96" />
               <Paragraph text={`${progressPercent}%`} />
             </div>
           ) : (
